@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <csignal>
+#include <filesystem>
 
 #include "TcpConnection.h"
 #include "HttpRequestHeader.h"
@@ -27,17 +29,23 @@ private:
     void accept();
     std::optional<HttpRequestHeader> read(TcpConnection& connection);
     HttpResponseHeader &completeResponse(HttpResponseHeader &response, const HttpRequestHeader &request);
-    HttpResponseHeader handleRequest(const HttpRequestHeader& request);
-    HttpResponseHeader handleEndpoint(const HttpRequestHeader& request);
-    HttpResponseHeader handleFile(const HttpRequestHeader& request);
+    HttpResponseHeader handleRequest(HttpRequestHeader& request);
+    HttpResponseHeader handleEndpoint(HttpRequestHeader& request);
+    HttpResponseHeader handleFile(HttpRequestHeader& request);
     void write(TcpConnection& connection, const HttpResponseHeader& response);
 
-    static void handleSignal(int signal);
+    static void handleSignal(int signum, siginfo_t *info, void *context);
+    void hotReload();
+    void stopServer();
 
     static std::unique_ptr<TcpServer> m_instance;
 
     int m_socket;
-    static bool m_running;
+
+    static volatile std::sig_atomic_t m_signal;
+    int m_pipeFD = -1;
+    
+    bool m_running = true;
 
     typedef std::string Endpoint;
     typedef std::string Method;

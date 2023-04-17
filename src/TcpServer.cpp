@@ -8,29 +8,55 @@
 #include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <thread>
 #include <netdb.h>
 #include <cstring>
-#include "signal.h"
+#include <signal.h>
 
 #include <fstream>
 #include <sstream>
 
 #include <dlfcn.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <filesystem>
 
 std::unique_ptr<TcpServer> TcpServer::m_instance = nullptr;
-bool TcpServer::m_running = true;
+volatile std::sig_atomic_t TcpServer::m_signal = -1;
 
 TcpServer& TcpServer::getInstance(const std::string& address, const std::string& port) {
-    if (!m_instance) {
+    if (!m_instance)
         m_instance = std::unique_ptr<TcpServer>(new TcpServer(address, port));
-    }
     return *m_instance;
 }
 
 TcpServer::TcpServer(const std::string& address, const std::string& port) {
-    // Better handling when quitting the server?
-    // signal(SIGINT, TcpServer::handleSignal);
+    std::thread(&TcpServer::hotReload, this).detach();
+    std::thread(&TcpServer::stopServer, this).detach();
+    struct sigaction sa;
+    sa.sa_sigaction = &TcpServer::handleSignal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_SIGINFO;
+    
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("sigaction");
+        exit(1);
+    }
+    if (sigaction(SIGUSR1, &sa, NULL) == -1) {
+        perror("sigaction");
+        exit(1);
+    }
+
+    const char *fifo_path = "/tmp/fifo";
+
+    if (mkfifo(fifo_path, 0666) == -1 && errno != EEXIST) {
+        std::cerr << "Failed to create named pipe." << std::endl;
+        return;
+    }
+
+    m_pipeFD = open(fifo_path, O_RDONLY); // Open in non-blocking mode
+
     addrinfo hints;
     addrinfo* result;
     memset(&hints, 0, sizeof(hints));
@@ -63,9 +89,11 @@ TcpServer::TcpServer(const std::string& address, const std::string& port) {
 }
 
 TcpServer::~TcpServer() {
+    std::cout << "Closing server" << std::endl;
     for (auto& lib : m_endpointLibs)
         dlclose(lib.second);
     close(m_socket);
+    close(m_pipeFD);
 }
 
 void TcpServer::run() {
@@ -78,7 +106,7 @@ void TcpServer::accept() {
     sockaddr_in client;
     socklen_t clientSize = sizeof(client);
     int clientSocket = ::accept(m_socket, (sockaddr*)&client, &clientSize);
-    if (clientSocket == -1)
+    if (clientSocket == -1 && errno != EINTR)
         throw std::runtime_error("accept() failed");
     std::cout << "New connection" << std::endl;
 
@@ -122,41 +150,45 @@ HttpResponseHeader &TcpServer::completeResponse(HttpResponseHeader &response, co
     return response;
 }
 
-HttpResponseHeader TcpServer::handleRequest(const HttpRequestHeader &request) {
-
+HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
+    // TODO: Handle parematerized paths
+    // TODO: Handle request parameters
     if (request.getMethod() == "get" && !utils::getExtension(request.getPath()).empty()) {
+        request.setPath("/public" + request.getPath());
+        if (!request.isPathValid())
+            return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
+        std::cout << "Canonical path: " << request.getCanonicalPath() << std::endl;
         HttpResponseHeader response = handleFile(request);
         completeResponse(response, request);
         return response;
     }
+    request.setPath("/endpoints" + request.getPath() + "/index.so");
+    if (!request.isPathValid())
+        return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
+    std::cout << "Canonical path: " << request.getCanonicalPath() << std::endl;
     HttpResponseHeader response = handleEndpoint(request);
     completeResponse(response, request);
     return response;
 }
 
-HttpResponseHeader TcpServer::handleEndpoint(const HttpRequestHeader &request) {
-    // Get environment path and append the requested path
-    std::string newPath = "endpoints" + request.getPath() + "libindex.so";
-    // TODO: Handle parematerized paths
-    // TODO: Handle request parameter
-    std::cout << "New path: " << newPath << std::endl;
-    if (m_endpointHandlers.find(request.getPath()) != m_endpointHandlers.end() &&
-        m_endpointHandlers[request.getPath()].find(request.getMethod()) != m_endpointHandlers[request.getPath()].end()) {
-        endpoint_t endpoint = m_endpointHandlers[request.getPath()][request.getMethod()];
+HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
+    if (m_endpointHandlers.find(request.getCanonicalPath()) != m_endpointHandlers.end() &&
+        m_endpointHandlers[request.getCanonicalPath()].find(request.getMethod()) != m_endpointHandlers[request.getCanonicalPath()].end()) {
+        endpoint_t endpoint = m_endpointHandlers[request.getCanonicalPath()][request.getMethod()];
         return endpoint(request);
     }
-    void* lib = nullptr;
-    if (m_endpointLibs.find(request.getPath()) != m_endpointLibs.end()) {
-        lib = m_endpointLibs[request.getPath()];
+    void *lib = nullptr;
+    if (m_endpointLibs.find(request.getCanonicalPath()) != m_endpointLibs.end()) {
+        lib = m_endpointLibs[request.getCanonicalPath()];
     } else {
-        lib = dlopen(newPath.c_str(), RTLD_LAZY);
+        lib = dlopen(request.getCanonicalPath().c_str(), RTLD_LAZY);
         if (!lib) {
             std::cerr << "Cannot open library: " << dlerror() << '\n';
             HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
             response.setHeader("Content-Type", "text/html");
             return response;
         }
-        m_endpointLibs[request.getPath()] = lib;
+        m_endpointLibs[request.getCanonicalPath()] = lib;
     }
     // Load the symbols
     endpoint_t endpoint = (endpoint_t) dlsym(lib, request.getMethod().c_str());
@@ -173,7 +205,7 @@ HttpResponseHeader TcpServer::handleEndpoint(const HttpRequestHeader &request) {
     try {
         response = endpoint(request);
         // Cache the endpoint
-        m_endpointHandlers[request.getPath()][request.getMethod()] = endpoint;
+        m_endpointHandlers[request.getCanonicalPath()][request.getMethod()] = endpoint;
         return response;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << '\n';
@@ -184,10 +216,8 @@ HttpResponseHeader TcpServer::handleEndpoint(const HttpRequestHeader &request) {
     }
 }
 
-HttpResponseHeader TcpServer::handleFile(const HttpRequestHeader &response) {
-    std::string path = "public" + response.getPath();
-    std::cout << path << std::endl;
-    std::ifstream file(path, std::ios::binary);
+HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
+    std::ifstream file(request.getCanonicalPath().c_str(), std::ios::binary);
     if (!file.is_open()) {
         HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
         response.setHeader("Content-Type", "text/html");
@@ -197,12 +227,12 @@ HttpResponseHeader TcpServer::handleFile(const HttpRequestHeader &response) {
     file.seekg(0, std::ios::end);
     const std::streamsize filesize = file.tellg();
     file.seekg(0, std::ios::beg);
-    HttpResponseHeader reponse("HTTP/1.1", "200", "OK", "OK");
-    reponse.setHeader("Content-Type", utils::getContentType(path));
+    HttpResponseHeader response("HTTP/1.1", "200", "OK", "OK");
+    response.setHeader("Content-Type", utils::getContentType(request.getCanonicalPath()));
     std::stringstream ss;
     ss << file.rdbuf();
-    reponse.setBody(ss.str());
-    return reponse;
+    response.setBody(ss.str());
+    return response;
 }
 
 void TcpServer::write(TcpConnection& connection, const HttpResponseHeader& response) {
@@ -232,6 +262,41 @@ void TcpServer::write(TcpConnection& connection, const HttpResponseHeader& respo
     // }
 }
 
-void TcpServer::handleSignal(int signal) {
-    m_running = false;
+void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
+    m_signal = signum;
+}
+
+void TcpServer::hotReload() {
+    while (true) {
+        if (m_signal == SIGUSR1) {
+            char hotReloaded_path[1024];
+            ssize_t n_read = ::read(m_pipeFD, hotReloaded_path, sizeof(hotReloaded_path));
+            if (n_read == -1) {
+                perror("read");
+                std::cerr << "Failed to read data from named pipe." << std::endl;
+                continue;
+            }
+            hotReloaded_path[n_read] = '\0';
+
+            std::filesystem::path path(hotReloaded_path);
+            path.replace_extension(".so");
+            std::string canonical = std::filesystem::canonical(path);
+            if (m_endpointLibs.find(canonical) != m_endpointLibs.end())
+                dlclose(m_endpointLibs[canonical]);
+            void *lib = dlopen(canonical.c_str(), RTLD_LAZY);
+            if (!lib) {
+                std::cerr << "Cannot open library: " << dlerror() << '\n';
+                continue;
+            }
+            m_endpointLibs[canonical] = lib;
+            std::cout << "Hot reloaded: " << canonical << std::endl;
+        }
+    }
+}
+
+void TcpServer::stopServer() {
+    while (true) {
+        if (m_signal == SIGINT)
+            m_running = false;
+    }
 }

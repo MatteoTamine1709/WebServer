@@ -4,6 +4,7 @@
 #include <sstream>
 #include <algorithm>
 #include <iostream>
+#include <filesystem>
 
 HttpRequestHeader::HttpRequestHeader(const std::string& header) {
     std::istringstream issHeader(header);
@@ -13,6 +14,7 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
     std::getline(issRequestLine, m_method, ' ');
     transform(m_method.begin(), m_method.end(), m_method.begin(), ::tolower);
     std::getline(issRequestLine, m_path, ' ');
+    m_path = std::filesystem::path(m_path).string();
     std::getline(issRequestLine, m_protocol, ' ');
     while (std::getline(issHeader, line)) {
         if (line.empty())
@@ -42,6 +44,14 @@ std::string HttpRequestHeader::getPath() const {
     return m_path;
 }
 
+std::string HttpRequestHeader::getAbsolutePath() const {
+    return std::filesystem::current_path().string() + m_path;
+}
+
+std::string HttpRequestHeader::getCanonicalPath() const {
+    return std::filesystem::canonical(getAbsolutePath()).string();
+}
+
 std::string HttpRequestHeader::getProtocol() const {
     return m_protocol;
 }
@@ -54,6 +64,14 @@ std::optional<std::string> HttpRequestHeader::getHeader(const std::string& key) 
 
 std::string HttpRequestHeader::getBody() const {
     return m_body;
+}
+
+void HttpRequestHeader::setPath(const std::string& path) {
+    m_path = path;
+}
+
+bool HttpRequestHeader::isPathValid() const {
+    return std::filesystem::exists(getAbsolutePath());
 }
 
 void HttpRequestHeader::setHeader(const std::string& key, const std::string& value) {
