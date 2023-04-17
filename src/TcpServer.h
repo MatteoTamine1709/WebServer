@@ -42,8 +42,8 @@ private:
     typedef std::string Endpoint;
     typedef std::string Method;
     std::unordered_map<Endpoint, void *> m_endpointLibs;
-    typedef HttpResponseHeader (*handler_t)(HttpRequestHeader);
-    std::unordered_map<Endpoint, std::unordered_map<Method, handler_t>> m_endpointHandlers;
+    typedef HttpResponseHeader (*endpoint_t)(HttpRequestHeader);
+    std::unordered_map<Endpoint, std::unordered_map<Method, endpoint_t>> m_endpointHandlers;
 };
 
 #endif

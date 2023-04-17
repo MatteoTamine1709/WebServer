@@ -19,5 +19,5 @@ find_package(Threads REQUIRED)
 
 # add assets folder
 file(COPY utils DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY handlers DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY endpoints DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY public DESTINATION ${CMAKE_BINARY_DIR})

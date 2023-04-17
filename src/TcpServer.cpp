@@ -136,14 +136,14 @@ HttpResponseHeader TcpServer::handleRequest(const HttpRequestHeader &request) {
 
 HttpResponseHeader TcpServer::handleEndpoint(const HttpRequestHeader &request) {
     // Get environment path and append the requested path
-    std::string newPath = "handlers" + request.getPath() + "libindex.so";
+    std::string newPath = "endpoints" + request.getPath() + "libindex.so";
     // TODO: Handle parematerized paths
     // TODO: Handle request parameter
     std::cout << "New path: " << newPath << std::endl;
     if (m_endpointHandlers.find(request.getPath()) != m_endpointHandlers.end() &&
         m_endpointHandlers[request.getPath()].find(request.getMethod()) != m_endpointHandlers[request.getPath()].end()) {
-        handler_t handler = m_endpointHandlers[request.getPath()][request.getMethod()];
-        return handler(request);
+        endpoint_t endpoint = m_endpointHandlers[request.getPath()][request.getMethod()];
+        return endpoint(request);
     }
     void* lib = nullptr;
     if (m_endpointLibs.find(request.getPath()) != m_endpointLibs.end()) {
@@ -159,7 +159,7 @@ HttpResponseHeader TcpServer::handleEndpoint(const HttpRequestHeader &request) {
         m_endpointLibs[request.getPath()] = lib;
     }
     // Load the symbols
-    handler_t handler = (handler_t) dlsym(lib, request.getMethod().c_str());
+    endpoint_t endpoint = (endpoint_t) dlsym(lib, request.getMethod().c_str());
     const char* dlsym_error = dlerror();
     if (dlsym_error) {
         std::cerr << "Cannot load symbol '" << request.getMethod() << "': " << dlsym_error << '\n';
@@ -171,9 +171,9 @@ HttpResponseHeader TcpServer::handleEndpoint(const HttpRequestHeader &request) {
 
     HttpResponseHeader response;
     try {
-        response = handler(request);
-        // Cache the handler
-        m_endpointHandlers[request.getPath()][request.getMethod()] = handler;
+        response = endpoint(request);
+        // Cache the endpoint
+        m_endpointHandlers[request.getPath()][request.getMethod()] = endpoint;
         return response;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << '\n';
