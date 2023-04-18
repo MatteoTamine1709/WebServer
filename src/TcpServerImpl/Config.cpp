@@ -14,7 +14,7 @@
 #include <fcntl.h>
 
 void TcpServer::handleHostConfig(nlohmann::json &host) {
-    if (host.is_string()) {}
+    if (host.is_string())
         m_host = host;
 }
 
@@ -26,13 +26,19 @@ void TcpServer::handlePortConfig(nlohmann::json &port) {
 }
 
 void TcpServer::handleApiConfig(nlohmann::json &api) {
-    if (api.is_string())
+    if (api.is_string()) {
+        if (api.get<std::string>()[0] != '/')
+            api = std::string("/") + api.get<std::string>();
         m_api = api;
+    }
 }
 
 void TcpServer::handlePublicConfig(nlohmann::json &p) {
-    if (p.is_string())
+    if (p.is_string()) {
+        if (p.get<std::string>()[0] != '/')
+            p = std::string("/") + p.get<std::string>();
         m_public = p;
+    }
 }
 
 void TcpServer::handleWatchConfig(nlohmann::json &watch) {
