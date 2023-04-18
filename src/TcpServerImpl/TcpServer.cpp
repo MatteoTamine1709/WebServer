@@ -104,7 +104,7 @@ void TcpServer::accept() {
             write(connection, responseHeader);
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-            spdlog::info("{} {} {} {}ms", requestHeader.value().getHeader("Host").value_or("unknown"), utils::toUpper(requestHeader.value().getMethod()), requestHeader.value().getPath(), duration.count());
+            spdlog::info("{} {} {} {}ms", requestHeader.value().getHeader("Host").value_or("unknown"), utils::toUpper(requestHeader.value().getMethod()), requestHeader.value().getRoute({ m_api, m_public }), duration.count());
             if (requestHeader.value().getHeader("Connection").has_value() && requestHeader.value().getHeader("Connection").value() != "keep-alive")
                 break;
         }

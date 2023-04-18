@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <filesystem>
 
+#include <iostream>
+
 HttpRequestHeader::HttpRequestHeader(const std::string& header) {
     std::istringstream issHeader(header);
     std::string line;
@@ -45,6 +47,25 @@ std::string HttpRequestHeader::getPath() const {
 
 std::string HttpRequestHeader::getCanonicalPath() const {
     return std::filesystem::canonical(m_path).string();
+}
+
+std::string HttpRequestHeader::getRoute(const std::vector<std::string> &routeSourceDir) const {
+    std::filesystem::path path(m_path);
+    std::filesystem::path dir(m_path);
+
+    auto isDirRouteSource = [&routeSourceDir](const std::filesystem::path& dir) {
+        for (const auto& route : routeSourceDir)
+            if (dir == route)
+                return true;
+        return false;
+    };
+    do
+        dir = dir.parent_path();
+    while (!isDirRouteSource(dir));
+    std::filesystem::path relativePath = path.lexically_relative(dir);
+    if (relativePath.filename() == "index.so")
+        relativePath = relativePath.parent_path();
+    return std::filesystem::weakly_canonical(std::filesystem::path("/") / relativePath);
 }
 
 std::string HttpRequestHeader::getProtocol() const {

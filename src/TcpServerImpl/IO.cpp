@@ -12,6 +12,9 @@
 
 #include <spdlog/spdlog.h>
 
+
+    #include <filesystem>
+
 std::optional<HttpRequestHeader> TcpServer::read(TcpConnection& connection) {
     const std::string &data = connection.read();
     if (data.empty())
@@ -38,7 +41,8 @@ HttpResponseHeader &TcpServer::completeResponse(HttpResponseHeader &response, co
 HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle parematerized paths
     // TODO: Handle request parameters
-    if (request.getMethod() == "get" && !utils::getExtension(request.getPath()).empty()) {
+    std::string path = std::filesystem::weakly_canonical(std::filesystem::path(request.getPath())).string();
+    if (request.getMethod() == "get" && !utils::getExtension(path).empty()) {
         request.setPath(m_public + request.getPath());
         if (!request.isPathValid())
             return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");

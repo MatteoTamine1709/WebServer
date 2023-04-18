@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <optional>
+#include <vector>
 
 class HttpRequestHeader {
 public:
@@ -12,6 +13,7 @@ public:
     std::string getMethod() const;
     std::string getPath() const;
     std::string getCanonicalPath() const;
+    std::string getRoute(const std::vector<std::string> &routeSourceDir) const;
     std::string getProtocol() const;
     std::optional<std::string> getHeader(const std::string& key) const;
     std::string getBody() const;
