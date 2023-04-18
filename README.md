@@ -11,7 +11,7 @@
 
 - Server:
 
-  - [ ] A good config file (maybe using [nlohmann/json](https://github.com/nlohmann/json)) (_If needed_)
+  - [.] A good config file (maybe using [nlohmann/json](https://github.com/nlohmann/json)) ([Reference](#config-file))
   - [ ] [Routing system](#routing-system) like [next.js](https://nextjs.org/docs/routing/introduction)
   - [ ] A way to handle sessions (MAYBE)
 
@@ -35,3 +35,8 @@ Also, we would like to handle optional parameters like `/user/:id?` (refer to [n
 ### HotReload
 
 We now have a HotReloader projet which is able to watch for changes in the `endpoints` folder and rebuild the shared library. We are now able to reload the endpoints without having to restart the server.
+It works by watching for changes in the `endpoints` folder and then rebuild the shared library. It then sends a signal to the server to reload the endpoints.
+
+### Config File
+
+The goal is to have a config file that can be used to configure the server using a config.json file. We would like to be able to configure the port, the host, the endpoints folder, public folder, is watching for changes, etc.

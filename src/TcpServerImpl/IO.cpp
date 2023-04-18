@@ -1,18 +1,9 @@
-#include "TcpServer.h"
-#include "HttpRequestHeader.h"
-#include "HttpResponseHeader.h"
-#include "utils.h"
+#include "../TcpServer.h"
+#include "../HttpRequestHeader.h"
+#include "../HttpResponseHeader.h"
+#include "../utils.h"
 
 #include <iostream>
-#include <stdexcept>
-#include <string>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <thread>
-#include <netdb.h>
-#include <cstring>
-#include <signal.h>
 
 #include <fstream>
 #include <sstream>
@@ -20,112 +11,6 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <filesystem>
-
-std::unique_ptr<TcpServer> TcpServer::m_instance = nullptr;
-volatile std::sig_atomic_t TcpServer::m_signal = -1;
-
-TcpServer& TcpServer::getInstance(const std::string& address, const std::string& port) {
-    if (!m_instance)
-        m_instance = std::unique_ptr<TcpServer>(new TcpServer(address, port));
-    return *m_instance;
-}
-
-TcpServer::TcpServer(const std::string& address, const std::string& port) {
-    std::thread(&TcpServer::hotReload, this).detach();
-    std::thread(&TcpServer::stopServer, this).detach();
-    struct sigaction sa;
-    sa.sa_sigaction = &TcpServer::handleSignal;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_SIGINFO;
-    
-    if (sigaction(SIGINT, &sa, NULL) == -1) {
-        perror("sigaction");
-        exit(1);
-    }
-    if (sigaction(SIGUSR1, &sa, NULL) == -1) {
-        perror("sigaction");
-        exit(1);
-    }
-
-    const char *fifo_path = "/tmp/fifo";
-
-    if (mkfifo(fifo_path, 0666) == -1 && errno != EEXIST) {
-        std::cerr << "Failed to create named pipe." << std::endl;
-        return;
-    }
-
-    m_pipeFD = open(fifo_path, O_RDONLY); // Open in non-blocking mode
-
-    addrinfo hints;
-    addrinfo* result;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
-    int status = getaddrinfo(address.c_str(), port.c_str(), &hints, &result);
-    if (status != 0) {
-        throw std::runtime_error("getaddrinfo() failed");
-    }
-    m_socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-    if (m_socket == -1) {
-        freeaddrinfo(result);
-        throw std::runtime_error("socket() failed");
-    }
-    int a = 1;
-    setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &a, sizeof(int));
-    status = bind(m_socket, result->ai_addr, result->ai_addrlen);
-    if (status == -1) {
-        freeaddrinfo(result);
-        close(m_socket);
-        throw std::runtime_error("bind() failed");
-    }
-    freeaddrinfo(result);
-    status = listen(m_socket, 10);
-    if (status == -1) {
-        close(m_socket);
-        throw std::runtime_error("listen() failed");
-    }
-}
-
-TcpServer::~TcpServer() {
-    std::cout << "Closing server" << std::endl;
-    for (auto& lib : m_endpointLibs)
-        dlclose(lib.second);
-    close(m_socket);
-    close(m_pipeFD);
-}
-
-void TcpServer::run() {
-    utils::initializeMimeMap();
-    while (m_running)
-        accept();
-}
-
-void TcpServer::accept() {
-    sockaddr_in client;
-    socklen_t clientSize = sizeof(client);
-    int clientSocket = ::accept(m_socket, (sockaddr*)&client, &clientSize);
-    if (clientSocket == -1 && errno != EINTR)
-        throw std::runtime_error("accept() failed");
-    std::cout << "New connection" << std::endl;
-
-    std::thread t([clientSocket, this](){
-        TcpConnection connection(clientSocket);
-        while (connection.isOpen()) {
-            auto requestHeader = read(connection);
-            if (!requestHeader)
-                continue;
-            HttpResponseHeader responseHeader = handleRequest(requestHeader.value());
-            write(connection, responseHeader);
-            // Unsure if this is the best way to handle keep-alive connections
-            if (requestHeader.value().getHeader("Connection").has_value() && requestHeader.value().getHeader("Connection").value() != "keep-alive")
-                break;
-        }
-        close(clientSocket);
-    });
-    t.detach();
-}
 
 std::optional<HttpRequestHeader> TcpServer::read(TcpConnection& connection) {
     const std::string &data = connection.read();
@@ -154,7 +39,7 @@ HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle parematerized paths
     // TODO: Handle request parameters
     if (request.getMethod() == "get" && !utils::getExtension(request.getPath()).empty()) {
-        request.setPath("/public" + request.getPath());
+        request.setPath(m_public + request.getPath());
         if (!request.isPathValid())
             return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
         std::cout << "Canonical path: " << request.getCanonicalPath() << std::endl;
@@ -162,7 +47,7 @@ HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
         completeResponse(response, request);
         return response;
     }
-    request.setPath("/endpoints" + request.getPath() + "/index.so");
+    request.setPath(m_api + request.getPath() + "/index.so");
     if (!request.isPathValid())
         return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
     std::cout << "Canonical path: " << request.getCanonicalPath() << std::endl;
@@ -260,43 +145,4 @@ void TcpServer::write(TcpConnection& connection, const HttpResponseHeader& respo
     //     //     break;
     //     connection.write(std::string(buffer.data(), count));
     // }
-}
-
-void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
-    m_signal = signum;
-}
-
-void TcpServer::hotReload() {
-    while (true) {
-        if (m_signal == SIGUSR1) {
-            char hotReloaded_path[1024];
-            ssize_t n_read = ::read(m_pipeFD, hotReloaded_path, sizeof(hotReloaded_path));
-            if (n_read == -1) {
-                perror("read");
-                std::cerr << "Failed to read data from named pipe." << std::endl;
-                continue;
-            }
-            hotReloaded_path[n_read] = '\0';
-
-            std::filesystem::path path(hotReloaded_path);
-            path.replace_extension(".so");
-            std::string canonical = std::filesystem::canonical(path);
-            if (m_endpointLibs.find(canonical) != m_endpointLibs.end())
-                dlclose(m_endpointLibs[canonical]);
-            void *lib = dlopen(canonical.c_str(), RTLD_LAZY);
-            if (!lib) {
-                std::cerr << "Cannot open library: " << dlerror() << '\n';
-                continue;
-            }
-            m_endpointLibs[canonical] = lib;
-            std::cout << "Hot reloaded: " << canonical << std::endl;
-        }
-    }
-}
-
-void TcpServer::stopServer() {
-    while (true) {
-        if (m_signal == SIGINT)
-            m_running = false;
-    }
 }

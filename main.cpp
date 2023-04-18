@@ -2,10 +2,9 @@
 #include "src/TcpServer.h"
 
 int main(int, char**) {
-    TcpServer &server = TcpServer::getInstance("127.0.0.1", "8081");
+    TcpServer &server = TcpServer::getInstance();
 
     server.run();
 
-    std::cout << "Cleannnn" << std::endl;
     return 0;
 }

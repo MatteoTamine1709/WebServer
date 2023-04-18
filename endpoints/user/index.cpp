@@ -8,6 +8,7 @@
 extern "C" {
     HttpResponseHeader get(const HttpRequestHeader &header);
     HttpResponseHeader post(const HttpRequestHeader &header);
+    HttpResponseHeader put(const HttpRequestHeader &header);
 }
 
 
@@ -33,5 +34,16 @@ HttpResponseHeader post(const HttpRequestHeader &header) {
     reponse.setStatusMessage("OK");
     reponse.setHeader("Content-Type", "application/json");
     reponse.setBody("{\"message\": \"USER\"}");
+    return reponse;
+}
+
+HttpResponseHeader put(const HttpRequestHeader &header) {
+    HttpResponseHeader reponse{};
+
+    reponse.setProtocol("HTTP/1.1");
+    reponse.setStatusCode("200");
+    reponse.setStatusMessage("OK");
+    reponse.setHeader("Content-Type", "application/json");
+    reponse.setBody("{\"message\": \"PUT MA GUEULE\"}");
     return reponse;
 }
