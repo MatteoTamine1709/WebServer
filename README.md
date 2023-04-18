@@ -5,8 +5,8 @@
 - Tools:
 
   - [x] Automatically rebuild any .cpp file that has been changed in the `endpoints` folder ([Reference](#hotreload))
-  - [ ] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) (maybe using [spdlog](https://github.com/gabime/spdlog))
-  - [ ] Log to file
+  - [.] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) (maybe using [spdlog](https://github.com/gabime/spdlog))
+  - [x] Log to file
   - [ ] Dockerize the project (_If needed_)
 
 - Server:

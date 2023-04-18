@@ -73,7 +73,7 @@ private:
             {"api", &TcpServer::handleApiConfig},
             {"public", &TcpServer::handlePublicConfig},
             {"watch", &TcpServer::handleWatchConfig},
-            {"debug", &TcpServer::handleDebugConfig}
+            {"log", &TcpServer::handleLogConfig}
     };
 
     void handleHostConfig(nlohmann::json &host);
@@ -81,7 +81,7 @@ private:
     void handleApiConfig(nlohmann::json &api);
     void handlePublicConfig(nlohmann::json &p);
     void handleWatchConfig(nlohmann::json &watch);
-    void handleDebugConfig(nlohmann::json &debug);
+    void handleLogConfig(nlohmann::json &log);
 };
 
 #endif

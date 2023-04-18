@@ -3,6 +3,12 @@
   "host": "127.0.0.1",
   "api": "./endpoints",
   "public": "./public",
-  "debug": false,
+  "log": {
+    "level": "info",
+    "format": "dev",
+    "file": "server.log",
+    "no-stdout": false,
+    "timestamp": true
+  },
   "watch": false
 }

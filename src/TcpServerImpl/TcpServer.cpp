@@ -79,6 +79,7 @@ TcpServer::~TcpServer() {
 
 void TcpServer::run() {
     spdlog::info("Server started");
+    spdlog::warn("Server is running in debug mode");
     utils::initializeMimeMap();
     while (m_running)
         accept();
