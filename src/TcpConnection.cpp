@@ -16,9 +16,8 @@ TcpConnection::~TcpConnection() {
 
 std::string TcpConnection::read() {
     int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
-    if (bytes == -1) {
+    if (bytes == -1)
         throw std::runtime_error("read() failed");
-    }
     if (bytes == 0 && !isOpen())
         throw std::runtime_error("connection closed");
     if (bytes > 0)
@@ -28,9 +27,8 @@ std::string TcpConnection::read() {
 
 void TcpConnection::write(const std::string& message) {
     int bytes = ::write(m_socket, message.data(), message.size());
-    if (bytes == -1) {
+    if (bytes == -1)
         throw std::runtime_error("write() failed");
-    }
     if (bytes > 0)
         spdlog::debug("wrote {} bytes", bytes);
 }

@@ -9,6 +9,8 @@
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
+#include <spdlog/fmt/fmt.h>
+#include <spdlog/common.h>
 
 #include "TcpConnection.h"
 #include "HttpRequestHeader.h"

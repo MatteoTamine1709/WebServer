@@ -13,9 +13,13 @@
 #include <fcntl.h>
 
 #include <spdlog/spdlog.h>
+#include <spdlog/fmt/fmt.h>
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+
+#include "../Logger.h"
+std::string Logger::a = "a";
 
 void TcpServer::handleHostConfig(nlohmann::json &host) {
     if (host.is_string())
@@ -54,7 +58,6 @@ void TcpServer::handleWatchConfig(nlohmann::json &watch) {
 void TcpServer::handleLogConfig(nlohmann::json &log) {
     if (log.is_string())
         spdlog::set_level(spdlog::level::from_str(log));
-    
     if (log.is_number())
         spdlog::set_level(static_cast<spdlog::level::level_enum>(log));
 
@@ -68,19 +71,26 @@ void TcpServer::handleLogConfig(nlohmann::json &log) {
             sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_st>("logs/" + log["file"].get<std::string>(), 23, 59));
         auto combined_logger = std::make_shared<spdlog::logger>("Logger", begin(sinks), end(sinks));
         spdlog::set_default_logger(combined_logger);
+        std::string format;
         if (log.contains("format") && log["format"].is_string()) {
             std::unordered_map<std::string, std::string> format_map = {
-                {"combined", "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%s:%#] %v"},
+                {"combined", "[%^%l%$] [%s:%#] %v"},
                 {"common", "%h %l %u %t \"%r\" %s %b"},
-                {"dev", "[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%s:%#] %v"},
+                {"dev", "[%^%l%$] [%s:%#] %v"},
                 {"short", "%^[%l] [%s:%#] %v%$"},
-                {"tiny", "%^[%Y-%m-%d %H:%M:%S.%e] [%l] [%s:%#] %v%$"}
+                {"tiny", "%^[%l] [%s:%#] %v%$"}
             };
 
             if (format_map.find(log["format"]) != format_map.end())
-                spdlog::set_pattern(format_map[log["format"]]);
+                format = format_map[log["format"]];
             else
-                spdlog::set_pattern(log["format"]);
+                format = log["format"];
         }
+        if (log.contains("timestamp") && log["timestamp"].is_boolean() && log["timestamp"].get<bool>())
+            format = "[%Y-%m-%d %H:%M:%S.%e] " + format;
+        auto formatter = std::make_unique<spdlog::pattern_formatter>();
+        formatter->add_flag<Logger::my_formatter_flag>('*');
+        formatter->set_pattern(format + " %*");
+        spdlog::set_formatter(std::move(formatter));
     }
 }

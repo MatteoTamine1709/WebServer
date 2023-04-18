@@ -8,7 +8,7 @@
     "format": "dev",
     "file": "server.log",
     "no-stdout": false,
-    "timestamp": true
+    "timestamp": false
   },
   "watch": false
 }

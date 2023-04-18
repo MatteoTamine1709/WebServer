@@ -2,6 +2,7 @@
 #include "../HttpRequestHeader.h"
 #include "../HttpResponseHeader.h"
 #include "../utils.h"
+#include "../Logger.h"
 
 #include <stdexcept>
 #include <string>
