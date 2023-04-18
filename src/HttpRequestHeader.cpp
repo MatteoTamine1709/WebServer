@@ -3,7 +3,6 @@
 
 #include <sstream>
 #include <algorithm>
-#include <iostream>
 #include <filesystem>
 
 HttpRequestHeader::HttpRequestHeader(const std::string& header) {
@@ -44,12 +43,8 @@ std::string HttpRequestHeader::getPath() const {
     return m_path;
 }
 
-std::string HttpRequestHeader::getAbsolutePath() const {
-    return std::filesystem::current_path().string() + m_path;
-}
-
 std::string HttpRequestHeader::getCanonicalPath() const {
-    return std::filesystem::canonical(getAbsolutePath()).string();
+    return std::filesystem::canonical(m_path).string();
 }
 
 std::string HttpRequestHeader::getProtocol() const {
@@ -71,7 +66,7 @@ void HttpRequestHeader::setPath(const std::string& path) {
 }
 
 bool HttpRequestHeader::isPathValid() const {
-    return std::filesystem::exists(getAbsolutePath());
+    return std::filesystem::exists(m_path);
 }
 
 void HttpRequestHeader::setHeader(const std::string& key, const std::string& value) {

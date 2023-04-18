@@ -1,4 +1,3 @@
-#include <iostream>
 #include "src/TcpServer.h"
 
 int main(int, char**) {

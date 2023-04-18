@@ -11,7 +11,6 @@ public:
     HttpRequestHeader(const std::string& header);
     std::string getMethod() const;
     std::string getPath() const;
-    std::string getAbsolutePath() const;
     std::string getCanonicalPath() const;
     std::string getProtocol() const;
     std::optional<std::string> getHeader(const std::string& key) const;

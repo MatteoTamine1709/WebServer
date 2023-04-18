@@ -3,14 +3,14 @@
 #include "../HttpResponseHeader.h"
 #include "../utils.h"
 
-#include <iostream>
-
 #include <fstream>
 #include <sstream>
 
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+#include <spdlog/spdlog.h>
 
 std::optional<HttpRequestHeader> TcpServer::read(TcpConnection& connection) {
     const std::string &data = connection.read();
@@ -42,15 +42,16 @@ HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
         request.setPath(m_public + request.getPath());
         if (!request.isPathValid())
             return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
-        std::cout << "Canonical path: " << request.getCanonicalPath() << std::endl;
+        spdlog::debug("Canonical path: {}", request.getCanonicalPath());
         HttpResponseHeader response = handleFile(request);
         completeResponse(response, request);
         return response;
     }
-    request.setPath(m_api + request.getPath() + "/index.so");
+    request.setPath(m_api + request.getPath());
+    request.setPath(request.getCanonicalPath() + "/index.so");
     if (!request.isPathValid())
         return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
-    std::cout << "Canonical path: " << request.getCanonicalPath() << std::endl;
+    spdlog::debug("Canonical path: {}", request.getCanonicalPath());
     HttpResponseHeader response = handleEndpoint(request);
     completeResponse(response, request);
     return response;
@@ -68,7 +69,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
     } else {
         lib = dlopen(request.getCanonicalPath().c_str(), RTLD_LAZY);
         if (!lib) {
-            std::cerr << "Cannot open library: " << dlerror() << '\n';
+            spdlog::error("Cannot open library: {}", dlerror());
             HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
             response.setHeader("Content-Type", "text/html");
             return response;
@@ -79,7 +80,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
     endpoint_t endpoint = (endpoint_t) dlsym(lib, request.getMethod().c_str());
     const char* dlsym_error = dlerror();
     if (dlsym_error) {
-        std::cerr << "Cannot load symbol '" << request.getMethod() << "': " << dlsym_error << '\n';
+        spdlog::error("Cannot load symbol '{}': {}", request.getMethod(), dlsym_error);
         dlclose(lib);
         HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
         response.setHeader("Content-Type", "text/html");
@@ -93,7 +94,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
         m_endpointHandlers[request.getCanonicalPath()][request.getMethod()] = endpoint;
         return response;
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << '\n';
+        spdlog::error("Error: {}", e.what());
         dlclose(lib);
         HttpResponseHeader response("HTTP/1.1", "500", "Internal Server Error", "Internal Server Error");
         response.setHeader("Content-Type", "text/html");

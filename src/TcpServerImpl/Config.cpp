@@ -3,7 +3,6 @@
 #include "../HttpResponseHeader.h"
 #include "../utils.h"
 
-#include <iostream>
 #include <thread>
 #include <string>
 
@@ -12,6 +11,8 @@
 
 #include <dlfcn.h>
 #include <fcntl.h>
+
+#include <spdlog/spdlog.h>
 
 void TcpServer::handleHostConfig(nlohmann::json &host) {
     if (host.is_string())
@@ -26,31 +27,26 @@ void TcpServer::handlePortConfig(nlohmann::json &port) {
 }
 
 void TcpServer::handleApiConfig(nlohmann::json &api) {
-    if (api.is_string()) {
-        if (api.get<std::string>()[0] != '/')
-            api = std::string("/") + api.get<std::string>();
-        m_api = api;
-    }
+    if (api.is_string())
+        m_api = std::filesystem::canonical(api);
 }
 
 void TcpServer::handlePublicConfig(nlohmann::json &p) {
-    if (p.is_string()) {
-        if (p.get<std::string>()[0] != '/')
-            p = std::string("/") + p.get<std::string>();
-        m_public = p;
-    }
+    if (p.is_string())
+        m_public = std::filesystem::canonical(p);
 }
 
 void TcpServer::handleWatchConfig(nlohmann::json &watch) {
     if (watch.is_boolean() && watch.get<bool>()) {
         const char *fifo_path = "/tmp/fifo";
 
-        if (mkfifo(fifo_path, 0666) == -1 && errno != EEXIST) {
-            std::cerr << "Failed to create named pipe." << std::endl;
-            return;
-        }
-
+        if (mkfifo(fifo_path, 0666) == -1 && errno != EEXIST)
+            return spdlog::error("Failed to create FIFO: {}", strerror(errno));
         m_pipeFD = open(fifo_path, O_RDONLY);
     }
+}
 
+void TcpServer::handleDebugConfig(nlohmann::json &debug) {
+    if (debug.is_boolean() && debug.get<bool>())
+        spdlog::set_level(spdlog::level::debug);
 }

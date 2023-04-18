@@ -3,7 +3,6 @@
 #include "../HttpResponseHeader.h"
 #include "../utils.h"
 
-#include <iostream>
 #include <thread>
 
 #include <dlfcn.h>
@@ -17,8 +16,7 @@ void TcpServer::registerSignals(std::vector<std::pair<int, void (TcpServer::*)()
 
     for (const auto &[signal, handler] : signalHandlers) {
         if (sigaction(signal, &action, NULL) == -1) {
-            perror("sigaction");
-            std::cerr << "Failed to register signal handler for signal " << signal << std::endl;
+            spdlog::error("Cannot register signal handler: {}", strerror(errno));
             exit(1);
         }
         std::thread(handler, this).detach();
@@ -35,8 +33,7 @@ void TcpServer::hotReload() {
             char hotReloaded_path[1024];
             ssize_t n_read = ::read(m_pipeFD, hotReloaded_path, sizeof(hotReloaded_path));
             if (n_read == -1) {
-                perror("read");
-                std::cerr << "Failed to read data from named pipe." << std::endl;
+                spdlog::error("Cannot read from pipe: {}", strerror(errno));
                 continue;
             }
             hotReloaded_path[n_read] = '\0';
@@ -48,11 +45,11 @@ void TcpServer::hotReload() {
                 dlclose(m_endpointLibs[canonical]);
             void *lib = dlopen(canonical.c_str(), RTLD_LAZY);
             if (!lib) {
-                std::cerr << "Cannot open library: " << dlerror() << '\n';
+                spdlog::error("Cannot open library: {}", dlerror());
                 continue;
             }
             m_endpointLibs[canonical] = lib;
-            std::cout << "Hot reloaded: " << canonical << std::endl;
+            spdlog::info("Hot reloaded library: {}", canonical);
         }
     }
 }

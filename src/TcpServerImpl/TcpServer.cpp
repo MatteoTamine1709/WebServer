@@ -3,7 +3,6 @@
 #include "../HttpResponseHeader.h"
 #include "../utils.h"
 
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <sys/socket.h>
@@ -34,7 +33,6 @@ TcpServer::TcpServer() {
     std::ifstream config("./config.json");
     if (config.is_open())
         config >> m_config;
-    std::cout << m_config.dump(2) << std::endl;
     for (auto& [key, value] : m_config.items()) {
         if (m_configHandlers.find(key) != m_configHandlers.end())
             (this->*m_configHandlers[key])(value);
@@ -72,7 +70,7 @@ TcpServer::TcpServer() {
 }
 
 TcpServer::~TcpServer() {
-    std::cout << "Closing server" << std::endl;
+    spdlog::shutdown();
     for (auto& lib : m_endpointLibs)
         dlclose(lib.second);
     close(m_socket);
@@ -84,6 +82,7 @@ void TcpServer::run() {
     utils::initializeMimeMap();
     while (m_running)
         accept();
+    spdlog::info("Server stopped");
 }
 
 void TcpServer::accept() {
@@ -92,16 +91,20 @@ void TcpServer::accept() {
     int clientSocket = ::accept(m_socket, (sockaddr*)&client, &clientSize);
     if (clientSocket == -1 && errno != EINTR)
         throw std::runtime_error("accept() failed");
-    std::cout << "New connection" << std::endl;
 
     std::thread([clientSocket, this](){
         TcpConnection connection(clientSocket);
         while (connection.isOpen()) {
             auto requestHeader = read(connection);
+            auto start = std::chrono::high_resolution_clock::now();
             if (!requestHeader)
                 continue;
+            // calculate time
             HttpResponseHeader responseHeader = handleRequest(requestHeader.value());
             write(connection, responseHeader);
+            auto end = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+            spdlog::info("{} {} {} {}ms", requestHeader.value().getHeader("Host").value_or("unknown"), utils::toUpper(requestHeader.value().getMethod()), requestHeader.value().getPath(), duration.count());
             if (requestHeader.value().getHeader("Connection").has_value() && requestHeader.value().getHeader("Connection").value() != "keep-alive")
                 break;
         }

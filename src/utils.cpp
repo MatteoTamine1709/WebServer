@@ -6,8 +6,7 @@
 #include <unordered_map>
 #include <string>
 
-#include <iostream>
-
+#include <spdlog/spdlog.h>
 
 namespace utils {
     std::unordered_map<std::string, std::string> mimeMap = {};
@@ -100,18 +99,18 @@ namespace utils {
 
     void initializeMimeMap() {
         if (mimeMap.size() == 0) {
-        std::cout << "Loading mime types..." << std::endl;
-        std::ifstream file("./utils/mime.txt");
-        if (!file.is_open()) {
-            std::cout << "utils/mime.txt not found" << std::endl;
-            exit(1);
-        }
-        std::stringstream ss;
-        ss << file.rdbuf();
-        std::string content = ss.str();
-        std::vector<std::string> lines = split(content, {"\n", ": "});
-        for (int i = 0; i < lines.size(); i += 2)
-            mimeMap[lines[i]] = lines[i + 1];
+            spdlog::debug("Initializing mime map");
+            std::ifstream file("./utils/mime.txt");
+            if (!file.is_open()) {
+                spdlog::error("utils/mime.txt not found");
+                exit(1);
+            }
+            std::stringstream ss;
+            ss << file.rdbuf();
+            std::string content = ss.str();
+            std::vector<std::string> lines = split(content, {"\n", ": "});
+            for (int i = 0; i < lines.size(); i += 2)
+                mimeMap[lines[i]] = lines[i + 1];
         }
     }
 }

@@ -2,7 +2,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <iostream>
+#include <exception>
+
+#include <spdlog/spdlog.h>
 
 TcpConnection::TcpConnection(int socket) : m_socket(socket) {
     m_buffer.resize(1024);
@@ -20,7 +22,7 @@ std::string TcpConnection::read() {
     if (bytes == 0 && !isOpen())
         throw std::runtime_error("connection closed");
     if (bytes > 0)
-        std::cout << "read " << bytes << " bytes" << std::endl;
+        spdlog::debug("read {} bytes", bytes);
     return std::string(m_buffer.data(), bytes);
 }
 
@@ -29,7 +31,8 @@ void TcpConnection::write(const std::string& message) {
     if (bytes == -1) {
         throw std::runtime_error("write() failed");
     }
-    std::cout << "wrote " << bytes << " bytes" << std::endl;
+    if (bytes > 0)
+        spdlog::debug("wrote {} bytes", bytes);
 }
 
 bool TcpConnection::isOpen() const {
