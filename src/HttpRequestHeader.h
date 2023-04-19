@@ -12,8 +12,6 @@ public:
     HttpRequestHeader(const std::string& header);
     std::string getMethod() const;
     std::string getPath() const;
-    std::string getWeaklyCanonicalPath() const;
-    std::string getCanonicalPath() const;
     std::string getRoute() const;
     std::string getProtocol() const;
     std::optional<std::string> getHeader(const std::string& key) const;
@@ -29,6 +27,7 @@ public:
 
     void setPath(const std::string& path);
     bool isPathValid() const;
+    bool isPathDirectory() const;
     void setProtocol(const std::string& protocol);
     void setHeader(const std::string& key, const std::string& value);
     void setBody(const std::string& body);

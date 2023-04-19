@@ -49,44 +49,47 @@ HttpResponseHeader &TcpServer::completeResponse(HttpResponseHeader &response, co
 HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle parematerized paths
     // TODO: Handle request parameters
-    std::string path = std::filesystem::weakly_canonical(std::filesystem::path(request.getPath())).string();
+    std::string path = request.getPath();
     if (request.getMethod() == "get" && !utils::getExtension(request.getRoute()).empty()) {
         request.setPath(m_public + request.getPath());
         if (!request.isPathValid())
             return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
-        SPDLOG_DEBUG("Canonical path: {}", request.getCanonicalPath());
+        SPDLOG_DEBUG("Canonical path: {}", request.getPath());
         HttpResponseHeader response = handleFile(request);
         completeResponse(response, request);
         return response;
     }
     request.setPath(m_api + request.getPath());
-    request.setPath(request.getWeaklyCanonicalPath() + "/index.so");
+    if (request.isPathValid() && request.isPathDirectory())
+        request.setPath(request.getPath() + "/index.so");
+    else
+        request.setPath(request.getPath() + ".so");
     if (!request.isPathValid())
         return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
-    SPDLOG_DEBUG("Canonical path: {}", request.getCanonicalPath());
+
     HttpResponseHeader response = handleEndpoint(request);
     completeResponse(response, request);
     return response;
 }
 
 HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
-    if (m_endpointHandlers.find(request.getCanonicalPath()) != m_endpointHandlers.end() &&
-        m_endpointHandlers[request.getCanonicalPath()].find(request.getMethod()) != m_endpointHandlers[request.getCanonicalPath()].end()) {
-        endpoint_t endpoint = m_endpointHandlers[request.getCanonicalPath()][request.getMethod()];
+    if (m_endpointHandlers.find(request.getPath()) != m_endpointHandlers.end() &&
+        m_endpointHandlers[request.getPath()].find(request.getMethod()) != m_endpointHandlers[request.getPath()].end()) {
+        endpoint_t endpoint = m_endpointHandlers[request.getPath()][request.getMethod()];
         return endpoint(request);
     }
     void *lib = nullptr;
-    if (m_endpointLibs.find(request.getCanonicalPath()) != m_endpointLibs.end()) {
-        lib = m_endpointLibs[request.getCanonicalPath()];
+    if (m_endpointLibs.find(request.getPath()) != m_endpointLibs.end()) {
+        lib = m_endpointLibs[request.getPath()];
     } else {
-        lib = dlopen(request.getCanonicalPath().c_str(), RTLD_LAZY);
+        lib = dlopen(request.getPath().c_str(), RTLD_LAZY);
         if (!lib) {
             SPDLOG_ERROR("Cannot open library: {}", dlerror());
             HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
             response.setHeader("Content-Type", "text/html");
             return response;
         }
-        m_endpointLibs[request.getCanonicalPath()] = lib;
+        m_endpointLibs[request.getPath()] = lib;
     }
     // Load the symbols
     endpoint_t endpoint = (endpoint_t) dlsym(lib, request.getMethod().c_str());
@@ -103,7 +106,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
     try {
         response = endpoint(request);
         // Cache the endpoint
-        m_endpointHandlers[request.getCanonicalPath()][request.getMethod()] = endpoint;
+        m_endpointHandlers[request.getPath()][request.getMethod()] = endpoint;
         return response;
     } catch (const std::exception& e) {
         SPDLOG_ERROR("Error: [{} {}] {}", request.getMethod(), request.getRoute(), e.what());
@@ -115,7 +118,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
 }
 
 HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
-    std::ifstream file(request.getCanonicalPath().c_str(), std::ios::binary);
+    std::ifstream file(request.getPath().c_str(), std::ios::binary);
     if (!file.is_open()) {
         HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
         response.setHeader("Content-Type", "text/html");
@@ -126,7 +129,7 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
     const std::streamsize filesize = file.tellg();
     file.seekg(0, std::ios::beg);
     HttpResponseHeader response("HTTP/1.1", "200", "OK", "OK");
-    response.setHeader("Content-Type", utils::getContentType(request.getCanonicalPath()));
+    response.setHeader("Content-Type", utils::getContentType(request.getPath()));
     std::stringstream ss;
     ss << file.rdbuf();
     response.setBody(ss.str());

@@ -10,5 +10,5 @@
     "no-stdout": false,
     "timestamp": true
   },
-  "watch": true
+  "watch": false
 }

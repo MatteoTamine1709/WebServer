@@ -16,7 +16,7 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
     transform(m_method.begin(), m_method.end(), m_method.begin(), ::tolower);
     std::getline(issRequestLine, m_path, ' ');
     m_route = std::filesystem::weakly_canonical(m_path).string();
-    m_path = std::filesystem::path(m_path).string();
+    m_path = std::filesystem::weakly_canonical(m_path).string();
     std::getline(issRequestLine, m_protocol, '\r');
     while (std::getline(issHeader, line)) {
         if (line.empty())
@@ -47,14 +47,6 @@ std::string HttpRequestHeader::getMethod() const {
 
 std::string HttpRequestHeader::getPath() const {
     return m_path;
-}
-
-std::string HttpRequestHeader::getWeaklyCanonicalPath() const {
-    return std::filesystem::weakly_canonical(m_path).string();
-}
-
-std::string HttpRequestHeader::getCanonicalPath() const {
-    return std::filesystem::canonical(m_path).string();
 }
 
 std::string HttpRequestHeader::getRoute() const {
@@ -114,11 +106,15 @@ bool HttpRequestHeader::isEndpoint() const {
 }
 
 void HttpRequestHeader::setPath(const std::string& path) {
-    m_path = path;
+    m_path = std::filesystem::weakly_canonical(path).string();
 }
 
 bool HttpRequestHeader::isPathValid() const {
     return std::filesystem::exists(m_path);
+}
+
+bool HttpRequestHeader::isPathDirectory() const {
+    return std::filesystem::is_directory(m_path);
 }
 
 void HttpRequestHeader::setProtocol(const std::string& protocol) {

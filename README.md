@@ -11,6 +11,7 @@
   - [x] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) (maybe using [spdlog](https://github.com/gabime/spdlog))
     - [ ] Date and time support
     - [x] Log to file
+  - [ ] Testing server with [Catch2](https://github.com/catchorg/Catch2)
   - [ ] Dockerize the project (_If needed_)
 
 - Server:
@@ -38,10 +39,13 @@
 
 As of right now, we are loading the endpoints from compiled shared library in each folder using a Next like approach. We are able to manage all methods as long as they are defined, otherwise 404 is returned.
 
-We are missing routing with parameter such as `/user/:id` or `/user/:id/:name`
-We are also missing this type of route `/user?id=1`
-And we would also like to add a way to handle all routes like `*` or `**`
-Also, we would like to handle optional parameters like `/user/:id?` (refer to [next.js](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes) for more info)
+[x] We want to support this type of route aswell
+`pages/blog/first-post.js` → `/blog/first-post`
+`pages/dashboard/settings/username.js` → `/dashboard/settings/username`
+[ ] We are missing routing with parameter such as `/user/:id` or `/user/:id/:name`
+[ ] We are also missing this type of route `/user?id=1`
+[ ] And we would also like to add a way to handle all routes like `*` or `**`
+[ ] Also, we would like to handle optional parameters like `/user/:id?` (refer to [next.js](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes) for more info)
 
 ### HotReload
 
