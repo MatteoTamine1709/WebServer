@@ -21,7 +21,7 @@ std::string TcpConnection::read() {
     if (bytes == 0 && !isOpen())
         throw std::runtime_error("connection closed");
     if (bytes > 0)
-        SPDLOG_DEBUG("read {} bytes", bytes);
+        spdlog::debug("read {} bytes", bytes);
     return std::string(m_buffer.data(), bytes);
 }
 
@@ -30,7 +30,7 @@ void TcpConnection::write(const std::string& message) {
     if (bytes == -1)
         throw std::runtime_error("write() failed");
     if (bytes > 0)
-        SPDLOG_DEBUG("wrote {} bytes", bytes);
+        spdlog::debug("wrote {} bytes", bytes);
 }
 
 bool TcpConnection::isOpen() const {

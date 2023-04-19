@@ -57,6 +57,14 @@ namespace utils {
         return result;
     }
 
+    bool startsWith(const std::string& str, const std::string& prefix) {
+        return str.find(prefix) == 0;
+    }
+
+    bool endsWith(const std::string& str, const std::string& suffix) {
+        return str.rfind(suffix) == (str.length() - suffix.length());
+    }
+
     std::string replace(const std::string& str, const std::string& from, const std::string& to) {
         std::string result = str;
         size_t pos = 0;

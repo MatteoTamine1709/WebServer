@@ -52,12 +52,12 @@ void TcpServer::handleWatchConfig(nlohmann::json &watch) {
 
         if (mkfifo(fifo_path, 0666) == -1 && errno != EEXIST)
             return SPDLOG_ERROR("Failed to create FIFO: {}", strerror(errno));
-        SPDLOG_DEBUG("Created FIFO at {}", fifo_path);
+        spdlog::debug("Created FIFO at {}", fifo_path);
         SPDLOG_WARN("Waiting for hot reloader to connect...");
         m_pipeFD = open(fifo_path, O_RDONLY);
         if (m_pipeFD == -1)
             return SPDLOG_ERROR("Failed to open FIFO: {}", strerror(errno));
-        SPDLOG_DEBUG("Opened FIFO at {}", fifo_path);
+        spdlog::debug("Opened FIFO at {}", fifo_path);
         SPDLOG_INFO("Hot reloader connecting, starting the server...");
     }
     registerSignals({SIGUSR1, SIGUSR2});

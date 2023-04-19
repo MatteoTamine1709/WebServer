@@ -13,6 +13,8 @@
 #include <spdlog/spdlog.h>
 
 #include <filesystem>
+#include <optional>
+#include <stack>
 
 HttpRequestHeader &TcpServer::completeRequest(HttpRequestHeader &request) {
     if (request.getProtocol().empty())
@@ -46,6 +48,57 @@ HttpResponseHeader &TcpServer::completeResponse(HttpResponseHeader &response, co
     return response;
 }
 
+std::optional<std::string> getCorrectPathOrEmpty(const std::filesystem::path &path) {
+    if (std::filesystem::is_directory(path) && std::filesystem::exists(path / "index.so"))
+        return path / "index.so";
+    if (std::filesystem::exists(path / ".so"))
+        return path / ".so";
+    if (std::filesystem::exists(path))
+        return path;
+    
+    // Handler those lines
+    // /user/aaaa -> /user/[id]/index.so
+    // /user/bbb/sss -> /user/[id]/[id].so
+    // /user/xxx/username -> /user/[id]/username.so
+    // /user/xxx/username/aaa -> /user/[id]/username/[id].so
+
+    std::stack<std::string> pathPart;
+    std::filesystem::path newPath(path);
+    while (!std::filesystem::exists(newPath) && newPath.has_parent_path()) {
+        pathPart.push(newPath.filename());
+        newPath = newPath.parent_path();
+    }
+    // Get all children
+    while (pathPart.size() > 0) {
+        if (std::filesystem::exists(newPath / pathPart.top())) {
+            newPath /= pathPart.top();
+            pathPart.pop();
+            continue;
+        } else if (std::filesystem::exists(newPath / (pathPart.top() + ".so"))) {
+            newPath /= (pathPart.top() + ".so");
+            pathPart.pop();
+            continue;
+        }
+        bool found = false;
+        for (const auto &child : std::filesystem::directory_iterator(newPath)) {
+            std::string childName = child.path().filename();
+            if (utils::startsWith(childName, "[") && (utils::endsWith(childName, "]") || utils::endsWith(childName, "].so"))) {
+                newPath /= childName;
+                pathPart.pop();
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+            return std::nullopt;
+    }
+    if (std::filesystem::is_directory(newPath))
+        return newPath / "index.so";
+    if (std::filesystem::exists(newPath))
+        return newPath;
+    return std::nullopt;
+}
+
 HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle parematerized paths
     // TODO: Handle request parameters
@@ -54,19 +107,14 @@ HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
         request.setPath(m_public + request.getPath());
         if (!request.isPathValid())
             return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
-        SPDLOG_DEBUG("Canonical path: {}", request.getPath());
         HttpResponseHeader response = handleFile(request);
         completeResponse(response, request);
         return response;
     }
-    request.setPath(m_api + request.getPath());
-    if (request.isPathValid() && request.isPathDirectory())
-        request.setPath(request.getPath() + "/index.so");
-    else
-        request.setPath(request.getPath() + ".so");
-    if (!request.isPathValid())
+    auto correctPath = getCorrectPathOrEmpty(m_api + request.getPath());
+    if (!correctPath.has_value())
         return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
-
+    request.setPath(correctPath.value());
     HttpResponseHeader response = handleEndpoint(request);
     completeResponse(response, request);
     return response;

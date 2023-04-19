@@ -4,11 +4,11 @@
   "api": "./endpoints",
   "public": "./public",
   "log": {
-    "level": "debug",
+    "level": "info",
     "format": "dev",
     "file": "server.log",
     "no-stdout": false,
     "timestamp": true
   },
-  "watch": false
+  "watch": true
 }
