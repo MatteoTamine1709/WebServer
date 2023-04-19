@@ -1,3 +1,4 @@
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 #include "../TcpServer.h"
 #include "../HttpRequestHeader.h"
 #include "../HttpResponseHeader.h"
@@ -17,9 +18,11 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
 #include "../Logger.h"
-std::string Logger::a = "a";
+
+std::vector<std::string> LOGGER_FORMAT = {};
 
 void TcpServer::handleHostConfig(nlohmann::json &host) {
     if (host.is_string())
@@ -48,49 +51,82 @@ void TcpServer::handleWatchConfig(nlohmann::json &watch) {
         const char *fifo_path = "/tmp/fifo";
 
         if (mkfifo(fifo_path, 0666) == -1 && errno != EEXIST)
-            return spdlog::error("Failed to create FIFO: {}", strerror(errno));
-        spdlog::info("Created FIFO at {}", fifo_path);
-        spdlog::info("Waiting for hot reloader to connect...");
+            return SPDLOG_ERROR("Failed to create FIFO: {}", strerror(errno));
+        SPDLOG_DEBUG("Created FIFO at {}", fifo_path);
+        SPDLOG_WARN("Waiting for hot reloader to connect...");
         m_pipeFD = open(fifo_path, O_RDONLY);
+        if (m_pipeFD == -1)
+            return SPDLOG_ERROR("Failed to open FIFO: {}", strerror(errno));
+        SPDLOG_DEBUG("Opened FIFO at {}", fifo_path);
+        SPDLOG_INFO("Hot reloader connected, starting the server...");
+    }
+    registerSignals({{SIGUSR1, &TcpServer::hotReload}});
+}
+
+void setFormat(std::string format) {
+    std::unordered_map<std::string, std::string> format_map = {
+        {"dev", "{:method} {:url} {:status} {:response-time}ms - {:header[Content-Length]}"},
+        {"combined", ":remote-addr - :remote-user [:date[clf]] \":method :url HTTP/:http-version\" :status :res[Content-Length] \":referrer\" \":user-agent\""},
+        {"common", ":remote-addr - :remote-user [:date[clf]] \":method :url HTTP/:http-version\" :status :res[Content-Length]"},
+        {"dev", ":method :url :status :response-time ms - :res[Content-Length]"},
+        {"short", ":remote-addr :remote-user :method :url HTTP/:http-version :status :res[Content-Length] - :response-time ms"},
+        {"tiny", ":method :url :status :res[Content-Length] - :response-time ms"}
+    };
+
+    if (format_map.find(format) != format_map.end()) {
+        LOGGER_FORMAT = utils::split(format_map[format], {" "});
+    } else {
+        LOGGER_FORMAT = utils::split(format, {" "});
     }
 }
 
 void TcpServer::handleLogConfig(nlohmann::json &log) {
-    if (log.is_string())
-        spdlog::set_level(spdlog::level::from_str(log));
-    if (log.is_number())
-        spdlog::set_level(static_cast<spdlog::level::level_enum>(log));
+    
+    if (log.is_string() && log == "off") return spdlog::set_level(spdlog::level::off);
+    if (log.is_string()) spdlog::set_level(spdlog::level::from_str(log));
+    if (log.is_number()) spdlog::set_level(static_cast<spdlog::level::level_enum>(log));
 
     if (log.is_object()) {
-        if (log.contains("level"))
-            spdlog::set_level(spdlog::level::from_str(log["level"]));
-        std::vector<spdlog::sink_ptr> sinks;
-        if (!log.contains("no-stdout") || !log["no-stdout"].is_boolean() || !log["no-stdout"].get<bool>())
-            sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_st>());
-        if (log.contains("file") && log["file"].is_string())
-            sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_st>("logs/" + log["file"].get<std::string>(), 23, 59));
-        auto combined_logger = std::make_shared<spdlog::logger>("Logger", begin(sinks), end(sinks));
-        spdlog::set_default_logger(combined_logger);
-        std::string format;
-        if (log.contains("format") && log["format"].is_string()) {
-            std::unordered_map<std::string, std::string> format_map = {
-                {"combined", "[%^%l%$] [%s:%#] %v"},
-                {"common", "%h %l %u %t \"%r\" %s %b"},
-                {"dev", "[%^%l%$] [%s:%#] %v"},
-                {"short", "%^[%l] [%s:%#] %v%$"},
-                {"tiny", "%^[%l] [%s:%#] %v%$"}
-            };
-
-            if (format_map.find(log["format"]) != format_map.end())
-                format = format_map[log["format"]];
-            else
-                format = log["format"];
-        }
+        std::string format = "%:";
+        if (log.contains("format") && log["format"].is_string())
+            setFormat(log["format"].get<std::string>());
         if (log.contains("timestamp") && log["timestamp"].is_boolean() && log["timestamp"].get<bool>())
             format = "[%Y-%m-%d %H:%M:%S.%e] " + format;
-        auto formatter = std::make_unique<spdlog::pattern_formatter>();
-        formatter->add_flag<Logger::my_formatter_flag>('*');
-        formatter->set_pattern(format + " %*");
-        spdlog::set_formatter(std::move(formatter));
+
+        std::vector<spdlog::sink_ptr> sinks;
+        std::vector<spdlog::sink_ptr> routeSinks;
+        if (!log.contains("no-stdout") || !log["no-stdout"].is_boolean() || !log["no-stdout"].get<bool>()) {
+            auto routeLogger =  std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            auto routeFormatter = std::make_unique<spdlog::pattern_formatter>();
+            routeFormatter->add_flag<devFomat>(':');
+            routeFormatter->set_pattern(format);
+            routeLogger->set_level(spdlog::level::info);
+            routeLogger->set_formatter(std::move(routeFormatter));
+            routeSinks.push_back(routeLogger);
+            sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_st>());
+        }
+        if (log.contains("file") && log["file"].is_string()) {
+            auto fileRouteLogger = std::make_shared<spdlog::sinks::daily_file_sink_st>("logs/routes/" + log["file"].get<std::string>(), 23, 59);
+            auto routeFormatter = std::make_unique<spdlog::pattern_formatter>();
+            routeFormatter->add_flag<devFomat>(':');
+            routeFormatter->set_pattern(format);
+            fileRouteLogger->set_level(spdlog::level::info);
+            fileRouteLogger->set_formatter(std::move(routeFormatter));
+            routeSinks.push_back(fileRouteLogger);
+            sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_st>("logs/" + log["file"].get<std::string>(), 23, 59));
+        }
+        auto combinedLogger = std::make_shared<spdlog::logger>("Logger", begin(sinks), end(sinks));
+        spdlog::set_default_logger(combinedLogger);
+        auto combinedRouteLogger = std::make_shared<spdlog::logger>("RouteLogger", begin(routeSinks), end(routeSinks));
+        spdlog::register_logger(combinedRouteLogger);
+        
+        if (log.contains("level") && log["level"].is_string()) {
+            spdlog::set_level(spdlog::level::from_str(log["level"]));
+            combinedRouteLogger->set_level(spdlog::level::from_str(log["level"]));
+        }
+        if (log.contains("level") && log["level"].is_number()) {
+            spdlog::set_level(static_cast<spdlog::level::level_enum>(log["level"]));
+            combinedRouteLogger->set_level(static_cast<spdlog::level::level_enum>(log["level"]));
+        }
     }
 }

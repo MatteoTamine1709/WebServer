@@ -93,16 +93,16 @@ namespace utils {
         char buffer [80];
         // Format : <day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT
         // Example: Tue, 15 Nov 1994 08:12:31 GMT
-        strftime (buffer, 80, "%a, %d %b %Y %H:%M:%S", timeinfo);
+        strftime (buffer, 80, "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
         return std::string(buffer);
     }
 
     void initializeMimeMap() {
         if (mimeMap.size() == 0) {
-            spdlog::debug("Initializing mime map");
+            SPDLOG_INFO("Initializing mime map");
             std::ifstream file("./utils/mime.txt");
             if (!file.is_open()) {
-                spdlog::error("utils/mime.txt not found");
+                SPDLOG_CRITICAL("utils/mime.txt not found");
                 exit(1);
             }
             std::stringstream ss;

@@ -14,6 +14,7 @@ public:
     std::string getStatusCode() const;
     std::string getStatusMessage() const;
     std::optional<std::string> getHeader(const std::string& key) const;
+    std::unordered_map<std::string, std::string> getHeaders() const;
     std::string getBody() const;
 
     void setProtocol(const std::string& protocol);

@@ -79,12 +79,12 @@ TcpServer::~TcpServer() {
 }
 
 void TcpServer::run() {
-    spdlog::info("Server started");
-    spdlog::warn("Server is running in debug mode");
+    if (spdlog::get_level() == spdlog::level::debug) SPDLOG_WARN("Server is running in debug mode");
+    SPDLOG_INFO("Server started");
     utils::initializeMimeMap();
     while (m_running)
         accept();
-    spdlog::info("Server stopped");
+    SPDLOG_INFO("Server stopped");
 }
 
 void TcpServer::accept() {
@@ -94,19 +94,22 @@ void TcpServer::accept() {
     if (clientSocket == -1 && errno != EINTR)
         throw std::runtime_error("accept() failed");
 
-    std::thread([clientSocket, this](){
+    std::thread([clientSocket, this] () {
         TcpConnection connection(clientSocket);
         while (connection.isOpen()) {
             auto requestHeader = read(connection);
             auto start = std::chrono::high_resolution_clock::now();
             if (!requestHeader)
                 continue;
-            // calculate time
             HttpResponseHeader responseHeader = handleRequest(requestHeader.value());
             write(connection, responseHeader);
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-            spdlog::info("{} {} {} {}ms", requestHeader.value().getHeader("Host").value_or("unknown"), utils::toUpper(requestHeader.value().getMethod()), requestHeader.value().getRoute({ m_api, m_public }), duration.count());
+            LoggedInfo info(requestHeader.value(), responseHeader, duration.count());
+            std::vector<std::string> toPrint;
+            for (const auto &format : LOGGER_FORMAT)
+                toPrint.push_back(fmt::format(format, fmt::arg(format.c_str(), info)));
+            spdlog::get("RouteLogger")->info(utils::join(toPrint, " "));
             if (requestHeader.value().getHeader("Connection").has_value() && requestHeader.value().getHeader("Connection").value() != "keep-alive")
                 break;
         }

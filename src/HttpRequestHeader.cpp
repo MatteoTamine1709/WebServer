@@ -15,8 +15,9 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
     std::getline(issRequestLine, m_method, ' ');
     transform(m_method.begin(), m_method.end(), m_method.begin(), ::tolower);
     std::getline(issRequestLine, m_path, ' ');
+    m_route = std::filesystem::weakly_canonical(m_path).string();
     m_path = std::filesystem::path(m_path).string();
-    std::getline(issRequestLine, m_protocol, ' ');
+    std::getline(issRequestLine, m_protocol, '\r');
     while (std::getline(issHeader, line)) {
         if (line.empty())
             break;
@@ -35,6 +36,9 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
         m_body.resize(contentLength);
         issHeader.read(m_body.data(), contentLength);
     }
+    m_url = std::filesystem::weakly_canonical(m_path).string();
+    if (!m_url.empty() && m_url.back() == '/')
+        m_url.pop_back();
 }
 
 std::string HttpRequestHeader::getMethod() const {
@@ -45,27 +49,16 @@ std::string HttpRequestHeader::getPath() const {
     return m_path;
 }
 
+std::string HttpRequestHeader::getWeaklyCanonicalPath() const {
+    return std::filesystem::weakly_canonical(m_path).string();
+}
+
 std::string HttpRequestHeader::getCanonicalPath() const {
     return std::filesystem::canonical(m_path).string();
 }
 
-std::string HttpRequestHeader::getRoute(const std::vector<std::string> &routeSourceDir) const {
-    std::filesystem::path path(m_path);
-    std::filesystem::path dir(m_path);
-
-    auto isDirRouteSource = [&routeSourceDir](const std::filesystem::path& dir) {
-        for (const auto& route : routeSourceDir)
-            if (dir == route)
-                return true;
-        return false;
-    };
-    do
-        dir = dir.parent_path();
-    while (!isDirRouteSource(dir));
-    std::filesystem::path relativePath = path.lexically_relative(dir);
-    if (relativePath.filename() == "index.so")
-        relativePath = relativePath.parent_path();
-    return std::filesystem::weakly_canonical(std::filesystem::path("/") / relativePath);
+std::string HttpRequestHeader::getRoute() const {
+    return m_route;
 }
 
 std::string HttpRequestHeader::getProtocol() const {
@@ -78,8 +71,46 @@ std::optional<std::string> HttpRequestHeader::getHeader(const std::string& key) 
     return m_headers.at(key);
 }
 
+std::unordered_map<std::string, std::string> HttpRequestHeader::getHeaders() const {
+    return m_headers;
+}
+
+std::string HttpRequestHeader::getUrl() const {
+    return std::filesystem::weakly_canonical(m_url).string();
+}
+
+std::string HttpRequestHeader::getRemoteAddress() const {
+    if (m_headers.find("Remote-Address") != m_headers.end())
+        return m_headers.at("Remote-Address");
+    if (m_headers.find("X-Forwarded-For") != m_headers.end())
+        return m_headers.at("X-Forwarded-For");
+    return "";
+}
+
+std::string HttpRequestHeader::getRemoteUser() const {
+    if (m_headers.find("Remote-User") != m_headers.end())
+        return m_headers.at("Remote-User");
+    return "";
+}
+
+std::string HttpRequestHeader::getReferrer() const {
+    if (m_headers.find("Referer") != m_headers.end())
+        return m_headers.at("Referer");
+    return "";
+}
+
+std::string HttpRequestHeader::getUserAgent() const {
+    if (m_headers.find("User-Agent") != m_headers.end())
+        return m_headers.at("User-Agent");
+    return "";
+}
+
 std::string HttpRequestHeader::getBody() const {
     return m_body;
+}
+
+bool HttpRequestHeader::isEndpoint() const {
+    return utils::getExtension(m_route).empty();
 }
 
 void HttpRequestHeader::setPath(const std::string& path) {
@@ -88,6 +119,10 @@ void HttpRequestHeader::setPath(const std::string& path) {
 
 bool HttpRequestHeader::isPathValid() const {
     return std::filesystem::exists(m_path);
+}
+
+void HttpRequestHeader::setProtocol(const std::string& protocol) {
+    m_protocol = protocol;
 }
 
 void HttpRequestHeader::setHeader(const std::string& key, const std::string& value) {

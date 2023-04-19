@@ -5,13 +5,16 @@
 - Tools:
 
   - [x] Automatically rebuild any .cpp file that has been changed in the `endpoints` folder ([Reference](#hotreload))
-  - [.] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) (maybe using [spdlog](https://github.com/gabime/spdlog))
-  - [x] Log to file
+    - [ ] Currently, if the hot reloader is started and we shhut down the server and open it back up, the hot reloader will not work as it has the incorrect PID.
+  - [x] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) (maybe using [spdlog](https://github.com/gabime/spdlog))
+    - [ ] Date and time support
+    - [x] Log to file
   - [ ] Dockerize the project (_If needed_)
 
 - Server:
 
-  - [.] A good config file (maybe using [nlohmann/json](https://github.com/nlohmann/json)) ([Reference](#config-file))
+  - [x] A good config file system (maybe using [nlohmann/json](https://github.com/nlohmann/json)) ([Reference](#config-file))
+    - [ ] Add options as project goes on
   - [ ] [Routing system](#routing-system) like [next.js](https://nextjs.org/docs/routing/introduction)
   - [ ] A way to handle sessions (MAYBE)
 
@@ -21,7 +24,12 @@
   - [ ] A system to communicate with databases / have modules that every endpoint can access
 
 - Hosting:
+
   - [ ] A way to host the server on a VPS (maybe using [docker](https://www.docker.com/))
+
+- Optimisation
+  - [ ] A way to optimise the server to handle a lot of requests (maybe using [libuv](https://libuv.org/))
+  - [ ] Reduce usage of memory using string_view and other stuff
 
 ### Routing System
 

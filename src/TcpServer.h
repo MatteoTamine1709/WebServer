@@ -32,6 +32,7 @@ public:
 private:
     TcpServer();
     void accept();
+    HttpRequestHeader &completeRequest(HttpRequestHeader &requesst);
     std::optional<HttpRequestHeader> read(TcpConnection& connection);
     HttpResponseHeader &completeResponse(HttpResponseHeader &response, const HttpRequestHeader &request);
     HttpResponseHeader handleRequest(HttpRequestHeader& request);

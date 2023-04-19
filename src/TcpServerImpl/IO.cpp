@@ -12,8 +12,15 @@
 
 #include <spdlog/spdlog.h>
 
+#include <filesystem>
 
-    #include <filesystem>
+HttpRequestHeader &TcpServer::completeRequest(HttpRequestHeader &request) {
+    if (request.getProtocol().empty())
+        request.setProtocol("HTTP/1.1");
+    // request.setUrl("m_host + request.getPath()");
+
+    return request;
+} 
 
 std::optional<HttpRequestHeader> TcpServer::read(TcpConnection& connection) {
     const std::string &data = connection.read();
@@ -21,6 +28,7 @@ std::optional<HttpRequestHeader> TcpServer::read(TcpConnection& connection) {
         return std::nullopt;
     
     HttpRequestHeader header(data);
+    completeRequest(header);
 
     return header;
 }
@@ -42,20 +50,20 @@ HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle parematerized paths
     // TODO: Handle request parameters
     std::string path = std::filesystem::weakly_canonical(std::filesystem::path(request.getPath())).string();
-    if (request.getMethod() == "get" && !utils::getExtension(path).empty()) {
+    if (request.getMethod() == "get" && !utils::getExtension(request.getRoute()).empty()) {
         request.setPath(m_public + request.getPath());
         if (!request.isPathValid())
             return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
-        spdlog::debug("Canonical path: {}", request.getCanonicalPath());
+        SPDLOG_DEBUG("Canonical path: {}", request.getCanonicalPath());
         HttpResponseHeader response = handleFile(request);
         completeResponse(response, request);
         return response;
     }
     request.setPath(m_api + request.getPath());
-    request.setPath(request.getCanonicalPath() + "/index.so");
+    request.setPath(request.getWeaklyCanonicalPath() + "/index.so");
     if (!request.isPathValid())
         return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
-    spdlog::debug("Canonical path: {}", request.getCanonicalPath());
+    SPDLOG_DEBUG("Canonical path: {}", request.getCanonicalPath());
     HttpResponseHeader response = handleEndpoint(request);
     completeResponse(response, request);
     return response;
@@ -73,7 +81,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
     } else {
         lib = dlopen(request.getCanonicalPath().c_str(), RTLD_LAZY);
         if (!lib) {
-            spdlog::error("Cannot open library: {}", dlerror());
+            SPDLOG_ERROR("Cannot open library: {}", dlerror());
             HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
             response.setHeader("Content-Type", "text/html");
             return response;
@@ -84,7 +92,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
     endpoint_t endpoint = (endpoint_t) dlsym(lib, request.getMethod().c_str());
     const char* dlsym_error = dlerror();
     if (dlsym_error) {
-        spdlog::error("Cannot load symbol '{}': {}", request.getMethod(), dlsym_error);
+        SPDLOG_ERROR("Cannot load symbol '{}': {}", request.getMethod(), dlsym_error);
         dlclose(lib);
         HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
         response.setHeader("Content-Type", "text/html");
@@ -98,7 +106,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
         m_endpointHandlers[request.getCanonicalPath()][request.getMethod()] = endpoint;
         return response;
     } catch (const std::exception& e) {
-        spdlog::error("Error: {}", e.what());
+        SPDLOG_ERROR("Error: [{} {}] {}", request.getMethod(), request.getRoute(), e.what());
         dlclose(lib);
         HttpResponseHeader response("HTTP/1.1", "500", "Internal Server Error", "Internal Server Error");
         response.setHeader("Content-Type", "text/html");

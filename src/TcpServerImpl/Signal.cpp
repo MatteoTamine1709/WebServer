@@ -16,7 +16,7 @@ void TcpServer::registerSignals(std::vector<std::pair<int, void (TcpServer::*)()
 
     for (const auto &[signal, handler] : signalHandlers) {
         if (sigaction(signal, &action, NULL) == -1) {
-            spdlog::error("Cannot register signal handler: {}", strerror(errno));
+            SPDLOG_CRITICAL("Cannot register signal handler: {}", strerror(errno));
             exit(1);
         }
         std::thread(handler, this).detach();
@@ -33,7 +33,7 @@ void TcpServer::hotReload() {
             char hotReloaded_path[1024];
             ssize_t n_read = ::read(m_pipeFD, hotReloaded_path, sizeof(hotReloaded_path));
             if (n_read == -1) {
-                spdlog::error("Cannot read from pipe: {}", strerror(errno));
+                SPDLOG_ERROR("Cannot read from pipe: {}", strerror(errno));
                 continue;
             }
             hotReloaded_path[n_read] = '\0';
@@ -45,11 +45,11 @@ void TcpServer::hotReload() {
                 dlclose(m_endpointLibs[canonical]);
             void *lib = dlopen(canonical.c_str(), RTLD_LAZY);
             if (!lib) {
-                spdlog::error("Cannot open library: {}", dlerror());
+                SPDLOG_ERROR("Cannot open library: {}", dlerror());
                 continue;
             }
             m_endpointLibs[canonical] = lib;
-            spdlog::info("Hot reloaded library: {}", canonical);
+            SPDLOG_INFO("Hot reloaded library: {}", canonical);
         }
     }
 }

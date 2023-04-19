@@ -52,6 +52,10 @@ std::optional<std::string> HttpResponseHeader::getHeader(const std::string &key)
     return m_headers.at(key);
 }
 
+std::unordered_map<std::string, std::string> HttpResponseHeader::getHeaders() const {
+    return m_headers;
+}
+
 std::string HttpResponseHeader::getBody() const {
     return m_body;
 }
