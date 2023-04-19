@@ -1,5 +1,5 @@
-#include "../src/HttpRequestHeader.h"
-#include "../src/HttpResponseHeader.h"
+#include "src/HttpRequestHeader.h"
+#include "src/HttpResponseHeader.h"
 
 #include <fstream>
 #include <sstream>

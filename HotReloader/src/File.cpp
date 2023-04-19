@@ -25,7 +25,7 @@ bool File::isUpdated() {
 void File::compile() {
     std::cout << "Compiling " << m_path << std::endl;
     std::string outputFile = m_path.substr(0, m_path.find_last_of(".")) + ".so";
-    std::string command = "g++ -shared -fPIC " + m_path + " -o " + outputFile;
+    std::string command = "g++ -shared -fPIC " + m_path + " -o " + outputFile + " -std=c++20" + " -I../";
     system(command.c_str());
 }
 
