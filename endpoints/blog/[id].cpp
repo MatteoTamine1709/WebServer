@@ -1,5 +1,5 @@
-#include "../src/HttpRequestHeader.h"
-#include "../src/HttpResponseHeader.h"
+#include "../../src/HttpRequestHeader.h"
+#include "../../src/HttpResponseHeader.h"
 
 #include <fstream>
 #include <sstream>
@@ -16,6 +16,6 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
     reponse.setStatusCode("200");
     reponse.setStatusMessage("OK");
     reponse.setHeader("Content-Type", "application/json");
-    reponse.setBody("{\"message\": \"BLOG2\"}");
+    reponse.setBody("{\"message\": \"blog/[id]\"}");
     return reponse;
 }
