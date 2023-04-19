@@ -29,7 +29,6 @@ int main(int argc, char **argv) {
         std::cerr << "Usage: " << argv[0] << " <path> <targetPID>" << std::endl;
         return 1;
     }
-    loadFiles(argv[1]);
     pid_t targetPID = std::stoi(argv[2]);
 
     const std::string fifoPipePath = "/tmp/fifo";
@@ -39,7 +38,13 @@ int main(int argc, char **argv) {
     sa.sa_handler = [](int) { running = false; };
     sigaction(SIGINT, &sa, nullptr);
 
+    loadFiles(argv[1]);
+    for (auto &[path, file] : files)
+        file.compile();
+
+    kill(targetPID, SIGUSR2);
     while (running) {
+        loadFiles(argv[1]);
         for (auto &[path, file] : files) {
             if (file.isUpdated()) {
                 file.compile();
@@ -50,9 +55,10 @@ int main(int argc, char **argv) {
                     return 1;
                 }
             }
-        }
+        }    
     }
     std::cout << "Stopping" << std::endl; 
     close(signalFD);
+    kill(targetPID, SIGUSR2);
     return 0;
 }

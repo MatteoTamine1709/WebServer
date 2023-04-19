@@ -22,7 +22,6 @@
 #include <fcntl.h>
 
 std::unique_ptr<TcpServer> TcpServer::m_instance = nullptr;
-volatile std::sig_atomic_t TcpServer::m_signal = -1;
 
 TcpServer& TcpServer::getInstance() {
     if (!m_instance)
@@ -38,7 +37,7 @@ TcpServer::TcpServer() {
         if (m_configHandlers.find(key) != m_configHandlers.end())
             (this->*m_configHandlers[key])(value);
     }
-    registerSignals(m_defaultSignalHandlers);
+    registerSignals(m_defaultSignals);
 
     addrinfo hints;
     addrinfo* result;

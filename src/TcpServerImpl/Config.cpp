@@ -58,9 +58,9 @@ void TcpServer::handleWatchConfig(nlohmann::json &watch) {
         if (m_pipeFD == -1)
             return SPDLOG_ERROR("Failed to open FIFO: {}", strerror(errno));
         SPDLOG_DEBUG("Opened FIFO at {}", fifo_path);
-        SPDLOG_INFO("Hot reloader connected, starting the server...");
+        SPDLOG_INFO("Hot reloader connecting, starting the server...");
     }
-    registerSignals({{SIGUSR1, &TcpServer::hotReload}});
+    registerSignals({SIGUSR1, SIGUSR2});
 }
 
 void setFormat(std::string format) {

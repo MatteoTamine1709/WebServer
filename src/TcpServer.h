@@ -40,20 +40,16 @@ private:
     HttpResponseHeader handleFile(HttpRequestHeader& request);
     void write(TcpConnection& connection, const HttpResponseHeader& response);
 
-    void registerSignals(std::vector<std::pair<int, void (TcpServer::*)()>> signalHandlers);
-    static void handleSignal(int signum, siginfo_t *info, void *context);
-    void hotReload();
-    void stopServer();
+    void registerSignals(std::vector<int> signals);
+    void handleSignal(int signum, siginfo_t *info, void *contex);
 
     static std::unique_ptr<TcpServer> m_instance;
 
     int m_socket;
 
-    static volatile std::sig_atomic_t m_signal;
-    std::vector<std::pair<int, void (TcpServer::*)()>> m_defaultSignalHandlers = {
-            {SIGINT, &TcpServer::stopServer},
-            {SIGTERM, &TcpServer::stopServer}
-    };
+    volatile std::sig_atomic_t m_signal;
+    std::vector<int> m_defaultSignals = {SIGINT, SIGTERM};
+
     int m_pipeFD = -1;
     
     bool m_running = true;

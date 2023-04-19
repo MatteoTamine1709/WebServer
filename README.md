@@ -6,6 +6,8 @@
 
   - [x] Automatically rebuild any .cpp file that has been changed in the `endpoints` folder ([Reference](#hotreload))
     - [ ] Currently, if the hot reloader is started and we shhut down the server and open it back up, the hot reloader will not work as it has the incorrect PID.
+    - [ ] When we start the project with watch mode, the hot reloader is not started
+    - [ ] Hot reloader should know the set folder for endpoints and not have to be passed as an argument
   - [x] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) (maybe using [spdlog](https://github.com/gabime/spdlog))
     - [ ] Date and time support
     - [x] Log to file
@@ -14,7 +16,7 @@
 - Server:
 
   - [x] A good config file system (maybe using [nlohmann/json](https://github.com/nlohmann/json)) ([Reference](#config-file))
-    - [ ] Add options as project goes on
+    - [ ] Add options as the project goes on
   - [ ] [Routing system](#routing-system) like [next.js](https://nextjs.org/docs/routing/introduction)
   - [ ] A way to handle sessions (MAYBE)
 
@@ -29,7 +31,8 @@
 
 - Optimisation
   - [ ] A way to optimise the server to handle a lot of requests (maybe using [libuv](https://libuv.org/))
-  - [ ] Reduce usage of memory using string_view and other stuff
+  - [ ] Reduce memmory footprint
+  - [ ] Reduce CPU usage
 
 ### Routing System
 
