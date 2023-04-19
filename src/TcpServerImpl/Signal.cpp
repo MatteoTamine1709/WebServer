@@ -7,16 +7,16 @@
 
 #include <dlfcn.h>
 #include <fcntl.h>
-std::function<void(int, siginfo_t *, void *)> myCb;
 
-void callCB(int signum, siginfo_t *info, void *context) {
-    myCb(signum, info, context);
+std::function<void(int, siginfo_t *, void *)> handler;
+void callHandler(int signum, siginfo_t *info, void *context) {
+    handler(signum, info, context);
 }
 
 void TcpServer::registerSignals(std::vector<int> signals) {
     struct sigaction action;
-    myCb = std::bind(&TcpServer::handleSignal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-    action.sa_sigaction = callCB;
+    handler = std::bind(&TcpServer::handleSignal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    action.sa_sigaction = callHandler;
     sigemptyset(&action.sa_mask);
     action.sa_flags = SA_SIGINFO;
 
