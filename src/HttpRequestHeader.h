@@ -21,7 +21,10 @@ public:
     std::string getRemoteUser() const;
     std::string getReferrer() const;
     std::string getUserAgent() const;
+    std::string getContentType() const;
     std::string getBody() const;
+    std::optional<std::string> getParameter(const std::string& key) const;
+    std::unordered_map<std::string, std::string> getParameters() const;
 
     bool isEndpoint() const;
 
@@ -41,6 +44,7 @@ private:
     std::string m_url;
     std::string m_protocol;
     std::unordered_map<std::string, std::string> m_headers;
+    std::unordered_map<std::string, std::string> m_parameters;
     std::string m_body;
 };
 

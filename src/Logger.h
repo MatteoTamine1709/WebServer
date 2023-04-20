@@ -72,7 +72,7 @@ struct fmt::formatter<LoggedInfo> {
         if (token == "method") return format_to(ctx.out(), color + "{}\033[1;0m", logInfo.method);
         if (token == "url") return format_to(ctx.out(), "{}", logInfo.url);
         if (token == "httpVersion" || token == "http-version") return format_to(ctx.out(), "{}", logInfo.httpVersion);
-        if (token == "status") return format_to(ctx.out(), "{}", logInfo.status);
+        if (token == "status") return format_to(ctx.out(), color + "{}\033[1;0m", logInfo.status);
         if (token == "referrer") return format_to(ctx.out(), "{}", logInfo.referrer);
         if (token == "userAgent" || token == "user-agent") return format_to(ctx.out(), "{}", logInfo.userAgent);
         if (token == "statusMessage" || token == "status-message") return format_to(ctx.out(), "{}", logInfo.statusMessage);

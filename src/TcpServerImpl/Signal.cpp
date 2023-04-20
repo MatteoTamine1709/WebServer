@@ -35,6 +35,8 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
         m_running = false;
         return;
     }
+    if (!m_watch)
+        return;
     static bool hotReloaderConnected = false;
     if (signum == SIGUSR2 && !hotReloaderConnected) {
         hotReloaderConnected = true;
@@ -46,7 +48,7 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
     }
 
     std::string canonical = "";
-    if (m_signal == SIGUSR1 || m_signal == SIGUSR2) {
+    if ((m_signal == SIGUSR1 || m_signal == SIGUSR2)) {
         char hotReloaded_path[1024];
         ssize_t n_read = ::read(m_pipeFD, hotReloaded_path, sizeof(hotReloaded_path));
         if (n_read == -1) {
@@ -58,14 +60,18 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
         std::filesystem::path path(hotReloaded_path);
         path.replace_extension(".so");
         canonical = std::filesystem::canonical(path);
-        if (m_endpointLibs.find(canonical) != m_endpointLibs.end())
-            dlclose(m_endpointLibs[canonical]);
+        if (m_endpoints.find(canonical) != m_endpoints.end()) {
+            SPDLOG_INFO("Hot reloaded library: {}", canonical);
+            dlclose(m_endpoints[canonical].first);
+            m_endpoints[canonical].second.clear();
+        } else {
+            SPDLOG_INFO("Loaded library: {}", canonical);
+        }
         void *lib = dlopen(canonical.c_str(), RTLD_LAZY);
         if (!lib) {
             SPDLOG_ERROR("Cannot open library: {}", dlerror());
             return;
         }
-        m_endpointLibs[canonical] = lib;
-        SPDLOG_INFO("Hot reloaded library: {}", canonical);
+        m_endpoints[canonical] = {lib, {}};
     }
 }

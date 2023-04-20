@@ -16,7 +16,6 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
     transform(m_method.begin(), m_method.end(), m_method.begin(), ::tolower);
     std::getline(issRequestLine, m_path, ' ');
     m_route = std::filesystem::weakly_canonical(m_path).string();
-    m_path = std::filesystem::weakly_canonical(m_path).string();
     std::getline(issRequestLine, m_protocol, '\r');
     while (std::getline(issHeader, line)) {
         if (line.empty())
@@ -36,9 +35,20 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
         m_body.resize(contentLength);
         issHeader.read(m_body.data(), contentLength);
     }
-    m_url = std::filesystem::weakly_canonical(m_path).string();
-    if (!m_url.empty() && m_url.back() == '/')
-        m_url.pop_back();
+    std::vector<std::string> urlParts = utils::split(m_path, {"?"});
+    m_path = std::filesystem::weakly_canonical(urlParts[0]).string();
+    m_url = m_path;
+    
+
+    if (urlParts.size() > 1) {
+        std::vector<std::string> parameters = utils::split(urlParts[1], {"&"});
+        for (const std::string& parameter : parameters) {
+            std::vector<std::string> parameterParts = utils::split(parameter, {"="});
+            if (parameterParts.size() > 1)
+                m_parameters[parameterParts[0]] = parameterParts[1];
+        }
+    }
+    
 }
 
 std::string HttpRequestHeader::getMethod() const {
@@ -97,8 +107,24 @@ std::string HttpRequestHeader::getUserAgent() const {
     return "";
 }
 
+std::string HttpRequestHeader::getContentType() const {
+    if (m_headers.find("Content-Type") != m_headers.end())
+        return m_headers.at("Content-Type");
+    return "";
+}
+
 std::string HttpRequestHeader::getBody() const {
     return m_body;
+}
+
+std::optional<std::string> HttpRequestHeader::getParameter(const std::string& key) const {
+    if (m_parameters.find(key) == m_parameters.end())
+        return std::nullopt;
+    return m_parameters.at(key);
+}
+
+std::unordered_map<std::string, std::string> HttpRequestHeader::getParameters() const {
+    return m_parameters;
 }
 
 bool HttpRequestHeader::isEndpoint() const {

@@ -51,14 +51,15 @@ private:
     std::vector<int> m_defaultSignals = {SIGINT, SIGTERM};
 
     int m_pipeFD = -1;
-    
+    bool m_watch = false;
     bool m_running = true;
 
     typedef std::string Endpoint;
     typedef std::string Method;
-    std::unordered_map<Endpoint, void *> m_endpointLibs;
+    typedef std::string LibPath;
     typedef HttpResponseHeader (*endpoint_t)(HttpRequestHeader);
-    std::unordered_map<Endpoint, std::unordered_map<Method, endpoint_t>> m_endpointHandlers;
+    typedef std::unordered_map<Method, endpoint_t> EndpointMethods;
+    std::unordered_map<Endpoint, std::pair<void *, EndpointMethods>> m_endpoints;
 
     std::string m_host = "localhost";
     std::string m_port = "8081";

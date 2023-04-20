@@ -71,8 +71,8 @@ TcpServer::TcpServer() {
 
 TcpServer::~TcpServer() {
     spdlog::shutdown();
-    for (auto& lib : m_endpointLibs)
-        dlclose(lib.second);
+    for (const auto& [_path, lib] : m_endpoints)
+        dlclose(lib.first);
     close(m_socket);
     close(m_pipeFD);
 }

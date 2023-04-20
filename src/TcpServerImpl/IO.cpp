@@ -65,6 +65,7 @@ std::optional<std::string> getCorrectPathOrEmpty(const std::filesystem::path &pa
     std::stack<std::string> pathPart;
     std::filesystem::path newPath(path);
     while (!std::filesystem::exists(newPath) && newPath.has_parent_path()) {
+        
         pathPart.push(newPath.filename());
         newPath = newPath.parent_path();
     }
@@ -80,18 +81,24 @@ std::optional<std::string> getCorrectPathOrEmpty(const std::filesystem::path &pa
             continue;
         }
         bool found = false;
+        std::string fallBack = "";
         for (const auto &child : std::filesystem::directory_iterator(newPath)) {
             std::string childName = child.path().filename();
-            if (utils::startsWith(childName, "[") && (utils::endsWith(childName, "]") || utils::endsWith(childName, "].so"))) {
+            if (utils::startsWith(childName, "[...") && utils::endsWith(childName, "].so")) {
+                fallBack = childName;
+            } else if (utils::startsWith(childName, "[") && (utils::endsWith(childName, "]") || utils::endsWith(childName, "].so"))) {
                 newPath /= childName;
                 pathPart.pop();
                 found = true;
                 break;
             }
         }
+        if (!found && !fallBack.empty())
+            return newPath / fallBack;
         if (!found)
             return std::nullopt;
     }
+    spdlog::debug("Path: {}", newPath.string());
     if (std::filesystem::is_directory(newPath))
         return newPath / "index.so";
     if (std::filesystem::exists(newPath))
@@ -102,7 +109,7 @@ std::optional<std::string> getCorrectPathOrEmpty(const std::filesystem::path &pa
 HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle parematerized paths
     // TODO: Handle request parameters
-    std::string path = request.getPath();
+    spdlog::debug("Request path: {}", request.getPath());
     if (request.getMethod() == "get" && !utils::getExtension(request.getRoute()).empty()) {
         request.setPath(m_public + request.getPath());
         if (!request.isPathValid())
@@ -114,6 +121,7 @@ HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     auto correctPath = getCorrectPathOrEmpty(m_api + request.getPath());
     if (!correctPath.has_value())
         return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
+    spdlog::debug("Found correct path {}", correctPath.value());
     request.setPath(correctPath.value());
     HttpResponseHeader response = handleEndpoint(request);
     completeResponse(response, request);
@@ -121,15 +129,18 @@ HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
 }
 
 HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
-    if (m_endpointHandlers.find(request.getPath()) != m_endpointHandlers.end() &&
-        m_endpointHandlers[request.getPath()].find(request.getMethod()) != m_endpointHandlers[request.getPath()].end()) {
-        endpoint_t endpoint = m_endpointHandlers[request.getPath()][request.getMethod()];
+    if (m_endpoints.find(request.getPath()) != m_endpoints.end() &&
+        m_endpoints[request.getPath()].second.find(request.getMethod()) != m_endpoints[request.getPath()].second.end()) {
+        auto &[lib, methods] = m_endpoints[request.getPath()];
+        endpoint_t endpoint = methods[request.getMethod()];
+        spdlog::debug("Found endpoint {} in library {}", request.getMethod(), request.getPath());
         return endpoint(request);
     }
     void *lib = nullptr;
-    if (m_endpointLibs.find(request.getPath()) != m_endpointLibs.end()) {
-        lib = m_endpointLibs[request.getPath()];
+    if (m_endpoints.find(request.getPath()) != m_endpoints.end()) {
+        lib = m_endpoints[request.getPath()].first;
     } else {
+        spdlog::debug("Loading library {}", request.getPath());
         lib = dlopen(request.getPath().c_str(), RTLD_LAZY);
         if (!lib) {
             SPDLOG_ERROR("Cannot open library: {}", dlerror());
@@ -137,7 +148,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
             response.setHeader("Content-Type", "text/html");
             return response;
         }
-        m_endpointLibs[request.getPath()] = lib;
+        m_endpoints[request.getPath()] = {lib, {}};
     }
     // Load the symbols
     endpoint_t endpoint = (endpoint_t) dlsym(lib, request.getMethod().c_str());
@@ -154,7 +165,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
     try {
         response = endpoint(request);
         // Cache the endpoint
-        m_endpointHandlers[request.getPath()][request.getMethod()] = endpoint;
+        m_endpoints[request.getPath()].second[request.getMethod()] = endpoint;
         return response;
     } catch (const std::exception& e) {
         SPDLOG_ERROR("Error: [{} {}] {}", request.getMethod(), request.getRoute(), e.what());

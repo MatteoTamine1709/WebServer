@@ -59,6 +59,7 @@ void TcpServer::handleWatchConfig(nlohmann::json &watch) {
             return SPDLOG_ERROR("Failed to open FIFO: {}", strerror(errno));
         spdlog::debug("Opened FIFO at {}", fifo_path);
         SPDLOG_INFO("Hot reloader connecting, starting the server...");
+        m_watch = true;
     }
     registerSignals({SIGUSR1, SIGUSR2});
 }
