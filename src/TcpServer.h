@@ -36,6 +36,7 @@ private:
     std::optional<HttpRequestHeader> read(TcpConnection& connection);
     HttpResponseHeader &completeResponse(HttpResponseHeader &response, const HttpRequestHeader &request);
     HttpResponseHeader handleRequest(HttpRequestHeader& request);
+    std::optional<std::string> getCorrectPathOrEmpty(const std::filesystem::path &path);
     HttpResponseHeader handleEndpoint(HttpRequestHeader& request);
     HttpResponseHeader handleFile(HttpRequestHeader& request);
     void write(TcpConnection& connection, const HttpResponseHeader& response);
@@ -63,8 +64,8 @@ private:
 
     std::string m_host = "localhost";
     std::string m_port = "8081";
-    std::string m_api = "/api";
-    std::string m_public = "/public";
+    std::string m_apiFolder = "/api";
+    std::string m_publicFolder = "/public";
     nlohmann::json m_config = {};
     typedef std::string ConfigKey;
     std::unordered_map<ConfigKey, void (TcpServer::*)(nlohmann::json &)> m_configHandlers = {

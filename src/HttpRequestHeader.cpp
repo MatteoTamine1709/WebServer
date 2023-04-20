@@ -15,6 +15,9 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
     std::getline(issRequestLine, m_method, ' ');
     transform(m_method.begin(), m_method.end(), m_method.begin(), ::tolower);
     std::getline(issRequestLine, m_path, ' ');
+    // Remove trailing slashes
+    while (m_path.back() == '/')
+        m_path.pop_back();
     m_route = std::filesystem::weakly_canonical(m_path).string();
     std::getline(issRequestLine, m_protocol, '\r');
     while (std::getline(issHeader, line)) {

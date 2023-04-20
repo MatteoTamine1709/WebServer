@@ -41,13 +41,19 @@
 
 As of right now, we are loading the endpoints from compiled shared library in each folder using a Next like approach. We are able to manage all methods as long as they are defined, otherwise 404 is returned.
 
-[x] We want to support this type of route aswell
-`pages/blog/first-post.js` → `/blog/first-post`
-`pages/dashboard/settings/username.js` → `/dashboard/settings/username`
-[x] We are missing routing with parameter such as `/user/[id]` or `/user/[id]/[name]`
-[x] We are also missing this type of route `/user?id=1&name=John`
-[ ] And we would also like to add a way to handle catch routes like `/user/[...id]` or `**`
-[ ] Also, we would like to handle optional parameters like `/user/[[id]]` or `/user/[[...id]]` (refer to [next.js](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes) for more info)
+- [x] We want to support this type of route aswell
+      `pages/blog/first-post.js` → `/blog/first-post`
+      `pages/dashboard/settings/username.js` → `/dashboard/settings/username`
+- [x] We are missing routing with parameter such as `/user/[id]` or `/user/[id]/[name]`
+- [x] We are also missing this type of route `/user?id=1&name=John`
+- [x] And we would also like to add a way to handle catch routes like
+
+  - `/user/[...id]`
+  - `/user/[...id]/[...otherID]`
+  - `/user/[...id]/[...otherID]/name`
+  - `/user/[...id]/[...otherID]/name/[...otherName]`
+
+- [ ] Also, we would like to handle optional parameters like `/user/[[id]]` or `/user/[[...id]]` (refer to [next.js](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes) for more info)
 
 ### HotReload
 

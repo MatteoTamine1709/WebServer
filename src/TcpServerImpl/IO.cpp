@@ -48,57 +48,59 @@ HttpResponseHeader &TcpServer::completeResponse(HttpResponseHeader &response, co
     return response;
 }
 
-std::optional<std::string> getCorrectPathOrEmpty(const std::filesystem::path &path) {
-    if (std::filesystem::is_directory(path) && std::filesystem::exists(path / "index.so"))
-        return path / "index.so";
-    if (std::filesystem::exists(path / ".so"))
-        return path / ".so";
-    if (std::filesystem::exists(path))
-        return path;
-    
+std::optional<std::string> TcpServer::getCorrectPathOrEmpty(const std::filesystem::path &path) {
     // Handler those lines
     // /user/aaaa -> /user/[id]/index.so
     // /user/bbb/sss -> /user/[id]/[id].so
     // /user/xxx/username -> /user/[id]/username.so
     // /user/xxx/username/aaa -> /user/[id]/username/[id].so
 
-    std::stack<std::string> pathPart;
-    std::filesystem::path newPath(path);
-    while (!std::filesystem::exists(newPath) && newPath.has_parent_path()) {
-        
+    std::stack<std::filesystem::path> pathPart;
+    std::filesystem::path newPath = std::filesystem::weakly_canonical(path);
+    while ((!std::filesystem::exists(newPath) || std::filesystem::is_directory(newPath)) &&
+        newPath.has_parent_path() &&
+        newPath.string() != m_apiFolder) {
         pathPart.push(newPath.filename());
         newPath = newPath.parent_path();
     }
     // Get all children
+    std::filesystem::path fallback = "";
     while (pathPart.size() > 0) {
-        if (std::filesystem::exists(newPath / pathPart.top())) {
-            newPath /= pathPart.top();
-            pathPart.pop();
-            continue;
-        } else if (std::filesystem::exists(newPath / (pathPart.top() + ".so"))) {
-            newPath /= (pathPart.top() + ".so");
+        if (std::filesystem::is_regular_file(newPath / (pathPart.top().string() + ".so"))) {
+            newPath /= (pathPart.top().string() + ".so");
             pathPart.pop();
             continue;
         }
         bool found = false;
-        std::string fallBack = "";
+        std::string selectedPath = "";
         for (const auto &child : std::filesystem::directory_iterator(newPath)) {
             std::string childName = child.path().filename();
-            if (utils::startsWith(childName, "[...") && utils::endsWith(childName, "].so")) {
-                fallBack = childName;
-            } else if (utils::startsWith(childName, "[") && (utils::endsWith(childName, "]") || utils::endsWith(childName, "].so"))) {
-                newPath /= childName;
-                pathPart.pop();
+            if (childName == pathPart.top().string()) {
+                selectedPath = childName;
                 found = true;
-                break;
+            }
+            if (utils::startsWith(childName, "[...") && utils::endsWith(childName, "].so")) {
+                fallback = newPath / childName;
+            } else if (!found && utils::startsWith(childName, "[") && (utils::endsWith(childName, "]") || utils::endsWith(childName, "].so"))) {
+                selectedPath = childName;
+                found = true;
             }
         }
-        if (!found && !fallBack.empty())
-            return newPath / fallBack;
-        if (!found)
-            return std::nullopt;
+        pathPart.pop();
+        if (found)
+            newPath /= selectedPath;
+        if (pathPart.empty() && !found && std::filesystem::is_regular_file(newPath))
+            return newPath;
+        if (pathPart.empty() && found &&
+            std::filesystem::is_directory(newPath) &&
+            std::filesystem::is_regular_file(newPath / "index.so"))
+            return newPath / "index.so";
+
+        if ((!found && !fallback.empty()) ||
+            (found && std::filesystem::is_regular_file(newPath) && !pathPart.empty()) ||
+            (found && std::filesystem::is_directory(newPath) && pathPart.empty()))
+            return fallback;
     }
-    spdlog::debug("Path: {}", newPath.string());
     if (std::filesystem::is_directory(newPath))
         return newPath / "index.so";
     if (std::filesystem::exists(newPath))
@@ -111,14 +113,14 @@ HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle request parameters
     spdlog::debug("Request path: {}", request.getPath());
     if (request.getMethod() == "get" && !utils::getExtension(request.getRoute()).empty()) {
-        request.setPath(m_public + request.getPath());
+        request.setPath(m_publicFolder + request.getPath());
         if (!request.isPathValid())
             return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
         HttpResponseHeader response = handleFile(request);
         completeResponse(response, request);
         return response;
     }
-    auto correctPath = getCorrectPathOrEmpty(m_api + request.getPath());
+    auto correctPath = getCorrectPathOrEmpty(m_apiFolder + request.getPath());
     if (!correctPath.has_value())
         return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
     spdlog::debug("Found correct path {}", correctPath.value());

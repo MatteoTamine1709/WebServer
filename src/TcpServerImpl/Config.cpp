@@ -38,12 +38,12 @@ void TcpServer::handlePortConfig(nlohmann::json &port) {
 
 void TcpServer::handleApiConfig(nlohmann::json &api) {
     if (api.is_string())
-        m_api = std::filesystem::canonical(api);
+        m_apiFolder = std::filesystem::canonical(api);
 }
 
 void TcpServer::handlePublicConfig(nlohmann::json &p) {
     if (p.is_string())
-        m_public = std::filesystem::canonical(p);
+        m_publicFolder = std::filesystem::canonical(p);
 }
 
 void TcpServer::handleWatchConfig(nlohmann::json &watch) {
@@ -82,7 +82,7 @@ void setFormat(std::string format) {
 }
 
 void TcpServer::handleLogConfig(nlohmann::json &log) {
-    
+    spdlog::flush_on(spdlog::level::debug);
     if (log.is_string() && log == "off") return spdlog::set_level(spdlog::level::off);
     if (log.is_string()) spdlog::set_level(spdlog::level::from_str(log));
     if (log.is_number()) spdlog::set_level(static_cast<spdlog::level::level_enum>(log));

@@ -16,6 +16,6 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
     reponse.setStatusCode("200");
     reponse.setStatusMessage("OK");
     reponse.setHeader("Content-Type", "application/json");
-    reponse.setBody("{\"message\": \"USER/SETTINGS\"}");
+    reponse.setBody("{\"message\": \"/[id]\"}");
     return reponse;
 }
