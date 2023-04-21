@@ -47,7 +47,10 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
             return SPDLOG_ERROR("Cannot read from pipe: {}", strerror(errno));
         }
         spdlog::debug("Hot reloader PID: {}", hotReloaderPID);
-        ::write(m_pipeFD, m_apiFolder.c_str(), m_apiFolder.size());
+        if (::write(m_pipeFD, m_apiFolder.c_str(), m_apiFolder.size()) == -1) {
+            SPDLOG_ERROR("Cannot connect to hot reloader!");
+            return SPDLOG_ERROR("Cannot write to pipe: {}", strerror(errno));
+        }
         kill(hotReloaderPID, SIGUSR1);
         return;
     }

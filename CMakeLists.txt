@@ -25,5 +25,10 @@ target_link_libraries(WebServer PRIVATE Threads::Threads spdlog::spdlog nlohmann
 
 # add assets folder
 file(COPY utils DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY endpoints DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY api DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY public DESTINATION ${CMAKE_BINARY_DIR})
+
+# add optimization flags
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(WebServer PRIVATE -O3)
+endif()

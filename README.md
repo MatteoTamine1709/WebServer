@@ -10,16 +10,16 @@
     - [x] Hot reloader should know the set folder for endpoints and not have to be passed as an argument
     - [x] Faster boot up time (compiling the shared library takes a lot of time, make it into it's own thread)
     - [ ] Remove infinite loop and use a signal to start/stop the hot reloader
-  - [x] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) (maybe using [spdlog](https://github.com/gabime/spdlog))
+  - [x] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) using [spdlog](https://github.com/gabime/spdlog)
     - [ ] Date and time support
     - [x] Log to file
-  - [ ] Testing server with [Catch2](https://github.com/catchorg/Catch2)
+  - [ ] Unit testing server with [Catch2](https://github.com/catchorg/Catch2)
   - [ ] Call Javascript functions from C++ [Reference](https://stackoverflow.com/questions/2713289/how-to-execute-javascript-function-in-c)
   - [ ] Dockerize the project (_If needed_)
 
 - Server:
 
-  - [x] A good config file system (maybe using [nlohmann/json](https://github.com/nlohmann/json)) ([Reference](#config-file))
+  - [x] A good config file system using [nlohmann/json](https://github.com/nlohmann/json) ([Reference](#config-file))
     - [ ] Add options as the project goes on
   - [ ] [Routing system](#routing-system) like [next.js](https://nextjs.org/docs/routing/introduction)
   - [ ] A way to handle sessions (MAYBE)
@@ -31,10 +31,11 @@
 
 - Hosting:
 
-  - [ ] A way to host the server on a VPS (maybe using [docker](https://www.docker.com/))
+  - [ ] A way to host the server on a VPS (using [docker](https://www.docker.com/))
 
 - Optimisation
 
+  - [ ] A way to measure the performance of the server using [google benchmark](https://github.com/google/benchmark)
   - [ ] A way to optimise the server to handle a lot of requests (maybe using [libuv](https://libuv.org/))
   - [ ] Reduce memmory footprint
   - [ ] Reduce CPU usage
