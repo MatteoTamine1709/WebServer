@@ -1,7 +1,7 @@
 {
   "port": 8080,
   "host": "127.0.0.1",
-  "api": "./endpoints",
+  "api": "./api",
   "public": "./public",
   "log": {
     "level": "debug",
@@ -10,5 +10,5 @@
     "no-stdout": false,
     "timestamp": true
   },
-  "watch": false
+  "watch": true
 }

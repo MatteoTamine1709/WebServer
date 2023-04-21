@@ -53,15 +53,14 @@ void TcpServer::handleWatchConfig(nlohmann::json &watch) {
         if (mkfifo(fifo_path, 0666) == -1 && errno != EEXIST)
             return SPDLOG_ERROR("Failed to create FIFO: {}", strerror(errno));
         spdlog::debug("Created FIFO at {}", fifo_path);
-        SPDLOG_WARN("Waiting for hot reloader to connect...");
-        m_pipeFD = open(fifo_path, O_RDONLY);
+        m_pipeFD = open(fifo_path, O_RDWR);
         if (m_pipeFD == -1)
             return SPDLOG_ERROR("Failed to open FIFO: {}", strerror(errno));
         spdlog::debug("Opened FIFO at {}", fifo_path);
-        SPDLOG_INFO("Hot reloader connecting, starting the server...");
         m_watch = true;
     }
     registerSignals({SIGUSR1, SIGUSR2});
+    SPDLOG_WARN("Waiting for hot reloader to connect...");
 }
 
 void setFormat(std::string format) {

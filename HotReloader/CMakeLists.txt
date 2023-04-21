@@ -9,3 +9,10 @@ add_executable(HotReloader main.cpp src/File.cpp src/loadFiles.cpp)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
+
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 20)
+
+find_package(Threads REQUIRED)
+
+target_link_libraries(HotReloader PRIVATE Threads::Threads)

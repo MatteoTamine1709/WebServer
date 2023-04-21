@@ -38,17 +38,30 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
     if (!m_watch)
         return;
     static bool hotReloaderConnected = false;
-    if (signum == SIGUSR2 && !hotReloaderConnected) {
+    static pid_t hotReloaderPID = -1;
+    if (signum == SIGUSR1 && hotReloaderPID == -1) {
+        size_t n_read = ::read(m_pipeFD, &hotReloaderPID, sizeof(hotReloaderPID));
+        if (n_read == -1) {
+            SPDLOG_ERROR("Cannot connect to hot reloader!");
+            return SPDLOG_ERROR("Cannot read from pipe: {}", strerror(errno));
+        }
+        spdlog::debug("Hot reloader PID: {}", hotReloaderPID);
+        ::write(m_pipeFD, m_apiFolder.c_str(), m_apiFolder.size());
+        kill(hotReloaderPID, SIGUSR1);
+        return SPDLOG_INFO("Connecting to hot reloader...");
+    }
+    if (signum == SIGUSR1 && !hotReloaderConnected) {
         hotReloaderConnected = true;
         return SPDLOG_INFO("Hot reloader connected");
     }
-    if (signum == SIGUSR2 && hotReloaderConnected) {
+    if (signum == SIGUSR1 && hotReloaderConnected) {
         hotReloaderConnected = false;
+        hotReloaderPID = -1;
         return SPDLOG_WARN("Hot reloader disconnected");
     }
 
     std::string canonical = "";
-    if ((m_signal == SIGUSR1 || m_signal == SIGUSR2)) {
+    if (m_signal == SIGUSR2) {
         char hotReloaded_path[1024];
         ssize_t n_read = ::read(m_pipeFD, hotReloaded_path, sizeof(hotReloaded_path));
         if (n_read == -1) {
@@ -59,7 +72,7 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
 
         std::filesystem::path path(hotReloaded_path);
         path.replace_extension(".so");
-        canonical = std::filesystem::canonical(path);
+        canonical = std::filesystem::weakly_canonical(path);
         if (m_endpoints.find(canonical) != m_endpoints.end()) {
             SPDLOG_INFO("Hot reloaded library: {}", canonical);
             dlclose(m_endpoints[canonical].first);
