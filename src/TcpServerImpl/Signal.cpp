@@ -40,6 +40,7 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
     static bool hotReloaderConnected = false;
     static pid_t hotReloaderPID = -1;
     if (signum == SIGUSR1 && hotReloaderPID == -1) {
+        SPDLOG_INFO("Connecting to hot reloader...");
         size_t n_read = ::read(m_pipeFD, &hotReloaderPID, sizeof(hotReloaderPID));
         if (n_read == -1) {
             SPDLOG_ERROR("Cannot connect to hot reloader!");
@@ -48,7 +49,7 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
         spdlog::debug("Hot reloader PID: {}", hotReloaderPID);
         ::write(m_pipeFD, m_apiFolder.c_str(), m_apiFolder.size());
         kill(hotReloaderPID, SIGUSR1);
-        return SPDLOG_INFO("Connecting to hot reloader...");
+        return;
     }
     if (signum == SIGUSR1 && !hotReloaderConnected) {
         hotReloaderConnected = true;

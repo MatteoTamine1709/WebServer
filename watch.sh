@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./HotReloader/build/HotReloader & ./build/WebServer
+killall screen ; screen -d -m "./HotReloader/build/HotReloader" && ./build/WebServer

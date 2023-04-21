@@ -40,7 +40,7 @@ void signalHandler(int signal) {
         close(signalFD);
         kill(targetPID, SIGUSR1);
         running = false;
-        exit(0);
+        return exit(0);
     }
     if (signal == SIGUSR1) {
         char buffer[1024];
@@ -65,10 +65,8 @@ int connection() {
     fgets(line, 1024, command);
     targetPID = strtoul(line, NULL, 10);
     pclose(command);
-    if (targetPID == previousPID) {
-        sleep(5);
+    if (targetPID == previousPID || targetPID == 0)
         return 0;
-    }
     connected = false;
     sendMyPID();
     while (!connected) {
@@ -90,7 +88,8 @@ int main(int argc, char **argv) {
     const std::string fifoPipePath = "/tmp/fifo";
     signalFD = openPipe(fifoPipePath);
 
-    connection();
+    while (connection() == 0)
+        sleep(5);
     std::thread([&]() { 
         loadFiles(path);
         for (auto &[path, file] : files)
@@ -100,8 +99,8 @@ int main(int argc, char **argv) {
                 loadFiles(path);
                 for (auto &[path, file] : files)
                     file.compile();
-            }
-
+            }    
+            sleep(5);
         }
     }).detach();
     while (running) {

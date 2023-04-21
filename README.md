@@ -6,7 +6,7 @@
 
   - [x] Automatically rebuild any .cpp file that has been changed in the `endpoints` folder ([Reference](#hotreload))
     - [x] Currently, if the hot reloader is started and we shhut down the server and open it back up, the hot reloader will not work as it has the incorrect PID.
-    - [ ] When we start the project with watch mode, the hot reloader is not started
+    - [x] When we start the project with watch mode, the hot reloader is not started
     - [x] Hot reloader should know the set folder for endpoints and not have to be passed as an argument
     - [x] Faster boot up time (compiling the shared library takes a lot of time, make it into it's own thread)
     - [ ] Remove infinite loop and use a signal to start/stop the hot reloader
