@@ -57,8 +57,7 @@ std::optional<std::string> TcpServer::getCorrectPathOrEmpty(const std::filesyste
 
     std::stack<std::filesystem::path> pathPart;
     std::filesystem::path newPath = std::filesystem::weakly_canonical(path);
-    while ((!std::filesystem::exists(newPath) || std::filesystem::is_directory(newPath)) &&
-        newPath.has_parent_path() &&
+    while (newPath.has_parent_path() &&
         newPath.string() != m_apiFolder) {
         pathPart.push(newPath.filename());
         newPath = newPath.parent_path();
@@ -69,6 +68,12 @@ std::optional<std::string> TcpServer::getCorrectPathOrEmpty(const std::filesyste
         if (std::filesystem::is_regular_file(newPath / (pathPart.top().string() + ".so"))) {
             newPath /= (pathPart.top().string() + ".so");
             pathPart.pop();
+            spdlog::debug(".so: {}", newPath.string());
+            if (!std::filesystem::is_directory(newPath) && pathPart.size() > 0) {
+                if (fallback.filename().string().empty())
+                    return std::nullopt;
+                return fallback;
+            }
             continue;
         }
         bool found = false;
@@ -87,6 +92,9 @@ std::optional<std::string> TcpServer::getCorrectPathOrEmpty(const std::filesyste
             }
         }
         pathPart.pop();
+        spdlog::debug("Found: {}, selectedPath: {}", found, selectedPath);
+        spdlog::debug("newPath: {}", newPath.string());
+        spdlog::debug("fallback: {}", fallback.string());
         if (found)
             newPath /= selectedPath;
         if (pathPart.empty() && !found && std::filesystem::is_regular_file(newPath))

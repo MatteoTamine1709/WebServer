@@ -7,46 +7,74 @@
 #include <string>
 
 #include <spdlog/spdlog.h>
+#include <iostream>
+#include <algorithm>
 
 namespace utils {
     std::unordered_map<std::string, std::string> mimeMap = {};
-    std::vector<std::string> split(const std::string& str, const std::vector<std::string>& delimiters) {
+    std::vector<std::string> split(const std::string& str, std::vector<std::string> delimiters) {
         std::vector<std::string> tokens;
-        std::string::size_type start = 0;
-        std::string::size_type end = 0;
-        while (end != std::string::npos) {
-            end = std::string::npos;
-            for (const auto& delimiter : delimiters) {
-                std::string::size_type pos = str.find(delimiter, start);
-                if (pos != std::string::npos && (pos < end || end == std::string::npos)) {
-                    end = pos;
+        bool isEmptyDelimiter = false;
+        for (int i = 0; i < delimiters.size(); i++)
+            if (delimiters[i].length() == 0) {
+                isEmptyDelimiter = true;
+                break;
+            }
+        if (isEmptyDelimiter) {
+            for (int i = 0; i < str.length(); i++)
+                tokens.push_back(str.substr(i, 1));
+            return tokens;
+        }
+        std::sort(delimiters.begin(), delimiters.end(), [](const std::string& a, const std::string& b) {
+            return a.length() > b.length();
+        });
+        std::string current = str;
+        while (current.length() > 0) {
+            bool found = false;
+            for (int i = 0; i < delimiters.size(); i++) {
+                if (current.length() >= delimiters[i].length() && current.substr(0, delimiters[i].length()) == delimiters[i]) {
+                    current = current.substr(delimiters[i].length());
+                    found = true;
+                    break;
                 }
             }
-            tokens.push_back(trim(str.substr(start, end - start)));
-            start = end + 1;
+            size_t pos = current.length();
+            for (int i = 0; i < delimiters.size(); i++)
+                if (current.find(delimiters[i]) < pos)
+                    pos = current.find(delimiters[i]);
+            if (pos == 0)
+                continue;
+            tokens.push_back(current.substr(0, pos));
+            current = current.substr(pos);
         }
+        if (tokens.size() == 0)
+            tokens.push_back(str);
         return tokens;
     }
 
     std::string join(const std::vector<std::string>& tokens, const std::string& delimiter) {
         std::string result;
-        for (const auto& token : tokens)
-            result += token + delimiter;
+        for (int i = 0; i < tokens.size(); i++) {
+            result += tokens[i];
+            if (i < tokens.size() - 1)
+                result += delimiter;
+        }
         return result;
     }
 
     std::string trim(const std::string& str) {
         std::string result = str;
-        result.erase(0, result.find_first_not_of(' '));
-        result.erase(result.find_last_not_of(' ') + 1);
+        while (result.length() > 0 && (result[0] == ' ' || result[0] == '\t' || result[0] == '\n'))
+            result = result.substr(1);
+        while (result.length() > 0 && (result[result.length() - 1] == ' ' || result[result.length() - 1] == '\t' || result[result.length() - 1] == '\n'))
+            result = result.substr(0, result.length() - 1);
         return result;
     }
 
     std::string toLower(const std::string& str) {
         std::string result = str;
-        for (auto &c : result) {
+        for (auto &c : result)
             c = tolower(c);
-        }
         return result;
     }
 
@@ -62,10 +90,14 @@ namespace utils {
     }
 
     bool endsWith(const std::string& str, const std::string& suffix) {
+        if (suffix.length() > str.length())
+            return false;
         return str.rfind(suffix) == (str.length() - suffix.length());
     }
 
     std::string replace(const std::string& str, const std::string& from, const std::string& to) {
+        if (from.empty())
+            return str;
         std::string result = str;
         size_t pos = 0;
         while ((pos = result.find(from, pos)) != std::string::npos) {
@@ -83,9 +115,10 @@ namespace utils {
     }
 
     std::string getMimeType(const std::string& extension) {
-        if (mimeMap.find(extension) == mimeMap.end())
+        std::string ext = trim(toLower(extension));
+        if (mimeMap.find(ext) == mimeMap.end())
             return "application/octet-stream";
-        return mimeMap[extension];
+        return mimeMap[ext];
     }
 
     std::string getContentType(const std::string& path) {

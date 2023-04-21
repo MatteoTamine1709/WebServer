@@ -9,7 +9,7 @@
 namespace utils {
     extern std::unordered_map<std::string, std::string> mimeMap;
     void initializeMimeMap();
-    std::vector<std::string> split(const std::string& str, const std::vector<std::string>& delimiters);
+    std::vector<std::string> split(const std::string& str, std::vector<std::string> delimiters);
     std::string join(const std::vector<std::string>& tokens, const std::string& delimiter);
     std::string trim(const std::string& str);
     std::string toLower(const std::string& str);

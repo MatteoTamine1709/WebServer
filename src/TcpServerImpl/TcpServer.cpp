@@ -59,6 +59,7 @@ TcpServer::TcpServer() {
     if (status == -1) {
         freeaddrinfo(result);
         close(m_socket);
+        perror("bind() failed");
         throw std::runtime_error("bind() failed");
     }
     freeaddrinfo(result);
