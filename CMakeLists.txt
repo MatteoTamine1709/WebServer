@@ -32,3 +32,6 @@ file(COPY public DESTINATION ${CMAKE_BINARY_DIR})
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(WebServer PRIVATE -O3)
 endif()
+
+# Compile the cmakefile in HotReloader folder
+add_subdirectory(HotReloader)
