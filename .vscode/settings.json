@@ -65,5 +65,20 @@
     "valarray": "cpp",
     "filesystem": "cpp",
     "span": "cpp"
+  },
+  "files.exclude": {
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/build": true,
+    "**/bin": true,
+    "**/*.so": true,
+    "**/*.dll": true,
+    "**/*.exe": true,
+    "**/*.o": true,
+    "**/*.a": true,
+    "**/*.lib": true
   }
 }
