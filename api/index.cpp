@@ -14,7 +14,7 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
     HttpResponseHeader reponse{};
 
     reponse.setProtocol("HTTP/1.1");
-    reponse.setStatusCode("200");
+    reponse.setStatusCode(200);
     reponse.setStatusMessage("OK");
     reponse.setHeader("Content-Type", "text/html");
     std::ifstream file("./public/index.html");
@@ -28,7 +28,7 @@ HttpResponseHeader post(const HttpRequestHeader &header) {
     HttpResponseHeader reponse{};
 
     reponse.setProtocol("HTTP/1.1");
-    reponse.setStatusCode("200");
+    reponse.setStatusCode(200);
     reponse.setStatusMessage("OK");
     reponse.setHeader("Content-Type", "application/json");
     reponse.setBody("{\"message\": \"Hello World!\"}");

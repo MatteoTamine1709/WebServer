@@ -1,6 +1,7 @@
 #ifndef HTTP_TCP_CONNECTION_H
 #define HTTP_TCP_CONNECTION_H
 
+#include "Constants.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,7 +18,7 @@ public:
 
 private:
     int m_socket;
-    std::vector<char> m_buffer;
+    std::array<char, 4 * MEGABYTE> m_buffer;
 };
 
 #endif

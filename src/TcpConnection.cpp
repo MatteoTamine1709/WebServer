@@ -6,9 +6,7 @@
 
 #include <spdlog/spdlog.h>
 
-TcpConnection::TcpConnection(int socket) : m_socket(socket) {
-    m_buffer.resize(1024);
-}
+TcpConnection::TcpConnection(int socket) : m_socket(socket) {}
 
 TcpConnection::~TcpConnection() {
     close(m_socket);

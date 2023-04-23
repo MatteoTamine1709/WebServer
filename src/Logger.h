@@ -22,7 +22,7 @@ typedef struct LoggedInfo_t {
     std::string method;
     std::string url;
     std::string httpVersion;
-    std::string status;
+    int status;
     std::string referrer;
     std::string userAgent;
     std::string statusMessage;
@@ -65,10 +65,9 @@ struct fmt::formatter<LoggedInfo> {
         if (token == "remoteAddress" || token == "remote-address" || token == "remote-addr") return format_to(ctx.out(), "{}", logInfo.remoteAddress);
         if (token == "remoteUser" || token == "remote-user") return format_to(ctx.out(), "{}", logInfo.remoteUser);
         if (token == "route") return format_to(ctx.out(), "{}", logInfo.route);
-        int64_t statusValue = std::stoll(logInfo.status);
         std::string color = "\033[1;32m";
-        if (statusValue >= 400 && statusValue < 500) color = "\033[1;33m";
-        else if (statusValue >= 500) color = "\033[1;31m";
+        if (logInfo.status >= 400 && logInfo.status < 500) color = "\033[1;33m";
+        else if (logInfo.status >= 500) color = "\033[1;31m";
         if (token == "method") return format_to(ctx.out(), color + "{}\033[1;0m", logInfo.method);
         if (token == "url") return format_to(ctx.out(), "{}", logInfo.url);
         if (token == "httpVersion" || token == "http-version") return format_to(ctx.out(), "{}", logInfo.httpVersion);
@@ -77,7 +76,6 @@ struct fmt::formatter<LoggedInfo> {
         if (token == "userAgent" || token == "user-agent") return format_to(ctx.out(), "{}", logInfo.userAgent);
         if (token == "statusMessage" || token == "status-message") return format_to(ctx.out(), "{}", logInfo.statusMessage);
         if (token == "responseTime" || token == "response-time") return format_to(ctx.out(), "{}", logInfo.responseTime);
-        // token = "header[header-name]"
         if (token.rfind("header[", 0) == 0) {
             std::string header = token.substr(7);
             header.pop_back();

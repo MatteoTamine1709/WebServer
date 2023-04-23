@@ -1,4 +1,5 @@
 #include "HttpResponseHeader.h"
+#include "Constants.h"
 
 #include <sstream>
 
@@ -8,7 +9,9 @@ HttpResponseHeader::HttpResponseHeader(const std::string &header) {
     std::getline(ss, line);
     std::stringstream ssLine(line);
     std::getline(ssLine, m_protocol, ' ');
-    std::getline(ssLine, m_statusCode, ' ');
+    std::string statusCode;
+    std::getline(ssLine, statusCode, ' ');
+    m_statusCode = std::stoi(statusCode);
     std::getline(ssLine, m_statusMessage, ' ');
     while (std::getline(ss, line)) {
         if (line == "\r")
@@ -24,7 +27,7 @@ HttpResponseHeader::HttpResponseHeader(const std::string &header) {
 }
 
 HttpResponseHeader::HttpResponseHeader(const std::string &protocol,
-                                       const std::string &statusCode,
+                                       int statusCode,
                                        const std::string &statusMessage,
                                        const std::string &body) :
                                             m_protocol(protocol),
@@ -38,7 +41,7 @@ std::string HttpResponseHeader::getProtocol() const {
     return m_protocol;
 }
 
-std::string HttpResponseHeader::getStatusCode() const {
+int HttpResponseHeader::getStatusCode() const {
     return m_statusCode;
 }
 
@@ -64,7 +67,7 @@ void HttpResponseHeader::setProtocol(const std::string &protocol) {
     m_protocol = protocol;
 }
 
-void HttpResponseHeader::setStatusCode(const std::string &statusCode) {
+void HttpResponseHeader::setStatusCode(int statusCode) {
     m_statusCode = statusCode;
 }
 
@@ -105,11 +108,10 @@ std::string HttpResponseHeader::buildReadableResponse() const {
     ss << "Protocol: " << m_protocol << "\r\n";
     ss << "Status Code: " << m_statusCode << "\r\n";
     ss << "Status Message: " << m_statusMessage << "\r\n";
-    for (auto &header : m_headers) {
+    for (auto &header : m_headers)
         ss << header.first << ": " << header.second << "\r\n";
-    }
     ss << "\r\n";
-    if (m_body.size() > 0 && m_body.size() < 1024)
+    if (m_body.size() > 0 && m_body.size() < KILOBYTE)
         ss << m_body;
     return ss.str();
 }

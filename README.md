@@ -13,7 +13,7 @@
   - [x] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) using [spdlog](https://github.com/gabime/spdlog)
     - [ ] Date and time support
     - [x] Log to file
-  - [ ] Unit testing server with [Catch2](https://github.com/catchorg/Catch2)
+  - [x] Unit testing server with [Catch2](https://github.com/catchorg/Catch2)
   - [ ] Call Javascript functions from C++ [Reference](https://stackoverflow.com/questions/2713289/how-to-execute-javascript-function-in-c)
   - [ ] Dockerize the project (_If needed_)
 

@@ -40,7 +40,7 @@ TcpServer::TcpServer() {
     registerSignals(m_defaultSignals);
 
     addrinfo hints;
-    addrinfo* result;
+    addrinfo *result;
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;

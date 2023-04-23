@@ -14,11 +14,8 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
     std::istringstream issRequestLine(line);
     std::getline(issRequestLine, m_method, ' ');
     transform(m_method.begin(), m_method.end(), m_method.begin(), ::tolower);
-    std::getline(issRequestLine, m_path, ' ');
-    // Remove trailing slashes
-    while (m_path.back() == '/')
-        m_path.pop_back();
-    m_route = std::filesystem::weakly_canonical(m_path).string();
+    std::string route;
+    std::getline(issRequestLine, route, ' ');
     std::getline(issRequestLine, m_protocol, '\r');
     while (std::getline(issHeader, line)) {
         if (line.empty())
@@ -28,7 +25,6 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
         std::getline(issHeaderInfo, key, ':');
         std::string value;
         std::getline(issHeaderInfo, value);
-        value.erase(std::remove(value.begin(), value.end(), ' '), value.end());
         value.erase(std::remove(value.begin(), value.end(), '\n'), value.end());
         value.erase(std::remove(value.begin(), value.end(), '\r'), value.end());
         m_headers[key] = value;
@@ -38,10 +34,11 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
         m_body.resize(contentLength);
         issHeader.read(m_body.data(), contentLength);
     }
-    std::vector<std::string> urlParts = utils::split(m_path, {"?"});
-    m_path = std::filesystem::weakly_canonical(urlParts[0]).string();
-    m_url = m_path;
-    
+    std::vector<std::string> urlParts = utils::split(route, {"?"});
+    m_url = fs::weakly_canonical(urlParts[0]);
+    if (m_url.string().back() == '/')
+        m_url = m_url.string().substr(0, m_url.string().length() - 1);
+    m_path = m_url;
 
     if (urlParts.size() > 1) {
         std::vector<std::string> parameters = utils::split(urlParts[1], {"&"});
@@ -58,11 +55,11 @@ std::string HttpRequestHeader::getMethod() const {
     return m_method;
 }
 
-std::string HttpRequestHeader::getPath() const {
+fs::path HttpRequestHeader::getPath() const {
     return m_path;
 }
 
-std::string HttpRequestHeader::getRoute() const {
+fs::path HttpRequestHeader::getRoute() const {
     return m_route;
 }
 
@@ -80,8 +77,8 @@ std::unordered_map<std::string, std::string> HttpRequestHeader::getHeaders() con
     return m_headers;
 }
 
-std::string HttpRequestHeader::getUrl() const {
-    return std::filesystem::weakly_canonical(m_url).string();
+fs::path HttpRequestHeader::getUrl() const {
+    return m_url;
 }
 
 std::string HttpRequestHeader::getRemoteAddress() const {
@@ -131,19 +128,19 @@ std::unordered_map<std::string, std::string> HttpRequestHeader::getParameters() 
 }
 
 bool HttpRequestHeader::isEndpoint() const {
-    return utils::getExtension(m_route).empty();
+    return utils::getExtension(m_path).empty();
 }
 
 void HttpRequestHeader::setPath(const std::string& path) {
-    m_path = std::filesystem::weakly_canonical(path).string();
+    m_path = fs::weakly_canonical(path);
 }
 
 bool HttpRequestHeader::isPathValid() const {
-    return std::filesystem::exists(m_path);
+    return fs::exists(m_path);
 }
 
 bool HttpRequestHeader::isPathDirectory() const {
-    return std::filesystem::is_directory(m_path);
+    return fs::is_directory(m_path);
 }
 
 void HttpRequestHeader::setProtocol(const std::string& protocol) {

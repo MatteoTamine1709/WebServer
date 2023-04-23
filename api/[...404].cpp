@@ -13,7 +13,7 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
     HttpResponseHeader reponse{};
 
     reponse.setProtocol("HTTP/1.1");
-    reponse.setStatusCode("200");
+    reponse.setStatusCode(200);
     reponse.setStatusMessage("OK");
     reponse.setHeader("Content-Type", "text/html");
     std::ifstream file("./public/404.html");

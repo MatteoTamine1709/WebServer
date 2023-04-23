@@ -25,7 +25,7 @@ bool File::isUpdated() {
 
 void File::compile() {
     std::cout << "Compiling " << m_path << std::endl;
-    std::string outputFile = m_path.substr(0, m_path.find_last_of(".")) + ".so";
+    std::string outputFile = m_path.substr(0, m_path.find_last_of("."));
     char cwd[1024];
     std::string includePath = "./";
     if (getcwd(cwd, sizeof(cwd)) != NULL) {

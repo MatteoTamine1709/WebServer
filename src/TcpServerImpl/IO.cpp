@@ -119,18 +119,18 @@ std::optional<std::string> TcpServer::getCorrectPathOrEmpty(const std::filesyste
 HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle parematerized paths
     // TODO: Handle request parameters
-    spdlog::debug("Request path: {}", request.getPath());
-    if (request.getMethod() == "get" && !utils::getExtension(request.getRoute()).empty()) {
-        request.setPath(m_publicFolder + request.getPath());
+    spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
+    if (request.getMethod() == "get" && !request.isEndpoint()) {
+        request.setPath(m_publicFolder / request.getPath().relative_path().string());
         if (!request.isPathValid())
-            return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
+            return HttpResponseHeader("HTTP/1.1", 404, "Not Found", "Not Found");
         HttpResponseHeader response = handleFile(request);
         completeResponse(response, request);
         return response;
     }
-    auto correctPath = getCorrectPathOrEmpty(m_apiFolder + request.getPath());
+    auto correctPath = getCorrectPathOrEmpty(m_apiFolder / request.getPath().relative_path());
     if (!correctPath.has_value())
-        return HttpResponseHeader("HTTP/1.1", "404", "Not Found", "Not Found");
+        return HttpResponseHeader("HTTP/1.1", 404, "Not Found", "Not Found");
     spdlog::debug("Found correct path {}", correctPath.value());
     request.setPath(correctPath.value());
     HttpResponseHeader response = handleEndpoint(request);
@@ -143,18 +143,18 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
         m_endpoints[request.getPath()].second.find(request.getMethod()) != m_endpoints[request.getPath()].second.end()) {
         auto &[lib, methods] = m_endpoints[request.getPath()];
         endpoint_t endpoint = methods[request.getMethod()];
-        spdlog::debug("Found endpoint {} in library {}", request.getMethod(), request.getPath());
+        spdlog::debug("Found endpoint {} in library {}", request.getMethod(), request.getPath().string());
         return endpoint(request);
     }
     void *lib = nullptr;
     if (m_endpoints.find(request.getPath()) != m_endpoints.end()) {
         lib = m_endpoints[request.getPath()].first;
     } else {
-        spdlog::debug("Loading library {}", request.getPath());
+        spdlog::debug("Loading library {}", request.getPath().string());
         lib = dlopen(request.getPath().c_str(), RTLD_LAZY);
         if (!lib) {
             SPDLOG_ERROR("Cannot open library: {}", dlerror());
-            HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
+            HttpResponseHeader response("HTTP/1.1", 404, "Not Found", "Not Found");
             response.setHeader("Content-Type", "text/html");
             return response;
         }
@@ -166,7 +166,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
     if (dlsym_error) {
         SPDLOG_ERROR("Cannot load symbol '{}': {}", request.getMethod(), dlsym_error);
         dlclose(lib);
-        HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
+        HttpResponseHeader response("HTTP/1.1", 404, "Not Found", "Not Found");
         response.setHeader("Content-Type", "text/html");
         return response;
     }
@@ -178,9 +178,9 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
         m_endpoints[request.getPath()].second[request.getMethod()] = endpoint;
         return response;
     } catch (const std::exception& e) {
-        SPDLOG_ERROR("Error: [{} {}] {}", request.getMethod(), request.getRoute(), e.what());
+        SPDLOG_ERROR("Error: [{} {}] {}", request.getMethod(), request.getRoute().string(), e.what());
         dlclose(lib);
-        HttpResponseHeader response("HTTP/1.1", "500", "Internal Server Error", "Internal Server Error");
+        HttpResponseHeader response("HTTP/1.1", 500, "Internal Server Error", "Internal Server Error");
         response.setHeader("Content-Type", "text/html");
         return response;
     }
@@ -189,7 +189,7 @@ HttpResponseHeader TcpServer::handleEndpoint(HttpRequestHeader &request) {
 HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
     std::ifstream file(request.getPath().c_str(), std::ios::binary);
     if (!file.is_open()) {
-        HttpResponseHeader response("HTTP/1.1", "404", "Not Found", "Not Found");
+        HttpResponseHeader response("HTTP/1.1", 404, "Not Found", "Not Found");
         response.setHeader("Content-Type", "text/html");
         return response;
     }
@@ -197,7 +197,7 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
     file.seekg(0, std::ios::end);
     const std::streamsize filesize = file.tellg();
     file.seekg(0, std::ios::beg);
-    HttpResponseHeader response("HTTP/1.1", "200", "OK", "OK");
+    HttpResponseHeader response("HTTP/1.1", 200, "OK", "OK");
     response.setHeader("Content-Type", utils::getContentType(request.getPath()));
     std::stringstream ss;
     ss << file.rdbuf();
@@ -206,28 +206,5 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
 }
 
 void TcpServer::write(TcpConnection& connection, const HttpResponseHeader& response) {
-    // std::cout << response.buildReadableResponse() << std::endl;
     connection.write(response.buildResponse());
-    // std::ifstream file("assets/videos/Studio_Project.mp4", std::ios::binary);
-    // file.seekg(0, std::ios::end);
-    // const std::streamsize filesize = file.tellg();
-    // file.seekg(0, std::ios::beg);
-    // std::ostringstream header;
-    // header << "HTTP/1.1 200 OK\r\n"
-    //         << "Content-Type: video/mp4\r\n"
-    //         << "Content-Length: " << 4 * 1024 * 1024 << "\r\n"
-    //         << "Connection: close\r\n"
-    //         << "\r\n";
-    // // std::cout << content << std::endl;
-
-    // const std::string header_str = header.str();
-    // connection.write(header_str);
-    // std::vector<char> buffer(1 * 1024 * 1024); // 1MB
-    // // while (file.good()) {
-    //     file.read(buffer.data(), buffer.size());
-    //     const std::streamsize count = file.gcount();
-    //     // if (count == 0)
-    //     //     break;
-    //     connection.write(std::string(buffer.data(), count));
-    // }
 }

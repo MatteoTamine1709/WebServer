@@ -5,18 +5,21 @@
 #include <unordered_map>
 #include <optional>
 #include <vector>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 class HttpRequestHeader {
 public:
     HttpRequestHeader() = default;
     HttpRequestHeader(const std::string& header);
     std::string getMethod() const;
-    std::string getPath() const;
-    std::string getRoute() const;
+    fs::path getPath() const;
+    fs::path getRoute() const;
+    fs::path getUrl() const;
     std::string getProtocol() const;
     std::optional<std::string> getHeader(const std::string& key) const;
     std::unordered_map<std::string, std::string> getHeaders() const;
-    std::string getUrl() const;
     std::string getRemoteAddress() const;
     std::string getRemoteUser() const;
     std::string getReferrer() const;
@@ -39,9 +42,9 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const HttpRequestHeader& header);
 private:
     std::string m_method;
-    std::string m_route;
-    std::string m_path;
-    std::string m_url;
+    fs::path m_url; // http://www.example.com:8080/path/to/file.html?key=value&key2=value2#SomewhereInTheDocument
+    fs::path m_route; // /path/to/file.html
+    fs::path m_path; // /path/to/file.html || /path/to/endpoint
     std::string m_protocol;
     std::unordered_map<std::string, std::string> m_headers;
     std::unordered_map<std::string, std::string> m_parameters;
