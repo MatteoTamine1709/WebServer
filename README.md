@@ -26,7 +26,7 @@
 
 - Endpoints:
 
-  - [ ] Ability to stream files like video or audio efficiently (not downloading 1GB of data straight on loading) (**Which was the reason I started this project**) ([Reference](https://blog.logrocket.com/build-video-streaming-server-node/))
+  - [x] Ability to stream files like video or audio efficiently (not downloading 1GB of data straight on loading) (**Which was the reason I started this project**) ([Reference](https://blog.logrocket.com/build-video-streaming-server-node/))
   - [ ] A system to communicate with databases / have modules that every endpoint can access
 
 - Hosting:

@@ -82,7 +82,8 @@ void HttpResponseHeader::setHeader(const std::string &key, const std::string &va
 void HttpResponseHeader::setBody(const std::string &body) {
     m_body = body;
     
-    setHeader("Content-Length", std::to_string(body.size()));
+    if (m_headers.find("Content-Length") == m_headers.end())
+        setHeader("Content-Length", std::to_string(body.size()));
 }
 
 // Operators

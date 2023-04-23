@@ -206,5 +206,6 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
 }
 
 void TcpServer::write(TcpConnection& connection, const HttpResponseHeader& response) {
+    spdlog::debug("{}", response.buildReadableResponse());
     connection.write(response.buildResponse());
 }

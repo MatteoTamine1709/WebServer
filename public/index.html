@@ -6,9 +6,22 @@
   <body>
     <h1>My First Web Page</h1>
     <p>aaa</p>
-    <video id="video" width="640" height="480" controls>
-      <source src="./assets/videos/Studio_Project.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
+    <!-- <link rel="stylesheet" href="https://cdn.plyr.io/3.6.8/plyr.css" />
+    <script src="https://cdn.plyr.io/3.6.8/plyr.js"></script> -->
+
+    <video id="player" controls muted="muted" autoplay>
+      <source src="/video" type="video/mp4" />
     </video>
+
+    <script>
+      // const player = new Plyr("#player", {
+      //   // Enable progressive loading
+      //   hlsjs: {
+      //     xhrSetup: function (xhr, url) {
+      //       xhr.setRequestHeader("Range", "bytes=0-");
+      //     },
+      //   },
+      // });
+    </script>
   </body>
 </html>
