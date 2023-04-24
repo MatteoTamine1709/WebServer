@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
     }).detach();
     while (running) {
         if (!connected) {
-            sleep(1);
+            sleep(5);
             continue;
         }
         loadFiles(path);
@@ -116,7 +116,8 @@ int main(int argc, char **argv) {
                 write(signalFD, file.toAbsolutePath().c_str(), file.toAbsolutePath().length());
                 if (kill(targetPID, SIGUSR2) == -1) {
                     std::cerr << "Failed to send signal to target process." << std::endl;
-                    return 1;
+                    connected = false;
+                    break;
                 }
             }
         }    

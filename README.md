@@ -14,6 +14,7 @@
     - [ ] Date and time support
     - [x] Log to file
   - [x] Unit testing server with [Catch2](https://github.com/catchorg/Catch2)
+  - [ ] Utilities to make response faster
   - [ ] Call Javascript functions from C++ [Reference](https://stackoverflow.com/questions/2713289/how-to-execute-javascript-function-in-c)
   - [ ] Dockerize the project (_If needed_)
 
@@ -57,16 +58,15 @@ As of right now, we are loading the endpoints from compiled shared library in ea
   - `/user/[...id]/[...otherID]/name/[...otherName]`
 
 - [ ] Also, we would like to handle optional parameters like `/user/[[id]]` or `/user/[[...id]]` (refer to [next.js](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes) for more info)
-- [ ] We would like to make the routing system more efficient by using a trie instead of a hashmap and preprocessing the routes to make them more efficient
 - [x] We would like to add a way to handle redirects
-- [ ] We would like to make the parameters in the route available in the endpoint like
+- [x] We would like to make the parameters in the route available in the endpoint like
 
   - `GET /user/[id]` → `req.params.id`
   - `GET /user/[id]/[name]` → `req.params.id` and `req.params.name`
   - `GET /user/[...id]` → `req.params.id`
   - `GET /user/[...id]/[...otherID]` → `req.params.id` and `req.params.otherID`
 
-- Adding ETag support [Reference](https://stackoverflow.com/questions/4533/http-generating-etag-header)
+- [x] Adding ETag support [Reference](https://stackoverflow.com/questions/4533/http-generating-etag-header)
 - Support a maximum of header fields see [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
 
 ### HotReload

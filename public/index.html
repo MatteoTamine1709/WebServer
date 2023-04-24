@@ -14,14 +14,25 @@
     </video>
 
     <script>
-      // const player = new Plyr("#player", {
-      //   // Enable progressive loading
-      //   hlsjs: {
-      //     xhrSetup: function (xhr, url) {
-      //       xhr.setRequestHeader("Range", "bytes=0-");
-      //     },
-      //   },
-      // });
+      let etag = null;
+      const f = () => {
+        fetch("/test", {
+          headers: {
+            Etag: etag,
+          },
+        })
+          .then((res) => {
+            console.log(res.headers.get("etag"));
+            etag = res.headers.get("etag");
+            return res.json();
+          })
+          .then((data) => {
+            console.log(data);
+          });
+      };
+      window.addEventListener("click", () => {
+        f();
+      });
     </script>
   </body>
 </html>

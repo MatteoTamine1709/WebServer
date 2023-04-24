@@ -9,6 +9,7 @@
 #include <spdlog/spdlog.h>
 #include <iostream>
 #include <algorithm>
+#include <sstream>
 
 namespace utils {
     std::unordered_map<std::string, std::string> mimeMap = {};
@@ -154,4 +155,16 @@ namespace utils {
                 mimeMap[lines[i]] = lines[i + 1];
         }
     }
+
+    std::string makeEtag(const std::string &filePath) {
+        struct tm  tm;
+        struct stat attrib;
+        if (stat(filePath.c_str(), &attrib) == -1)
+            return "";
+        std::stringstream ss;
+        ss << attrib.st_mtime << "-";
+        ss << attrib.st_size << "-";
+        ss << attrib.st_ino;
+        return ss.str();
+    } 
 }

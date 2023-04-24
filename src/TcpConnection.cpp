@@ -15,9 +15,9 @@ TcpConnection::~TcpConnection() {
 std::string TcpConnection::read() {
     int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
     if (bytes == -1)
-        throw std::runtime_error("read() failed");
+        throw std::runtime_error("read() failed: " + std::string(strerror(errno)));
     if (bytes == 0 && !isOpen())
-        throw std::runtime_error("connection closed");
+        throw std::runtime_error("connection closed: " + std::string(strerror(errno)));
     if (bytes > 0)
         spdlog::debug("read {} bytes", bytes);
     return std::string(m_buffer.data(), bytes);
@@ -26,7 +26,7 @@ std::string TcpConnection::read() {
 void TcpConnection::write(const std::string& message) {
     int bytes = ::write(m_socket, message.data(), message.size());
     if (bytes == -1)
-        throw std::runtime_error("write() failed");
+        throw std::runtime_error("write() failed: " + std::string(strerror(errno)));
     if (bytes > 0)
         spdlog::debug("wrote {} bytes", bytes);
 }

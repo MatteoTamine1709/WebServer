@@ -25,6 +25,8 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
         std::getline(issHeaderInfo, key, ':');
         std::string value;
         std::getline(issHeaderInfo, value);
+        if (utils::startsWith(value, " "))
+            value = value.substr(1);
         value.erase(std::remove(value.begin(), value.end(), '\n'), value.end());
         value.erase(std::remove(value.begin(), value.end(), '\r'), value.end());
         m_headers[key] = value;

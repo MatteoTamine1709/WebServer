@@ -121,7 +121,9 @@ HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle request parameters
     spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
     if (request.getMethod() == "get" && !request.isEndpoint()) {
+        spdlog::debug("Public folder: {}", m_publicFolder.string());
         request.setPath(m_publicFolder / request.getPath().relative_path().string());
+        spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
         if (!request.isPathValid())
             return HttpResponseHeader("HTTP/1.1", 404, "Not Found", "Not Found");
         HttpResponseHeader response = handleFile(request);
@@ -193,12 +195,25 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
         response.setHeader("Content-Type", "text/html");
         return response;
     }
-
+    HttpResponseHeader response("HTTP/1.1", 200, "OK");
+    response.setHeader("Content-Type", utils::getContentType(request.getPath()));
     file.seekg(0, std::ios::end);
     const std::streamsize filesize = file.tellg();
+    response.setHeader("Content-Length", std::to_string(filesize));
+    const std::vector<std::string> accepted = utils::split(request.getHeader("Accept").value(), {","});
+    const std::string contentType = utils::getContentType(request.getPath());
+    if (std::find(accepted.begin(), accepted.end(), contentType) == accepted.end() &&
+        std::find(accepted.begin(), accepted.end(), "*/*") == accepted.end()) {
+        return response;
+    }
+    const std::string etag = utils::makeEtag(request.getPath());
+    if (request.getHeader("If-None-Match") == etag) {
+        HttpResponseHeader response("HTTP/1.1", 304, "Not Modified", "Not Modified");
+        response.setHeader("Etag", etag);
+        return response;
+    }
     file.seekg(0, std::ios::beg);
-    HttpResponseHeader response("HTTP/1.1", 200, "OK", "OK");
-    response.setHeader("Content-Type", utils::getContentType(request.getPath()));
+    response.setHeader("Etag", etag);
     std::stringstream ss;
     ss << file.rdbuf();
     response.setBody(ss.str());

@@ -82,8 +82,7 @@ void HttpResponseHeader::setHeader(const std::string &key, const std::string &va
 void HttpResponseHeader::setBody(const std::string &body) {
     m_body = body;
     
-    if (m_headers.find("Content-Length") == m_headers.end())
-        setHeader("Content-Length", std::to_string(body.size()));
+    setHeader("Content-Length", std::to_string(body.size()));
 }
 
 // Operators
@@ -112,7 +111,10 @@ std::string HttpResponseHeader::buildReadableResponse() const {
     for (auto &header : m_headers)
         ss << header.first << ": " << header.second << "\r\n";
     ss << "\r\n";
-    if (m_body.size() > 0 && m_body.size() < KILOBYTE)
+    if (m_body.size() > 0 && m_body.size() < KILOBYTE) {
         ss << m_body;
+    } else if (m_body.size() > 0) {
+        ss << "Body size: " << m_body.size() << " bytes";
+    }
     return ss.str();
 }

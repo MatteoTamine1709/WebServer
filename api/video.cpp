@@ -18,7 +18,6 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
     
     HttpResponseHeader response = {};
     const auto range = header.getHeader("Range");
-    std::cout << "range: " << range.value_or("HEYY") << std::endl;
     if (!range.has_value()) {
         response.setProtocol("HTTP/1.1");
         response.setStatusCode(400);

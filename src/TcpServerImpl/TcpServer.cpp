@@ -47,11 +47,11 @@ TcpServer::TcpServer() {
     hints.ai_flags = AI_PASSIVE;
     int status = getaddrinfo(m_host.c_str(), m_port.c_str(), &hints, &result);
     if (status != 0)
-        throw std::runtime_error("getaddrinfo() failed");
+        throw std::runtime_error("getaddrinfo() failed: " + std::string(strerror(errno)));
     m_socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
     if (m_socket == -1) {
         freeaddrinfo(result);
-        throw std::runtime_error("socket() failed");
+        throw std::runtime_error("socket() failed: " + std::string(strerror(errno)));
     }
     int optval = 1;
     setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
@@ -60,18 +60,17 @@ TcpServer::TcpServer() {
         freeaddrinfo(result);
         close(m_socket);
         perror("bind() failed");
-        throw std::runtime_error("bind() failed");
+        throw std::runtime_error("bind() failed: " + std::string(strerror(errno)));
     }
     freeaddrinfo(result);
     status = listen(m_socket, 10);
     if (status == -1) {
         close(m_socket);
-        throw std::runtime_error("listen() failed");
+        throw std::runtime_error("listen() failed: " + std::string(strerror(errno)));
     }
 }
 
 TcpServer::~TcpServer() {
-    spdlog::shutdown();
     for (const auto& [_path, lib] : m_endpoints)
         dlclose(lib.first);
     close(m_socket);
@@ -92,7 +91,7 @@ void TcpServer::accept() {
     socklen_t clientSize = sizeof(client);
     int clientSocket = ::accept(m_socket, (sockaddr*)&client, &clientSize);
     if (clientSocket == -1 && errno != EINTR)
-        throw std::runtime_error("accept() failed");
+        throw std::runtime_error("accept() failed: " + std::string(strerror(errno)));
 
     std::thread([clientSocket, this] () {
         TcpConnection connection(clientSocket);

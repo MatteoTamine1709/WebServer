@@ -1,8 +1,10 @@
 #include "src/HttpRequestHeader.h"
 #include "src/HttpResponseHeader.h"
+#include "src/utils.h"
 
 #include <fstream>
 #include <sstream>
+#include <sys/stat.h>
 
 extern "C" {
     HttpResponseHeader get(const HttpRequestHeader &header);
@@ -11,26 +13,35 @@ extern "C" {
 
 
 HttpResponseHeader get(const HttpRequestHeader &header) {
-    HttpResponseHeader reponse{};
-
-    reponse.setProtocol("HTTP/1.1");
-    reponse.setStatusCode(200);
-    reponse.setStatusMessage("OK");
-    reponse.setHeader("Content-Type", "text/html");
+    HttpResponseHeader response{};
+    const std::string &etag = utils::makeEtag("./public/index.html");
+    if (header.getParameter("Etag").has_value() && header.getParameter("Etag").value() == etag) {
+        response.setProtocol("HTTP/1.1");
+        response.setStatusCode(304);
+        response.setStatusMessage("Not Modified");
+        response.setHeader("Content-Type", "text/html");
+        response.setHeader("Etag", etag);
+        return response;
+    }
+    response.setProtocol("HTTP/1.1");
+    response.setStatusCode(200);
+    response.setStatusMessage("OK");
+    response.setHeader("Content-Type", "text/html");
+    response.setHeader("Etag", etag);
     std::ifstream file("./public/index.html");
     std::stringstream ss;
     ss << file.rdbuf();
-    reponse.setBody(ss.str());
-    return reponse;
+    response.setBody(ss.str());
+    return response;
 }
 
 HttpResponseHeader post(const HttpRequestHeader &header) {
-    HttpResponseHeader reponse{};
+    HttpResponseHeader response{};
 
-    reponse.setProtocol("HTTP/1.1");
-    reponse.setStatusCode(200);
-    reponse.setStatusMessage("OK");
-    reponse.setHeader("Content-Type", "application/json");
-    reponse.setBody("{\"message\": \"Hello World!\"}");
-    return reponse;
+    response.setProtocol("HTTP/1.1");
+    response.setStatusCode(200);
+    response.setStatusMessage("OK");
+    response.setHeader("Content-Type", "application/json");
+    response.setBody("{\"message\": \"Hello World!\"}");
+    return response;
 }

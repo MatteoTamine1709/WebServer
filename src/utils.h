@@ -21,6 +21,7 @@ namespace utils {
     std::string getMimeType(const std::string& extension);
     std::string getContentType(const std::string& path);
     std::string getDateTime();
+    std::string makeEtag(const std::string& filePath);
 
 }
 
