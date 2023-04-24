@@ -195,15 +195,17 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
         response.setHeader("Content-Type", "text/html");
         return response;
     }
-    HttpResponseHeader response("HTTP/1.1", 200, "OK");
+    HttpResponseHeader response("HTTP/1.1", 200, "OK", "OK");
     response.setHeader("Content-Type", utils::getContentType(request.getPath()));
     file.seekg(0, std::ios::end);
     const std::streamsize filesize = file.tellg();
-    response.setHeader("Content-Length", std::to_string(filesize));
+    // response.setHeader("Content-Length", std::to_string(filesize));
     const std::vector<std::string> accepted = utils::split(request.getHeader("Accept").value(), {","});
+
     const std::string contentType = utils::getContentType(request.getPath());
     if (std::find(accepted.begin(), accepted.end(), contentType) == accepted.end() &&
-        std::find(accepted.begin(), accepted.end(), "*/*") == accepted.end()) {
+        std::find_if(accepted.begin(), accepted.end(), [](const std::string &s) { return utils::startsWith(s, "*/*"); }) == accepted.end()) {
+        spdlog::debug("Not acceptable");
         return response;
     }
     const std::string etag = utils::makeEtag(request.getPath());

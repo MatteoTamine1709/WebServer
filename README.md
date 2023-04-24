@@ -36,6 +36,7 @@
 
 - Optimisation
 
+  - [ ] Asynchronous endpoints and read/write
   - [ ] A way to measure the performance of the server using [google benchmark](https://github.com/google/benchmark)
   - [ ] A way to optimise the server to handle a lot of requests (maybe using [libuv](https://libuv.org/))
   - [ ] Reduce memory footprint
