@@ -94,6 +94,7 @@ void TcpServer::accept() {
         throw std::runtime_error("accept() failed: " + std::string(strerror(errno)));
 
     std::thread([clientSocket, this] () {
+        SPDLOG_WARN("New connection created");
         TcpConnection connection(clientSocket);
         while (connection.isOpen()) {
             auto requestHeader = read(connection);
@@ -111,7 +112,9 @@ void TcpServer::accept() {
             spdlog::get("RouteLogger")->info(utils::join(toPrint, " "));
             if (requestHeader.value().getHeader("Connection").has_value() && requestHeader.value().getHeader("Connection").value() != "keep-alive")
                 break;
+            SPDLOG_INFO("Connection keep-alive");
         }
+        SPDLOG_WARN("Connection closed");
         close(clientSocket);
     }).detach();
 }

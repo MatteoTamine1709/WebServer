@@ -28,7 +28,7 @@ void TcpConnection::write(const std::string& message) {
     if (bytes == -1)
         throw std::runtime_error("write() failed: " + std::string(strerror(errno)));
     if (bytes > 0)
-        spdlog::debug("wrote {} bytes", bytes);
+        spdlog::debug("wrote {} bytes from {}", bytes, message.size());
 }
 
 bool TcpConnection::isOpen() const {

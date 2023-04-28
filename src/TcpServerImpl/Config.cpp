@@ -4,7 +4,6 @@
 #include "../HttpResponseHeader.h"
 #include "../utils.h"
 
-#include <thread>
 #include <string>
 
 #include <sys/types.h>

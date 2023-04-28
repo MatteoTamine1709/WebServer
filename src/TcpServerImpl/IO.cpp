@@ -199,7 +199,7 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
     response.setHeader("Content-Type", utils::getContentType(request.getPath()));
     file.seekg(0, std::ios::end);
     const std::streamsize filesize = file.tellg();
-    // response.setHeader("Content-Length", std::to_string(filesize));
+    response.setHeader("Content-Length", std::to_string(filesize));
     const std::vector<std::string> accepted = utils::split(request.getHeader("Accept").value(), {","});
 
     const std::string contentType = utils::getContentType(request.getPath());
@@ -219,6 +219,7 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
     std::stringstream ss;
     ss << file.rdbuf();
     response.setBody(ss.str());
+    file.close();
     return response;
 }
 
