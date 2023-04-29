@@ -166,5 +166,16 @@ namespace utils {
         ss << attrib.st_size << "-";
         ss << attrib.st_ino;
         return ss.str();
-    } 
+    }
+
+    std::string getLastModified(const std::string &filePath) {
+        struct tm  tm;
+        struct stat attrib;
+        if (stat(filePath.c_str(), &attrib) == -1)
+            return "";
+        gmtime_r(&(attrib.st_mtime), &tm);
+        char buffer [80];
+        strftime (buffer, 80, "%a, %d %b %Y %H:%M:%S GMT", &tm);
+        return std::string(buffer);
+    }
 }

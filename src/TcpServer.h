@@ -83,6 +83,10 @@ private:
     void handlePublicConfig(nlohmann::json &p);
     void handleWatchConfig(nlohmann::json &watch);
     void handleLogConfig(nlohmann::json &log);
+
+    
+    uint64_t m_numberThreads = 0;
+    std::mutex m_mutex;
 };
 
 #endif

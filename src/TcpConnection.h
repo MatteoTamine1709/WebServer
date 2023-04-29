@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <thread>
+#include <mutex>
 
 class TcpConnection {
 public:
@@ -15,10 +17,10 @@ public:
     void write(const std::string& message);
 
     bool isOpen() const;
-
 private:
     int m_socket;
     std::array<char, 4 * MEGABYTE> m_buffer;
+    
 };
 
 #endif

@@ -6,29 +6,31 @@
 
 #include <spdlog/spdlog.h>
 
-TcpConnection::TcpConnection(int socket) : m_socket(socket) {}
+TcpConnection::TcpConnection(int socket) : m_socket(socket) {
+    spdlog::debug("new connection {}", m_socket);
+}
 
 TcpConnection::~TcpConnection() {
     close(m_socket);
 }
 
 std::string TcpConnection::read() {
-    int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
-    if (bytes == -1)
-        throw std::runtime_error("read() failed: " + std::string(strerror(errno)));
+    int bytes = ::recv(m_socket, m_buffer.data(), m_buffer.size(), 0);
     if (bytes == 0 && !isOpen())
         throw std::runtime_error("connection closed: " + std::string(strerror(errno)));
-    if (bytes > 0)
-        spdlog::debug("read {} bytes", bytes);
+    if (bytes == -1)
+        throw std::runtime_error("recv() failed: " + std::string(strerror(errno)));
+    if (bytes == 0 && errno == EINVAL)
+        close(m_socket);
     return std::string(m_buffer.data(), bytes);
 }
 
 void TcpConnection::write(const std::string& message) {
-    int bytes = ::write(m_socket, message.data(), message.size());
+    int bytes = ::send(m_socket, message.data(), message.size(), 0);
     if (bytes == -1)
-        throw std::runtime_error("write() failed: " + std::string(strerror(errno)));
-    if (bytes > 0)
-        spdlog::debug("wrote {} bytes from {}", bytes, message.size());
+        throw std::runtime_error("send() failed: " + std::string(strerror(errno)));
+    // if (bytes > 0)
+        // spdlog::debug("sent {} bytes from {}", bytes, message.size());
 }
 
 bool TcpConnection::isOpen() const {

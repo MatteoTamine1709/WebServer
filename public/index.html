@@ -15,12 +15,7 @@
     <div>
       <video id="videoPlayer" controls></video>
     </div>
-    <script>
-      (function () {
-        var url = "assets/videos/quality/output.mpd";
-        var player = dashjs.MediaPlayer().create();
-        player.initialize(document.querySelector("#videoPlayer"), url, true);
-      })();
-    </script>
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <script src="index.js"></script>
   </body>
 </html>

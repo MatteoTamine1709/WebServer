@@ -119,11 +119,11 @@ std::optional<std::string> TcpServer::getCorrectPathOrEmpty(const std::filesyste
 HttpResponseHeader TcpServer::handleRequest(HttpRequestHeader &request) {
     // TODO: Handle parematerized paths
     // TODO: Handle request parameters
-    spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
+    // spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
     if (request.getMethod() == "get" && !request.isEndpoint()) {
-        spdlog::debug("Public folder: {}", m_publicFolder.string());
+        // spdlog::debug("Public folder: {}", m_publicFolder.string());
         request.setPath(m_publicFolder / request.getPath().relative_path().string());
-        spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
+        // spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
         if (!request.isPathValid())
             return HttpResponseHeader("HTTP/1.1", 404, "Not Found", "Not Found");
         HttpResponseHeader response = handleFile(request);
@@ -210,12 +210,17 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
     }
     const std::string etag = utils::makeEtag(request.getPath());
     if (request.getHeader("If-None-Match") == etag) {
-        HttpResponseHeader response("HTTP/1.1", 304, "Not Modified", "Not Modified");
+        HttpResponseHeader response("HTTP/1.1", 304, "Not Modified");
+        response.setHeader("Content-Type", utils::getContentType(request.getPath()));
+        response.setHeader("Cache-Control", "max-age=0");
+        response.setHeader("Content-Length", "0");
+        response.setHeader("Last-Modified", utils::getLastModified(request.getPath()));
         response.setHeader("Etag", etag);
         return response;
     }
     file.seekg(0, std::ios::beg);
     response.setHeader("Etag", etag);
+    response.setHeader("Last-Modified", utils::getLastModified(request.getPath()));
     std::stringstream ss;
     ss << file.rdbuf();
     response.setBody(ss.str());
@@ -224,6 +229,6 @@ HttpResponseHeader TcpServer::handleFile(HttpRequestHeader &request) {
 }
 
 void TcpServer::write(TcpConnection& connection, const HttpResponseHeader& response) {
-    spdlog::debug("{}", response.buildReadableResponse());
+    // spdlog::debug("{}", response.buildReadableResponse());
     connection.write(response.buildResponse());
 }

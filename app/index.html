@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <title>Vite + TS</title>
+    <style>
+      video {
+        width: 50%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module" src="/src/main.ts"></script>
+    <h1>DASH video player</h1>
+    <div>
+      <video id="videoPlayer" controls></video>
+    </div>
+    <div>
+      <h3>Change quality</h3>
+      <button id="low">Low</button>
+      <button id="medium">Medium</button>
+      <button id="high">High</button>
+    </div>
+  </body>
+</html>

@@ -22,6 +22,7 @@ namespace utils {
     std::string getContentType(const std::string& path);
     std::string getDateTime();
     std::string makeEtag(const std::string& filePath);
+    std::string getLastModified(const std::string& filePath);
 
 }
 
