@@ -1,10 +1,11 @@
 #include "HttpResponseHeader.h"
 #include "Constants.h"
-
+#include "utils.h"
 #include <sstream>
+#include <array>
 
-HttpResponseHeader::HttpResponseHeader(const std::string &header) {
-    std::stringstream ss(header);
+HttpResponseHeader::HttpResponseHeader(const std::string_view &header) {
+    std::stringstream ss(header.data());
     std::string line;
     std::getline(ss, line);
     std::stringstream ssLine(line);
@@ -26,10 +27,10 @@ HttpResponseHeader::HttpResponseHeader(const std::string &header) {
     m_body = ss.str();
 }
 
-HttpResponseHeader::HttpResponseHeader(const std::string &protocol,
+HttpResponseHeader::HttpResponseHeader(const std::string_view &protocol,
                                        int statusCode,
-                                       const std::string &statusMessage,
-                                       const std::string &body) :
+                                       const std::string_view &statusMessage,
+                                       const std::string_view &body) :
                                             m_protocol(protocol),
                                             m_statusCode(statusCode),
                                             m_statusMessage(statusMessage) {
@@ -38,7 +39,7 @@ HttpResponseHeader::HttpResponseHeader(const std::string &protocol,
 }
 
 
-std::string HttpResponseHeader::getProtocol() const {
+std::string_view HttpResponseHeader::getProtocol() const {
     return m_protocol;
 }
 
@@ -46,25 +47,25 @@ int HttpResponseHeader::getStatusCode() const {
     return m_statusCode;
 }
 
-std::string HttpResponseHeader::getStatusMessage() const {
+std::string_view HttpResponseHeader::getStatusMessage() const {
     return m_statusMessage;
 }
 
-std::optional<std::string> HttpResponseHeader::getHeader(const std::string &key) const {
-    if (m_headers.find(key) == m_headers.end())
+std::optional<std::string_view> HttpResponseHeader::getHeader(const std::string_view &key) const {
+    if (m_headers.find(key.data()) == m_headers.end())
         return std::nullopt;
-    return m_headers.at(key);
+    return m_headers.at(key.data());
 }
 
-std::unordered_map<std::string, std::string> HttpResponseHeader::getHeaders() const {
+const std::unordered_map<std::string, std::string>& HttpResponseHeader::getHeaders() const {
     return m_headers;
 }
 
-std::string HttpResponseHeader::getBody() const {
+std::string_view HttpResponseHeader::getBody() const {
     return m_body;
 }
 
-void HttpResponseHeader::setProtocol(const std::string &protocol) {
+void HttpResponseHeader::setProtocol(const std::string_view &protocol) {
     m_protocol = protocol;
 }
 
@@ -72,18 +73,30 @@ void HttpResponseHeader::setStatusCode(int statusCode) {
     m_statusCode = statusCode;
 }
 
-void HttpResponseHeader::setStatusMessage(const std::string &statusMessage) {
+void HttpResponseHeader::setStatusMessage(const std::string_view &statusMessage) {
     m_statusMessage = statusMessage;
 }
 
-void HttpResponseHeader::setHeader(const std::string &key, const std::string &value) {
-    m_headers[key] = value;
+void HttpResponseHeader::setHeader(const std::string_view &key, const std::string_view &value) {
+    m_headers[key.data()] = value;
 }
 
-void HttpResponseHeader::setBody(const std::string &body) {
+void HttpResponseHeader::setBody(const std::string_view &body) {
     m_body = body;
     if (m_headers.find("Content-Length") == m_headers.end())
         setHeader("Content-Length", std::to_string(body.size()));
+}
+
+void HttpResponseHeader::complete(const HttpRequestHeader &request) {
+    const std::vector<std::string> &allowedMethods = {"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "CONNECT", "TRACE"};
+    setHeader("Server", "MyCustomServer/1.0");
+    setHeader("Date", utils::getDateTime());
+    if (request.getMethod() == "options" && !getHeader("Allow").has_value())
+        setHeader("Allow", utils::join(allowedMethods, ", "));
+    if (request.getHeader("Connection").has_value() && !getHeader("Connection").has_value())
+        setHeader("Connection", request.getHeader("Connection").value());
+    if (request.getHeader("Cache-Control").has_value() && !getHeader("Cache-Control").has_value())
+        setHeader("Cache-Control", request.getHeader("Cache-Control").value());
 }
 
 // Operators
@@ -112,7 +125,7 @@ std::string HttpResponseHeader::buildReadableResponse() const {
     for (auto &header : m_headers)
         ss << header.first << ": " << header.second << "\r\n";
     ss << "\r\n";
-    if (m_body.size() > 0 && m_body.size() < KILOBYTE) {
+    if (m_body.size() > 0 && m_body.size() < ONE_KILOBYTE) {
         ss << m_body;
     } else if (m_body.size() > 0) {
         ss << "Body size: " << m_body.size() << " bytes";

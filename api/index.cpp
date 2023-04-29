@@ -28,7 +28,7 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
     response.setStatusMessage("OK");
     response.setHeader("Content-Type", "text/html");
     response.setHeader("Etag", etag);
-    std::ifstream file("./public/index.html");
+    std::ifstream file("./app/dist/index.html");
     std::stringstream ss;
     ss << file.rdbuf();
     response.setBody(ss.str());

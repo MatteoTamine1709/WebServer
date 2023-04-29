@@ -25,6 +25,6 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
 
     response.setStatusCode(200);
     response.setStatusMessage("OK");
-    response.setBody("{\"message\": \"" + header.getParameter("plop").value_or("UNDEFINED") + "\"}");
+    response.setBody("{\"message\": \"" + std::string(header.getParameter("plop").value_or("UNDEFINED")) + "\"}");
     return response;
 }

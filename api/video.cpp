@@ -26,7 +26,7 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
         response.setBody("<h1>400 Bad Request</h1>");
         return response;
     }
-    const auto rangeStr = range.value();
+    const auto rangeStr = range.value().data();
 
     response.setProtocol("HTTP/1.1");
     response.setStatusCode(206);
@@ -37,7 +37,7 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
     const auto end = file.tellg();
     const auto fsize = (end - begin);
 
-    const auto CHUNK_SIZE = MEGABYTE;
+    const auto CHUNK_SIZE = ONE_MEGABYTE;
     const auto CHUNKS = fsize / CHUNK_SIZE;
 
     const auto rangeParts = utils::split(rangeStr, {"="});
@@ -57,7 +57,7 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
     response.setHeader("Cache-Control", "no-cache");
 
     file.seekg(rangeStart, std::ios::beg);
-    std::array<char, MEGABYTE> buffer;
+    std::array<char, ONE_MEGABYTE> buffer;
     file.read(buffer.data(), rangeLength);
     response.setBody(std::string(buffer.data(), rangeLength));
 

@@ -19,7 +19,7 @@ public:
     bool isOpen() const;
 private:
     int m_socket;
-    std::array<char, 4 * MEGABYTE> m_buffer;
+    std::array<char, 4 * ONE_MEGABYTE> m_buffer;
     
 };
 

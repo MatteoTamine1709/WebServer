@@ -7,8 +7,8 @@
 
 #include <iostream>
 
-HttpRequestHeader::HttpRequestHeader(const std::string& header) {
-    std::istringstream issHeader(header);
+HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
+    std::istringstream issHeader(header.data());
     std::string line;
     std::getline(issHeader, line);
     std::istringstream issRequestLine(line);
@@ -32,7 +32,7 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
         m_headers[key] = value;
     }
     if (m_headers.find("Content-Length") != m_headers.end()) {
-        int contentLength = std::stoi(m_headers["Content-Length"]);
+        int contentLength = std::stoi(m_headers["Content-Length"].data());
         m_body.resize(contentLength);
         issHeader.read(m_body.data(), contentLength);
     }
@@ -53,7 +53,7 @@ HttpRequestHeader::HttpRequestHeader(const std::string& header) {
     
 }
 
-std::string HttpRequestHeader::getMethod() const {
+std::string_view HttpRequestHeader::getMethod() const {
     return m_method;
 }
 
@@ -65,17 +65,17 @@ fs::path HttpRequestHeader::getRoute() const {
     return m_route;
 }
 
-std::string HttpRequestHeader::getProtocol() const {
+std::string_view HttpRequestHeader::getProtocol() const {
     return m_protocol;
 }
 
-std::optional<std::string> HttpRequestHeader::getHeader(const std::string& key) const {
-    if (m_headers.find(key) == m_headers.end())
+std::optional<std::string_view> HttpRequestHeader::getHeader(const std::string_view& key) const {
+    if (m_headers.find(key.data()) == m_headers.end())
         return std::nullopt;
-    return m_headers.at(key);
+    return m_headers.at(key.data());
 }
 
-std::unordered_map<std::string, std::string> HttpRequestHeader::getHeaders() const {
+const std::unordered_map<std::string, std::string>& HttpRequestHeader::getHeaders() const {
     return m_headers;
 }
 
@@ -83,7 +83,7 @@ fs::path HttpRequestHeader::getUrl() const {
     return m_url;
 }
 
-std::string HttpRequestHeader::getRemoteAddress() const {
+std::string_view HttpRequestHeader::getRemoteAddress() const {
     if (m_headers.find("Remote-Address") != m_headers.end())
         return m_headers.at("Remote-Address");
     if (m_headers.find("X-Forwarded-For") != m_headers.end())
@@ -91,41 +91,41 @@ std::string HttpRequestHeader::getRemoteAddress() const {
     return "";
 }
 
-std::string HttpRequestHeader::getRemoteUser() const {
+std::string_view HttpRequestHeader::getRemoteUser() const {
     if (m_headers.find("Remote-User") != m_headers.end())
         return m_headers.at("Remote-User");
     return "";
 }
 
-std::string HttpRequestHeader::getReferrer() const {
+std::string_view HttpRequestHeader::getReferrer() const {
     if (m_headers.find("Referer") != m_headers.end())
         return m_headers.at("Referer");
     return "";
 }
 
-std::string HttpRequestHeader::getUserAgent() const {
+std::string_view HttpRequestHeader::getUserAgent() const {
     if (m_headers.find("User-Agent") != m_headers.end())
         return m_headers.at("User-Agent");
     return "";
 }
 
-std::string HttpRequestHeader::getContentType() const {
+std::string_view HttpRequestHeader::getContentType() const {
     if (m_headers.find("Content-Type") != m_headers.end())
         return m_headers.at("Content-Type");
     return "";
 }
 
-std::string HttpRequestHeader::getBody() const {
+std::string_view HttpRequestHeader::getBody() const {
     return m_body;
 }
 
-std::optional<std::string> HttpRequestHeader::getParameter(const std::string& key) const {
-    if (m_parameters.find(key) == m_parameters.end())
+std::optional<std::string_view> HttpRequestHeader::getParameter(const std::string_view& key) const {
+    if (m_parameters.find(key.data()) == m_parameters.end())
         return std::nullopt;
-    return m_parameters.at(key);
+    return m_parameters.at(key.data());
 }
 
-std::unordered_map<std::string, std::string> HttpRequestHeader::getParameters() const {
+const std::unordered_map<std::string, std::string>& HttpRequestHeader::getParameters() const {
     return m_parameters;
 }
 
@@ -133,7 +133,7 @@ bool HttpRequestHeader::isEndpoint() const {
     return utils::getExtension(m_path).empty();
 }
 
-void HttpRequestHeader::setPath(const std::string& path) {
+void HttpRequestHeader::setPath(const std::string_view& path) {
     m_path = fs::weakly_canonical(path);
 }
 
@@ -145,16 +145,21 @@ bool HttpRequestHeader::isPathDirectory() const {
     return fs::is_directory(m_path);
 }
 
-void HttpRequestHeader::setProtocol(const std::string& protocol) {
+void HttpRequestHeader::setProtocol(const std::string_view& protocol) {
     m_protocol = protocol;
 }
 
-void HttpRequestHeader::setHeader(const std::string& key, const std::string& value) {
-    m_headers[key] = value;
+void HttpRequestHeader::setHeader(const std::string_view& key, const std::string_view& value) {
+    m_headers[key.data()] = value;
 }
 
-void HttpRequestHeader::setBody(const std::string& body) {
+void HttpRequestHeader::setBody(const std::string_view& body) {
     m_body = body;
+}
+
+void HttpRequestHeader::complete() {
+    if (getProtocol().empty())
+        setProtocol("HTTP/1.1");
 }
 
 // Operators

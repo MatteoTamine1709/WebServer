@@ -30,14 +30,17 @@ TcpServer& TcpServer::getInstance() {
 }
 
 TcpServer::TcpServer() {
-    std::ifstream config("./config.json");
-    if (config.is_open())
-        config >> m_config;
-    for (auto& [key, value] : m_config.items()) {
-        if (m_configHandlers.find(key) != m_configHandlers.end())
-            (this->*m_configHandlers[key])(value);
+    std::ifstream configFile("./config.json");
+    if (configFile.is_open()) {
+        nlohmann::json config;
+        configFile >> config;
+        for (auto& [key, value] : config.items()) {
+            if (m_configHandlers.find(key) != m_configHandlers.end())
+                (this->*m_configHandlers[key])(value);
+        }
+        configFile.close();
     }
-    registerSignals(m_defaultSignals);
+    registerSignals(std::vector(std::begin(m_defaultSignals), std::end(m_defaultSignals)));
 
     addrinfo hints;
     addrinfo *result;

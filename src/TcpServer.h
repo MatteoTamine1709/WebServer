@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <array>
 #include <csignal>
 #include <filesystem>
 
@@ -32,11 +33,11 @@ public:
 private:
     TcpServer();
     void accept();
-    HttpRequestHeader &completeRequest(HttpRequestHeader &requesst);
+    // HttpRequestHeader &completeRequest(HttpRequestHeader &requesst);
     std::optional<HttpRequestHeader> read(TcpConnection& connection);
-    HttpResponseHeader &completeResponse(HttpResponseHeader &response, const HttpRequestHeader &request);
+    // HttpResponseHeader &completeResponse(HttpResponseHeader &response, const HttpRequestHeader &request);
     HttpResponseHeader handleRequest(HttpRequestHeader& request);
-    std::optional<std::string> getCorrectPathOrEmpty(const std::filesystem::path &path);
+    std::optional<std::string> getCorrectPath(const std::filesystem::path &path);
     HttpResponseHeader handleEndpoint(HttpRequestHeader& request);
     HttpResponseHeader handleFile(HttpRequestHeader& request);
     void write(TcpConnection& connection, const HttpResponseHeader& response);
@@ -49,15 +50,13 @@ private:
     int m_socket;
 
     volatile std::sig_atomic_t m_signal;
-    std::vector<int> m_defaultSignals = {SIGINT, SIGTERM};
+    const std::array<int, 2> m_defaultSignals = {SIGINT, SIGTERM};
 
     int m_pipeFD = -1;
-    bool m_watch = false;
     bool m_running = true;
 
     typedef std::string Endpoint;
     typedef std::string Method;
-    typedef std::string LibPath;
     typedef HttpResponseHeader (*endpoint_t)(HttpRequestHeader);
     typedef std::unordered_map<Method, endpoint_t> EndpointMethods;
     std::unordered_map<Endpoint, std::pair<void *, EndpointMethods>> m_endpoints;
@@ -66,7 +65,11 @@ private:
     std::string m_port = "8081";
     fs::path m_apiFolder = "./api";
     fs::path m_publicFolder = "./public";
-    nlohmann::json m_config = {};
+    bool m_watch = false;
+
+    uint64_t m_numberThreads = 0;
+    std::mutex m_mutex;
+
     typedef std::string ConfigKey;
     std::unordered_map<ConfigKey, void (TcpServer::*)(nlohmann::json &)> m_configHandlers = {
             {"host", &TcpServer::handleHostConfig},
@@ -83,10 +86,6 @@ private:
     void handlePublicConfig(nlohmann::json &p);
     void handleWatchConfig(nlohmann::json &watch);
     void handleLogConfig(nlohmann::json &log);
-
-    
-    uint64_t m_numberThreads = 0;
-    std::mutex m_mutex;
 };
 
 #endif

@@ -25,14 +25,14 @@ std::vector<std::string> LOGGER_FORMAT = {};
 
 void TcpServer::handleHostConfig(nlohmann::json &host) {
     if (host.is_string())
-        m_host = host;
+        m_host = host.get<std::string>();
 }
 
 void TcpServer::handlePortConfig(nlohmann::json &port) {
     if (port.is_number())
         m_port = std::to_string(port.get<int>());
     if (port.is_string())
-        m_port = port;
+        m_port = port.get<std::string>();
 }
 
 void TcpServer::handleApiConfig(nlohmann::json &api) {

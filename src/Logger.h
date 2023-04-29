@@ -35,9 +35,9 @@ typedef struct LoggedInfo_t {
     LoggedInfo_t(const HttpRequestHeader& request, const HttpResponseHeader& response, int64_t responseTime) {
         this->remoteAddress = request.getRemoteAddress();
         this->remoteUser = request.getRemoteUser();
-        this->route = request.getRoute();
-        this->method = utils::toUpper(request.getMethod());
-        this->url = request.getUrl();
+        this->route = request.getRoute().string();
+        this->method = utils::toUpper(std::string(request.getMethod()));
+        this->url = request.getUrl().string();
         this->httpVersion = request.getProtocol();
         this->status = response.getStatusCode();
         this->referrer = request.getReferrer();

@@ -12,31 +12,33 @@ namespace fs = std::filesystem;
 class HttpRequestHeader {
 public:
     HttpRequestHeader() = default;
-    HttpRequestHeader(const std::string& header);
-    std::string getMethod() const;
+    HttpRequestHeader(const std::string_view& header);
+    std::string_view getMethod() const;
     fs::path getPath() const;
     fs::path getRoute() const;
     fs::path getUrl() const;
-    std::string getProtocol() const;
-    std::optional<std::string> getHeader(const std::string& key) const;
-    std::unordered_map<std::string, std::string> getHeaders() const;
-    std::string getRemoteAddress() const;
-    std::string getRemoteUser() const;
-    std::string getReferrer() const;
-    std::string getUserAgent() const;
-    std::string getContentType() const;
-    std::string getBody() const;
-    std::optional<std::string> getParameter(const std::string& key) const;
-    std::unordered_map<std::string, std::string> getParameters() const;
+    std::string_view getProtocol() const;
+    std::optional<std::string_view> getHeader(const std::string_view& key) const;
+    const std::unordered_map<std::string, std::string>& getHeaders() const;
+    std::string_view getRemoteAddress() const;
+    std::string_view getRemoteUser() const;
+    std::string_view getReferrer() const;
+    std::string_view getUserAgent() const;
+    std::string_view getContentType() const;
+    std::string_view getBody() const;
+    std::optional<std::string_view> getParameter(const std::string_view& key) const;
+    const std::unordered_map<std::string, std::string>& getParameters() const;
 
     bool isEndpoint() const;
 
-    void setPath(const std::string& path);
+    void setPath(const std::string_view& path);
     bool isPathValid() const;
     bool isPathDirectory() const;
-    void setProtocol(const std::string& protocol);
-    void setHeader(const std::string& key, const std::string& value);
-    void setBody(const std::string& body);
+    void setProtocol(const std::string_view& protocol);
+    void setHeader(const std::string_view& key, const std::string_view& value);
+    void setBody(const std::string_view& body);
+
+    void complete();
 
     // Operators
     friend std::ostream& operator<<(std::ostream& os, const HttpRequestHeader& header);
