@@ -16,12 +16,11 @@ TcpConnection::~TcpConnection() {
 
 std::string TcpConnection::read() {
     int bytes = ::recv(m_socket, m_buffer.data(), m_buffer.size(), 0);
-    if (bytes == 0 && !isOpen())
-        throw std::runtime_error("connection closed: " + std::string(strerror(errno)));
-    if (bytes == -1)
-        throw std::runtime_error("recv() failed: " + std::string(strerror(errno)));
-    if (bytes == 0 && errno == EINVAL)
+    if (bytes == 0 || bytes == -1) {
         close(m_socket);
+        spdlog::debug("connection closed {}", m_socket);
+        return "";
+    }
     return std::string(m_buffer.data(), bytes);
 }
 

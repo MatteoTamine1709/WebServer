@@ -8,10 +8,21 @@
 # -c:a aac -b:a:1 64k -ac:a:1 2 -ar:a:1 44100 \
 # -strict -2 -f dash output.mpd
 
+# ffmpeg -i input.mp4 \
+#   -map 0:v:0 -map 0:a\?:0 -map 0:v:0 -map 0:v:0 \
+#   -b:v:0 350k  -c:v:0 libx264 -filter:v:0 "scale=320:-1"  \
+#   -b:v:1 1000k -c:v:1 libx264 -filter:v:1 "scale=640:-1"  \
+#   -b:v:2 3000k -c:v:2 libx264 -filter:v:2 "scale=1280:-1" \
+#   -adaptation_sets "id=0,streams=v  id=1,streams=a" \
+#   -hls_playlist true -f dash output.mpd
+
 ffmpeg -i input.mp4 \
-  -map 0:v:0 -map 0:a\?:0 -map 0:v:0 -map 0:v:0 \
-  -b:v:0 350k  -c:v:0 libx264 -filter:v:0 "scale=320:-1"  \
-  -b:v:1 1000k -c:v:1 libx264 -filter:v:1 "scale=640:-1"  \
-  -b:v:2 3000k -c:v:2 libx264 -filter:v:2 "scale=1280:-1" \
+  -map 0:v:0 -b:v:0 350k  -c:v:0 libx264 -filter:v:0 "scale=320:-1"  \
+  -map 0:v:0 -b:v:1 1000k -c:v:1 libx264 -filter:v:1 "scale=640:-1"  \
+  -map 0:v:0 -b:v:2 3000k -c:v:2 libx264 -filter:v:2 "scale=1280:-1" \
+  -map 0:v:0 -b:v:3 9000k -c:v:3 libx264 -filter:v:3 "scale=1920:-1" \
+  -map 0:a:0 -c:a:0 aac -b:a:0 64k \
+  -map 0:a:0 -c:a:1 aac -b:a:1 128k \
+  -map 0:a:0 -c:a:2 aac -b:a:2 256k \
   -adaptation_sets "id=0,streams=v  id=1,streams=a" \
   -hls_playlist true -f dash output.mpd

@@ -14,7 +14,7 @@
     - [ ] Date and time support
     - [x] Log to file
   - [x] Unit testing server with [Catch2](https://github.com/catchorg/Catch2)
-  - [ ] Utilities to make response faster
+  - [ ] Utilities to make using the server easier and faster
   - [ ] Call Javascript functions from C++ [Reference](https://stackoverflow.com/questions/2713289/how-to-execute-javascript-function-in-c)
   - [ ] Dockerize the project (_If needed_)
 
@@ -22,8 +22,10 @@
 
   - [x] A good config file system using [nlohmann/json](https://github.com/nlohmann/json) ([Reference](#config-file))
     - [ ] Add options as the project goes on
+  - [ ] The ability to write command to the server like `stop` or `reload` or `restart` or `status`
   - [ ] [Routing system](#routing-system) like [next.js](https://nextjs.org/docs/routing/introduction)
   - [ ] A way to handle sessions (MAYBE)
+  - [ ] Upload files to the server
 
 - Endpoints:
 
@@ -36,7 +38,7 @@
 
 - Optimisation
 
-  - [ ] Asynchronous endpoints and read/write
+  - [x] Asynchronous endpoints and read/write
   - [ ] A way to measure the performance of the server using [google benchmark](https://github.com/google/benchmark)
   - [ ] A way to optimise the server to handle a lot of requests (maybe using [libuv](https://libuv.org/))
   - [ ] Reduce memory footprint
