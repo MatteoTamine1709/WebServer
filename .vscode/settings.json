@@ -64,7 +64,9 @@
     "cinttypes": "cpp",
     "valarray": "cpp",
     "filesystem": "cpp",
-    "span": "cpp"
+    "span": "cpp",
+    "bitset": "cpp",
+    "regex": "cpp"
   },
   "files.exclude": {
     "**/.svn": true,

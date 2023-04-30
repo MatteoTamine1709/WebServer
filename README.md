@@ -9,14 +9,14 @@
     - [x] When we start the project with watch mode, the hot reloader is not started
     - [x] Hot reloader should know the set folder for endpoints and not have to be passed as an argument
     - [x] Faster boot up time (compiling the shared library takes a lot of time, make it into it's own thread)
-    - [ ] Remove infinite loop and use a signal to start/stop the hot reloader
+    - [x] Remove infinite loop and use a signal to start/stop the hot reloader
   - [x] A good logger with request time and all (like [morgan](https://www.npmjs.com/package/morgan)) using [spdlog](https://github.com/gabime/spdlog)
     - [ ] Date and time support
     - [x] Log to file
   - [x] Unit testing server with [Catch2](https://github.com/catchorg/Catch2)
-  - [ ] Utilities to make using the server easier and faster
   - [ ] Call Javascript functions from C++ [Reference](https://stackoverflow.com/questions/2713289/how-to-execute-javascript-function-in-c)
   - [ ] Dockerize the project (_If needed_)
+  - [x] Being able to show the server to other devices on the network (using [ngrok](https://ngrok.com/)?)
 
 - Server:
 
@@ -26,10 +26,14 @@
   - [ ] [Routing system](#routing-system) like [next.js](https://nextjs.org/docs/routing/introduction)
   - [ ] A way to handle sessions (MAYBE)
   - [ ] Upload files to the server
+  - [x] Res and Req from [req](https://expressjs.com/en/5x/api.html#req) and [res](https://expressjs.com/en/5x/api.html#res) <span style="color:red">(Not everything is implemented yet)</span>.
+
+  - [ ] Middleware support [Reference](https://nextjs.org/docs/advanced-features/middleware)
 
 - Endpoints:
 
   - [x] Ability to stream files like video or audio efficiently (not downloading 1GB of data straight on loading) (**Which was the reason I started this project**) ([Reference](https://blog.logrocket.com/build-video-streaming-server-node/))
+  - [ ] Express interface
   - [ ] A system to communicate with databases / have modules that every endpoint can access
 
 - Hosting:

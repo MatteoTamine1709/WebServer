@@ -5,8 +5,9 @@ project(WebServer VERSION 0.1.0)
 enable_testing()
 
 file(GLOB TcpServerImpl src/TcpServerImpl/*.cpp)
+file(GLOB Interface src/interface/*.cpp)
 
-add_library(projectLib ${TcpServerImpl} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/HttpResponseHeader.cpp src/utils.cpp)
+add_library(projectLib ${TcpServerImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/HttpResponseHeader.cpp src/utils.cpp)
 add_executable(WebServer main.cpp)
 target_link_libraries(WebServer PRIVATE projectLib)
 
@@ -20,6 +21,7 @@ find_package(spdlog REQUIRED)
 find_package(nlohmann_json 3.2.0 REQUIRED)
 
 target_link_libraries(WebServer PRIVATE Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json)
+target_include_directories(WebServer PUBLIC ./)
 
 
 # add assets folder

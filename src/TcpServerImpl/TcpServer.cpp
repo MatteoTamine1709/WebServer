@@ -1,6 +1,6 @@
 #include "../TcpServer.h"
 #include "../HttpRequestHeader.h"
-#include "../HttpResponseHeader.h"
+#include "../Response.h"
 #include "../utils.h"
 #include "../Logger.h"
 
@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <arpa/inet.h>
 #include <thread>
 #include <netdb.h>
 #include <cstring>
@@ -89,6 +90,16 @@ void TcpServer::run() {
     SPDLOG_INFO("Server stopped");
 }
 
+std::string TcpServer::getIp() {
+    char myIP[16];
+    struct sockaddr_in my_addr;
+    bzero(&my_addr, sizeof(my_addr));
+    socklen_t len = sizeof(my_addr);
+    getsockname(m_socket, (struct sockaddr *) &my_addr, &len);
+    inet_ntop(AF_INET, &my_addr.sin_addr, myIP, sizeof(myIP));
+    return std::string(myIP);
+}
+
 void TcpServer::accept() {
     sockaddr_in client;
     socklen_t clientSize = sizeof(client);
@@ -97,10 +108,9 @@ void TcpServer::accept() {
         throw std::runtime_error("accept() failed: " + std::string(strerror(errno)));
 
     std::thread([clientSocket, this] () {
-        // SPDLOG_WARN("New connection created");
         m_mutex.lock();
         m_numberThreads++;
-        spdlog::debug("Number of threads: {}", m_numberThreads);
+        spdlog::debug("New connection number of threads: {}", m_numberThreads);
         m_mutex.unlock();
         TcpConnection connection(clientSocket);
         while (connection.isOpen()) {
@@ -108,23 +118,23 @@ void TcpServer::accept() {
             auto start = std::chrono::high_resolution_clock::now();
             if (!requestHeader)
                 continue;
-            HttpResponseHeader responseHeader = handleRequest(requestHeader.value());
+            Response responseHeader = handleRequest(requestHeader.value());
             write(connection, responseHeader);
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-            LoggedInfo info(requestHeader.value(), responseHeader, duration.count());
+            // LogResponse *lr = static_cast<LogResponse *>(&responseHeader);
+            // LoggedInfo info(*static_cast<LogResponse *>(&responseHeader), duration.count());
             std::vector<std::string> toPrint;
-            for (const auto &format : LOGGER_FORMAT)
-                toPrint.push_back(fmt::format(format, fmt::arg(format.c_str(), info)));
+            // for (const auto &format : LOGGER_FORMAT)
+            //     toPrint.push_back(fmt::format(format, fmt::arg(format.c_str(), info)));
             spdlog::get("RouteLogger")->info(utils::join(toPrint, " "));
             if (requestHeader.value().getHeader("Connection").has_value() && requestHeader.value().getHeader("Connection").value() != "keep-alive")
                 break;
         }
-        // SPDLOG_WARN("Connection closed");
         close(clientSocket);
         m_mutex.lock();
         m_numberThreads--;
-        spdlog::debug("Number of threads: {}", m_numberThreads);
+        spdlog::debug("Disconected number of threads: {}", m_numberThreads);
         m_mutex.unlock();
     }).detach();
 }

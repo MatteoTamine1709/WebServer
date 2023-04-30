@@ -118,7 +118,7 @@ namespace utils {
     std::string getMimeType(const std::string& extension) {
         std::string ext = trim(toLower(extension));
         if (mimeMap.find(ext) == mimeMap.end())
-            return "application/octet-stream";
+            return "unknown";
         return mimeMap[ext];
     }
 

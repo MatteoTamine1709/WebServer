@@ -8,7 +8,6 @@ extern "C" {
     HttpResponseHeader get(const HttpRequestHeader &header);
 }
 
-
 HttpResponseHeader get(const HttpRequestHeader &header) {
     HttpResponseHeader reponse{};
 
@@ -16,7 +15,7 @@ HttpResponseHeader get(const HttpRequestHeader &header) {
     reponse.setStatusCode(200);
     reponse.setStatusMessage("OK");
     reponse.setHeader("Content-Type", "text/html");
-    std::ifstream file("./public/404.html");
+    std::ifstream file("./app/dist/404.html");
     std::stringstream ss;
     ss << file.rdbuf();
     reponse.setBody(ss.str());

@@ -1,7 +1,6 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 #include "../TcpServer.h"
 #include "../HttpRequestHeader.h"
-#include "../HttpResponseHeader.h"
 #include "../utils.h"
 
 #include <string>
@@ -57,14 +56,14 @@ void TcpServer::handleWatchConfig(nlohmann::json &watch) {
             return SPDLOG_ERROR("Failed to open FIFO: {}", strerror(errno));
         spdlog::debug("Opened FIFO at {}", fifo_path);
         m_watch = true;
+        SPDLOG_WARN("Waiting for hot reloader to connect...");
     }
     registerSignals({SIGUSR1, SIGUSR2});
-    SPDLOG_WARN("Waiting for hot reloader to connect...");
 }
 
 void setFormat(std::string format) {
     std::unordered_map<std::string, std::string> format_map = {
-        {"dev", "{:method} {:url} {:status} {:response-time}ms - {:header[Content-Length]}"},
+        {"dev", "{:method} {:route} {:status} {:response-time}ms - {:header[Content-Length]}"},
         {"combined", ":remote-addr - :remote-user [:date[clf]] \":method :url HTTP/:http-version\" :status :res[Content-Length] \":referrer\" \":user-agent\""},
         {"common", ":remote-addr - :remote-user [:date[clf]] \":method :url HTTP/:http-version\" :status :res[Content-Length]"},
         {"dev", ":method :url :status :response-time ms - :res[Content-Length]"},

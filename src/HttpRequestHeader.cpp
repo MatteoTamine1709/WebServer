@@ -41,6 +41,9 @@ HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
     if (m_url.string().back() == '/')
         m_url = m_url.string().substr(0, m_url.string().length() - 1);
     m_path = m_url;
+    m_route = m_url;
+    if (m_route.string().empty())
+        m_route = "/";
 
     if (urlParts.size() > 1) {
         std::vector<std::string> parameters = utils::split(urlParts[1], {"&"});

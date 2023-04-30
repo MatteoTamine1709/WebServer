@@ -15,7 +15,8 @@
 
 #include "TcpConnection.h"
 #include "HttpRequestHeader.h"
-#include "HttpResponseHeader.h"
+#include "Request.h"
+#include "Response.h"
 
 class TcpServer {
 public:
@@ -29,6 +30,7 @@ public:
     ~TcpServer();
 
     void run();
+    std::string getIp();
 
 private:
     TcpServer();
@@ -36,11 +38,11 @@ private:
     // HttpRequestHeader &completeRequest(HttpRequestHeader &requesst);
     std::optional<HttpRequestHeader> read(TcpConnection& connection);
     // HttpResponseHeader &completeResponse(HttpResponseHeader &response, const HttpRequestHeader &request);
-    HttpResponseHeader handleRequest(HttpRequestHeader& request);
+    Response handleRequest(HttpRequestHeader& request);
     std::optional<std::string> getCorrectPath(const std::filesystem::path &path);
-    HttpResponseHeader handleEndpoint(HttpRequestHeader& request);
-    HttpResponseHeader handleFile(HttpRequestHeader& request);
-    void write(TcpConnection& connection, const HttpResponseHeader& response);
+    Response handleEndpoint(HttpRequestHeader& request);
+    Response handleFile(HttpRequestHeader& request);
+    void write(TcpConnection& connection, const Response& response);
 
     void registerSignals(std::vector<int> signals);
     void handleSignal(int signum, siginfo_t *info, void *contex);
@@ -57,7 +59,7 @@ private:
 
     typedef std::string Endpoint;
     typedef std::string Method;
-    typedef HttpResponseHeader (*endpoint_t)(HttpRequestHeader);
+    typedef void (*endpoint_t)(const Request &, Response &response);
     typedef std::unordered_map<Method, endpoint_t> EndpointMethods;
     std::unordered_map<Endpoint, std::pair<void *, EndpointMethods>> m_endpoints;
 
