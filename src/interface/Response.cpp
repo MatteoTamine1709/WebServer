@@ -254,7 +254,7 @@ void Response::sendFile(const std::string &path, const std::unordered_map<std::s
     //     header += "; Cache-Control=" + options.at("cacheControl");
     // if (options.find("immutable") != options.end() && options.at("immutable") == "true")
     //     header += "; Immutable";
-    m_headers["Content-Disposition"] = "inline";
+    // m_headers["Content-Disposition"] = "inline";
     m_headers["Content-Type"] = utils::getMimeType(utils::getExtension(path));
     std::ifstream file(path, std::ios::binary);
     std::stringstream ss;
