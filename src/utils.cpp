@@ -178,4 +178,23 @@ namespace utils {
         strftime (buffer, 80, "%a, %d %b %Y %H:%M:%S GMT", &tm);
         return std::string(buffer);
     }
+
+    bool isRegexSubset(std::string regex1, std::string regex2) {
+        std::regex r1(regex1), r2(regex2);
+        std::smatch m;
+
+        // Iterate over all matches of regex1 in regex2
+        while (std::regex_search(regex2, m, r1)) {
+            // If regex1 doesn't match a substring of regex2,
+            // then it's not a subset of regex2
+            if (!std::regex_search(m.str(), r2)) {
+                return false;
+            }
+            // Continue searching for more matches of regex1 in regex2
+            regex2 = m.suffix();
+        }
+
+        // If we didn't find any mismatches, then regex1 is a subset of regex2
+        return true;
+    }
 }

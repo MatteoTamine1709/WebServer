@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-
+#include <regex>
 
 namespace utils {
     extern std::unordered_map<std::string, std::string> mimeMap;
@@ -23,7 +23,7 @@ namespace utils {
     std::string getDateTime();
     std::string makeEtag(const std::string& filePath);
     std::string getLastModified(const std::string& filePath);
-
+    bool isRegexSubset(std::string regex1, std::string regex2);
 }
 
 #endif

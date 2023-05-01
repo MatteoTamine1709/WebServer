@@ -3,6 +3,7 @@
   "host": "127.0.0.1",
   "api": "./interfaceAPI",
   "public": "./app/dist",
+  "middleware": "./interfaceAPI/__middleware__",
   "log": {
     "level": "info",
     "format": "dev",

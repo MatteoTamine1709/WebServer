@@ -45,6 +45,7 @@ TcpServer::TcpServer() {
     std::thread([this]() {
         handleCommands();
     }).detach();
+    registerMiddlewares();
 
     addrinfo hints;
     addrinfo *result;
@@ -80,6 +81,8 @@ TcpServer::TcpServer() {
 TcpServer::~TcpServer() {
     for (const auto& [_path, lib] : m_endpoints)
         dlclose(lib.first);
+    for (const auto& [_path, lib] : m_middlewareLibraries)
+        dlclose(lib);
     close(m_socket);
     close(m_pipeFD);
 }

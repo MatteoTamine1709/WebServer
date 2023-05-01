@@ -17,6 +17,7 @@
 #include "HttpRequestHeader.h"
 #include "Request.h"
 #include "Response.h"
+#include "Middleware.h"
 
 class TcpServer {
 public:
@@ -33,6 +34,12 @@ public:
     std::string getIp();
 
 private:
+
+    typedef std::string Endpoint;
+    typedef std::string Method;
+    typedef void (*endpoint_t)(const Request &, Response &);
+    typedef std::unordered_map<Method, endpoint_t> EndpointMethods;
+
     TcpServer();
     void accept();
     // HttpRequestHeader &completeRequest(HttpRequestHeader &requesst);
@@ -45,8 +52,11 @@ private:
 
     void registerSignals(std::vector<int> signals);
     void handleSignal(int signum, siginfo_t *info, void *contex);
-
     void handleCommands();
+    void registerMiddlewares();
+    void runMiddleware(const Request &request, Response &response, std::stack<Middleware_t> &middlewareStack);
+    void callMiddleware(const Request &request, Response &response, endpoint_t endpoint);
+
 
     static std::unique_ptr<TcpServer> m_instance;
 
@@ -66,19 +76,20 @@ private:
     void status();
     void help();
 
+    std::unordered_map<std::string, Middleware_t> m_middlewares;
+    std::unordered_map<std::string, void *> m_middlewareLibraries;
+    std::vector<std::pair<std::string, std::vector<std::string>>> m_middlewareMatcher;
+
     int m_pipeFD = -1;
     bool m_running = true;
 
-    typedef std::string Endpoint;
-    typedef std::string Method;
-    typedef void (*endpoint_t)(const Request &, Response &response);
-    typedef std::unordered_map<Method, endpoint_t> EndpointMethods;
     std::unordered_map<Endpoint, std::pair<void *, EndpointMethods>> m_endpoints;
 
     std::string m_host = "localhost";
     std::string m_port = "8081";
     fs::path m_apiFolder = "./api";
     fs::path m_publicFolder = "./public";
+    fs::path m_middlewareFolder = "./__middleware__";
     bool m_watch = false;
 
     uint64_t m_numberConnections = 0;
@@ -91,6 +102,7 @@ private:
             {"port", &TcpServer::handlePortConfig},
             {"api", &TcpServer::handleApiConfig},
             {"public", &TcpServer::handlePublicConfig},
+            {"middleware", &TcpServer::handleMiddlewareConfig},
             {"watch", &TcpServer::handleWatchConfig},
             {"log", &TcpServer::handleLogConfig}
     };
@@ -99,6 +111,7 @@ private:
     void handlePortConfig(nlohmann::json &port);
     void handleApiConfig(nlohmann::json &api);
     void handlePublicConfig(nlohmann::json &p);
+    void handleMiddlewareConfig(nlohmann::json &p);
     void handleWatchConfig(nlohmann::json &watch);
     void handleLogConfig(nlohmann::json &log);
 };

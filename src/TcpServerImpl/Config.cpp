@@ -44,6 +44,11 @@ void TcpServer::handlePublicConfig(nlohmann::json &p) {
         m_publicFolder = std::filesystem::canonical(p);
 }
 
+void TcpServer::handleMiddlewareConfig(nlohmann::json &middleware) {
+    if (middleware.is_string())
+        m_middlewareFolder = std::filesystem::canonical(middleware);
+}
+
 void TcpServer::handleWatchConfig(nlohmann::json &watch) {
     if (watch.is_boolean() && watch.get<bool>()) {
         const char *fifo_path = "/tmp/fifo";

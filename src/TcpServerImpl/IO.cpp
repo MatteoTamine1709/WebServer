@@ -28,28 +28,28 @@ std::optional<HttpRequestHeader> TcpServer::read(TcpConnection& connection) {
     return header;
 }
 
-std::optional<std::string> TcpServer::getCorrectPath(const std::filesystem::path &path) {
+std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
     // Handler those lines
     // /user/aaaa -> /user/[id]/index.so
     // /user/bbb/sss -> /user/[id]/[id].so
     // /user/xxx/username -> /user/[id]/username.so
     // /user/xxx/username/aaa -> /user/[id]/username/[id].so
 
-    std::stack<std::filesystem::path> pathPart;
-    std::filesystem::path newPath = std::filesystem::weakly_canonical(path);
+    std::stack<fs::path> pathPart;
+    fs::path newPath = fs::weakly_canonical(path);
     while (newPath.has_parent_path() &&
         newPath.string() != m_apiFolder) {
         pathPart.push(newPath.filename());
         newPath = newPath.parent_path();
     }
     // Get all children
-    std::filesystem::path fallback = "";
+    fs::path fallback = "";
     while (pathPart.size() > 0) {
-        if (std::filesystem::is_regular_file(newPath / (pathPart.top().string() + ".so"))) {
+        if (fs::is_regular_file(newPath / (pathPart.top().string() + ".so"))) {
             newPath /= (pathPart.top().string() + ".so");
             pathPart.pop();
             spdlog::debug(".so: {}", newPath.string());
-            if (!std::filesystem::is_directory(newPath) && pathPart.size() > 0) {
+            if (!fs::is_directory(newPath) && pathPart.size() > 0) {
                 if (fallback.filename().string().empty())
                     return std::nullopt;
                 return fallback.string();
@@ -58,7 +58,7 @@ std::optional<std::string> TcpServer::getCorrectPath(const std::filesystem::path
         }
         bool found = false;
         std::string selectedPath = "";
-        for (const auto &child : std::filesystem::directory_iterator(newPath)) {
+        for (const auto &child : fs::directory_iterator(newPath)) {
             std::string childName = child.path().filename();
             if (childName == pathPart.top().string()) {
                 selectedPath = childName;
@@ -78,33 +78,33 @@ std::optional<std::string> TcpServer::getCorrectPath(const std::filesystem::path
         spdlog::debug("fallback: {}", fallback.string());
         if (found)
             newPath /= selectedPath;
-        if (pathPart.empty() && !found && std::filesystem::is_regular_file(newPath))
+        if (pathPart.empty() && !found && fs::is_regular_file(newPath))
             return newPath.string();
         if (pathPart.empty() && found &&
-            std::filesystem::is_directory(newPath) &&
-            std::filesystem::is_regular_file(newPath / "index.so") &&
-            std::filesystem::exists(newPath / "index.so"))
+            fs::is_directory(newPath) &&
+            fs::is_regular_file(newPath / "index.so") &&
+            fs::exists(newPath / "index.so"))
             return (newPath / "index.so").string();
-        if (found && std::filesystem::is_directory(newPath) && pathPart.empty())
-            for (const auto &child : std::filesystem::directory_iterator(newPath)) {
+        if (found && fs::is_directory(newPath) && pathPart.empty())
+            for (const auto &child : fs::directory_iterator(newPath)) {
                 std::string childName = child.path().filename();
                 if (utils::startsWith(childName, "[[") && utils::endsWith(childName, "]].so") &&
-                    std::filesystem::is_regular_file(newPath / childName))
+                    fs::is_regular_file(newPath / childName))
                     return (newPath / childName).string();
                 if (utils::startsWith(childName, "[[") && utils::endsWith(childName, "]]") &&
-                    std::filesystem::is_directory(newPath / childName) &&
-                    std::filesystem::is_regular_file(newPath / childName / "index.so")) {
+                    fs::is_directory(newPath / childName) &&
+                    fs::is_regular_file(newPath / childName / "index.so")) {
                     return (newPath / childName / "index.so").string();
                 }
             }
         if ((!found && !fallback.empty()) ||
-            (found && std::filesystem::is_regular_file(newPath) && !pathPart.empty()) ||
-            (found && std::filesystem::is_directory(newPath) && pathPart.empty()))
+            (found && fs::is_regular_file(newPath) && !pathPart.empty()) ||
+            (found && fs::is_directory(newPath) && pathPart.empty()))
             return fallback.string();
     }
-    if (std::filesystem::is_directory(newPath) && std::filesystem::is_regular_file(newPath / "index.so"))
+    if (fs::is_directory(newPath) && fs::is_regular_file(newPath / "index.so"))
         return (newPath / "index.so").string();
-    if (std::filesystem::exists(newPath) && std::filesystem::is_regular_file(newPath))
+    if (fs::exists(newPath) && fs::is_regular_file(newPath))
         return newPath.string();
     if (!fallback.empty())
         return fallback.string();
@@ -140,7 +140,7 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
         spdlog::debug("Found endpoint {} in library {}", request.getMethod(), request.getPath().string());
         auto req = Request(request, getInstance());
         auto res = Response(req, getInstance());
-        endpoint(req, res);
+        callMiddleware(req, res, endpoint);
         return res;
     }
     void *lib = nullptr;
@@ -171,8 +171,7 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
     try {
         auto req = Request(request, getInstance());
         auto res = Response(req, getInstance());
-        endpoint(req, res);
-        // Cache the endpoint
+        callMiddleware(req, res, endpoint);
         m_endpoints[request.getPath()].second[request.getMethod().data()] = endpoint;
         return res;
     } catch (const std::exception& e) {

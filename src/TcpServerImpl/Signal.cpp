@@ -73,9 +73,9 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
         }
         hotReloaded_path[n_read] = '\0';
 
-        std::filesystem::path path(hotReloaded_path);
+        fs::path path(hotReloaded_path);
         path.replace_extension(".so");
-        canonical = std::filesystem::weakly_canonical(path);
+        canonical = fs::weakly_canonical(path);
         if (m_endpoints.find(canonical) != m_endpoints.end()) {
             SPDLOG_INFO("Hot reloaded library: {}", canonical);
             dlclose(m_endpoints[canonical].first);
