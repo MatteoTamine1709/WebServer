@@ -20,9 +20,6 @@ void get(const Request &req, Response &res) {
         return res.status(400).set("Content-Type", "text/html").send("<h1>400 Bad Request</h1>");
     const auto rangeStr = range.value().data();
 
-    // response.setProtocol("HTTP/1.1");
-    // response.setStatusCode(206);
-    // response.setStatusMessage("Partial Content");
     std::ifstream file("./public/assets/videos/Studio_Project.mp4", std::ios::binary);
     const auto begin = file.tellg();
     file.seekg(0, std::ios::end);
@@ -41,19 +38,11 @@ void get(const Request &req, Response &res) {
         rangeEnd = std::stoi(rangeValueParts[1]);
     rangeEnd = std::min((long) (rangeStart + CHUNK_SIZE), fsize - 1);
     const auto rangeLength = rangeEnd - rangeStart + 1;
-    
-    // response.setHeader("Content-Type", "video/mp4");
-    // response.setHeader("Content-Range", "bytes " + std::to_string(rangeStart) + "-" + std::to_string(rangeEnd) + "/" + std::to_string(fsize));
-    // response.setHeader("Accept-Ranges", "bytes");
-    // response.setHeader("Connection", "keep-alive");
-    // response.setHeader("Cache-Control", "no-cache");
 
     file.seekg(rangeStart, std::ios::beg);
     std::array<char, ONE_MEGABYTE> buffer;
     file.read(buffer.data(), rangeLength);
-    // response.setBody(std::string(buffer.data(), rangeLength));
 
-    // return response;
     return res.status(206).set({
         {"Content-Type", "video/mp4"},
         {"Content-Range", "bytes " + std::to_string(rangeStart) + "-" + std::to_string(rangeEnd) + "/" + std::to_string(fsize)},

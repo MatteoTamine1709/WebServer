@@ -63,7 +63,7 @@ void TcpServer::handleWatchConfig(nlohmann::json &watch) {
 
 void setFormat(std::string format) {
     std::unordered_map<std::string, std::string> format_map = {
-        {"dev", "{:method} {:route} {:status} {:response-time}ms - {:header[Content-Length]}"},
+        {"dev", "{:method} {:url} {:status} {:response-time}ms - {:header[Content-Length]}"},
         {"combined", ":remote-addr - :remote-user [:date[clf]] \":method :url HTTP/:http-version\" :status :res[Content-Length] \":referrer\" \":user-agent\""},
         {"common", ":remote-addr - :remote-user [:date[clf]] \":method :url HTTP/:http-version\" :status :res[Content-Length]"},
         {"dev", ":method :url :status :response-time ms - :res[Content-Length]"},

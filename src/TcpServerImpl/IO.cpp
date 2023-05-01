@@ -103,14 +103,14 @@ Response TcpServer::handleRequest(HttpRequestHeader &request) {
         request.setPath((m_publicFolder / request.getPath().relative_path().string()).string());
         // spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
         if (!request.isPathValid())
-            return Response();
-        Response response = handleFile(request);
+            return Response(Request(request, getInstance()), getInstance());
+        return handleFile(request);
         // response.complete(request);
-        return response;
+        // return response;
     }
     auto correctPath = getCorrectPath(m_apiFolder / request.getPath().relative_path());
     if (!correctPath.has_value())
-        return Response();
+        return Response(Request(request, getInstance()), getInstance());
     spdlog::debug("Found correct path {}", correctPath.value());
     request.setPath(correctPath.value());
     // response.complete(request);
@@ -136,7 +136,7 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
         lib = dlopen(request.getPath().c_str(), RTLD_LAZY);
         if (!lib) {
             SPDLOG_ERROR("Cannot open library: {}", dlerror());
-            Response response;
+            Response response(Request(request, getInstance()), getInstance());
             response.status(404).set("Content-Type", "text/html").send("Not Found");
             return response;
         }
@@ -148,7 +148,7 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
     if (dlsym_error) {
         SPDLOG_ERROR("Cannot load symbol '{}': {}", request.getMethod(), dlsym_error);
         dlclose(lib);
-        Response response;
+        Response response(Request(request, getInstance()), getInstance());
         response.status(404).set("Content-Type", "text/html").send("Not Found");
         return response;
     }
@@ -163,36 +163,36 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
     } catch (const std::exception& e) {
         SPDLOG_ERROR("Error: [{} {}] {}", request.getMethod(), request.getRoute().string(), e.what());
         dlclose(lib);
-        Response res;
+        Response res(Request(request, getInstance()), getInstance());
         res.status(500).set("Content-Type", "text/html").send("Internal Server Error");
         return res;
     }
 }
 
 Response TcpServer::handleFile(HttpRequestHeader &request) {
-    std::ifstream file(request.getPath().c_str(), std::ios::binary);
-    if (!file.is_open()) {
-        Response response;
+    // std::ifstream file(request.getPath().c_str(), std::ios::binary);
+    if (!fs::exists(request.getPath())) {
+        Response response(Request(request, getInstance()), getInstance());
         response.status(404).set("Content-Type", "text/html").send("Not Found");
         return response;
     }
-    file.seekg(0, std::ios::end);
-    const std::streamsize filesize = file.tellg();
-    Response response;
-    response.set("Content-Type", utils::getContentType(request.getPath()));
-    response.set("Content-Length", std::to_string(filesize));
-    spdlog::debug("File size: {}", filesize);
+    // file.seekg(0, std::ios::end);
+    // response.set("Content-Type", utils::getContentType(request.getPath()));
+    // response.set("Content-Length", std::to_string(filesize));
+    // spdlog::debug("File size: {}", filesize);
     const std::vector<std::string> accepted = utils::split(request.getHeader("Accept").value().data(), {","});
 
     const std::string contentType = utils::getContentType(request.getPath());
     if (std::find(accepted.begin(), accepted.end(), contentType) == accepted.end() &&
         std::find_if(accepted.begin(), accepted.end(), [](const std::string &s) { return utils::startsWith(s, "*/*"); }) == accepted.end()) {
         spdlog::debug("Not acceptable");
+        Response response(Request(request, getInstance()), getInstance());
+        response.sendStatus(406);
         return response;
     }
     const std::string etag = utils::makeEtag(request.getPath());
     if (request.getHeader("If-None-Match") == etag) {
-        Response response;
+        Response response(Request(request, getInstance()), getInstance());
         response.status(304)
             .set("Content-Type", utils::getContentType(request.getPath()))
             .set("Cache-Control", "max-age=0")
@@ -201,17 +201,18 @@ Response TcpServer::handleFile(HttpRequestHeader &request) {
             .set("Etag", etag);
         return response;
     }
-    file.seekg(0, std::ios::beg);
+    // file.seekg(0, std::ios::beg);
+    Response response(Request(request, getInstance()), getInstance());
     response.set("Etag", etag);
     response.set("Last-Modified", utils::getLastModified(request.getPath()));
-    std::stringstream ss;
-    ss << file.rdbuf();
-    response.send(ss.str());
-    file.close();
+    // std::stringstream ss;
+    // ss << file.rdbuf();
+    response.sendFile(request.getPath());
+    // file.close();
     return response;
 }
 
-void TcpServer::write(TcpConnection& connection, const Response& response) {
+void TcpServer::write(TcpConnection& connection, Response& response) {
     spdlog::debug("{}", response.toReadableString());
     connection.write(response.toString());
 }

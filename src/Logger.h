@@ -34,28 +34,29 @@ typedef struct LoggedInfo_t {
 
     LoggedInfo_t() = default;
 
-    LoggedInfo_t(const LogResponse& response, int64_t responseTime) {
-        if (response.req->get("Remote-Address") != std::nullopt)
-            this->remoteAddress = response.req->get("Remote-Address").value();
-        else if (response.req->get("X-Forwarded-For") != std::nullopt)
-            this->remoteAddress = response.req->get("X-Forwarded-For").value();
+    LoggedInfo_t(const Response& response, int64_t responseTime) {
+        if (response.req.get("Remote-Address") != std::nullopt)
+            this->remoteAddress = response.req.get("Remote-Address").value();
+        else if (response.req.get("X-Forwarded-For") != std::nullopt)
+            this->remoteAddress = response.req.get("X-Forwarded-For").value();
 
-        if (response.req->get("Remote-User") != std::nullopt)
-            this->remoteUser = response.req->get("Remote-User").value();
-        else if (response.req->get("X-Remote-User") != std::nullopt)
-            this->remoteUser = response.req->get("X-Remote-User").value();
-        this->route = response.req->route;
-        this->method = utils::toUpper(response.req->method);
-        this->url = response.req->baseUrl;
-        this->httpVersion = response.req->protocol;
+        if (response.req.get("Remote-User") != std::nullopt)
+            this->remoteUser = response.req.get("Remote-User").value();
+        else if (response.req.get("X-Remote-User") != std::nullopt)
+            this->remoteUser = response.req.get("X-Remote-User").value();
+        
+        this->route = response.req.route;
+        this->method = utils::toUpper(response.req.method);
+        this->url = response.req.baseUrl;
+        this->httpVersion = response.req.protocol;
         this->status = response.getStatusCode();
-        if (response.req->get("Referrer") != std::nullopt)
-            this->referrer = response.req->get("Referrer").value();
-        if (response.req->get("User-Agent") != std::nullopt)
-            this->userAgent = response.req->get("User-Agent").value();
+        if (response.req.get("Referrer") != std::nullopt)
+            this->referrer = response.req.get("Referrer").value();
+        if (response.req.get("User-Agent") != std::nullopt)
+            this->userAgent = response.req.get("User-Agent").value();
         this->statusMessage = response.getStatusMessage();
         this->responseTime = std::to_string(responseTime);
-        // for (const auto &[key, value] : response.req->getHeaders())
+        // for (const auto &[key, value] : response.req.getHeaders())
         //     this->headers[key] = value;
         for (const auto &[key, value] : response.getHeaders())
             this->headers[key] = value;

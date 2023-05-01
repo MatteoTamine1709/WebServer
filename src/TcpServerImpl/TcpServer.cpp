@@ -110,7 +110,7 @@ void TcpServer::accept() {
     std::thread([clientSocket, this] () {
         m_mutex.lock();
         m_numberThreads++;
-        spdlog::debug("New connection number of threads: {}", m_numberThreads);
+        spdlog::info("New connection, total: {}", m_numberThreads);
         m_mutex.unlock();
         TcpConnection connection(clientSocket);
         while (connection.isOpen()) {
@@ -122,11 +122,10 @@ void TcpServer::accept() {
             write(connection, responseHeader);
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-            // LogResponse *lr = static_cast<LogResponse *>(&responseHeader);
-            // LoggedInfo info(*static_cast<LogResponse *>(&responseHeader), duration.count());
+            LoggedInfo info(responseHeader, duration.count());
             std::vector<std::string> toPrint;
-            // for (const auto &format : LOGGER_FORMAT)
-            //     toPrint.push_back(fmt::format(format, fmt::arg(format.c_str(), info)));
+            for (const auto &format : LOGGER_FORMAT)
+                toPrint.push_back(fmt::format(format, fmt::arg(format.c_str(), info)));
             spdlog::get("RouteLogger")->info(utils::join(toPrint, " "));
             if (requestHeader.value().getHeader("Connection").has_value() && requestHeader.value().getHeader("Connection").value() != "keep-alive")
                 break;
@@ -134,7 +133,7 @@ void TcpServer::accept() {
         close(clientSocket);
         m_mutex.lock();
         m_numberThreads--;
-        spdlog::debug("Disconected number of threads: {}", m_numberThreads);
+        spdlog::info("Connection closed, total: {}", m_numberThreads);
         m_mutex.unlock();
     }).detach();
 }

@@ -8,8 +8,6 @@ extern "C" {
 
 
 void get(const Request &req, Response &res) {
-    // res.setBody("Hello World!");
-
     std::cout << "Baseurl: " << req.baseUrl << std::endl;
     std::cout << "Cookies: " << std::endl;
     for (auto &cookie : req.cookies) {
@@ -43,5 +41,4 @@ void get(const Request &req, Response &res) {
         {"hello", "world"},
         {"foo", "bar"}
     });
-    // return res;
 }

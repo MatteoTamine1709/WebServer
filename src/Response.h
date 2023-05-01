@@ -16,13 +16,13 @@ class TcpServer;
 
 class Response {
 public:
-    Response() = default;
+    Response() = delete;
     Response(const Request &header, const TcpServer &server);
     ~Response() = default;
 
     TcpServer *app;
     bool headersSent = false;
-    Request *req;
+    Request req;
 
     Response& append(const std::string &field, const std::string &value);
     Response& attachment(const std::string &filename);
@@ -51,9 +51,31 @@ public:
     Response& type(const std::string &type);
     Response& vary(const std::string &field);
 
-    std::string toString() const;
-    std::string toReadableString() const;
-protected:
+    std::string toString();
+    std::string toReadableString();
+
+    int getStatusCode() const {
+        return m_statusCode;
+    }
+    std::string getStatusMessage() const {
+        return m_statusMessages.at(m_statusCode);
+    }
+
+    std::unordered_map<std::string, std::string> getHeaders() const {
+        std::unordered_map<std::string, std::string> headers = m_headers;
+        // build cookies
+        std::string cookies;
+        for (auto &cookie : m_cookies) {
+            cookies += cookie.first + "=" + cookie.second + "; ";
+        }
+        if (!cookies.empty()) {
+            cookies.pop_back();
+            cookies.pop_back();
+        }
+        headers["Set-Cookie"] = cookies;
+        return headers;
+    }
+private:
     std::string m_data;
     std::unordered_map<int, std::string> m_statusMessages = {
         {100, "Continue"},
@@ -123,32 +145,6 @@ protected:
     int m_statusCode = 200;
     std::unordered_map<std::string, std::string> m_headers;
     std::unordered_map<std::string, std::string> m_cookies;
-};
-
-class LogResponse : public Response {
-public:
-    LogResponse() = default;
-    int getStatusCode() const {
-        return m_statusCode;
-    }
-    std::string getStatusMessage() const {
-        return m_statusMessages.at(m_statusCode);
-    }
-
-    std::unordered_map<std::string, std::string> getHeaders() const {
-        std::unordered_map<std::string, std::string> headers = m_headers;
-        // build cookies
-        std::string cookies;
-        for (auto &cookie : m_cookies) {
-            cookies += cookie.first + "=" + cookie.second + "; ";
-        }
-        if (!cookies.empty()) {
-            cookies.pop_back();
-            cookies.pop_back();
-        }
-        headers["Set-Cookie"] = cookies;
-        return headers;
-    }
 };
 
 #endif

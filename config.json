@@ -4,7 +4,7 @@
   "api": "./interfaceAPI",
   "public": "./app/dist",
   "log": {
-    "level": "debug",
+    "level": "dev",
     "format": "dev",
     "file": "server.log",
     "no-stdout": false,

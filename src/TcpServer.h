@@ -42,7 +42,7 @@ private:
     std::optional<std::string> getCorrectPath(const std::filesystem::path &path);
     Response handleEndpoint(HttpRequestHeader& request);
     Response handleFile(HttpRequestHeader& request);
-    void write(TcpConnection& connection, const Response& response);
+    void write(TcpConnection& connection, Response& response);
 
     void registerSignals(std::vector<int> signals);
     void handleSignal(int signum, siginfo_t *info, void *contex);

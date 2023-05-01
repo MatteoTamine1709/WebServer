@@ -90,7 +90,7 @@ private:
             return std::hash<std::string>{}(utils::toLower(key));
         }
     };
-    std::unordered_map<std::string, std::string, custom_header_hash> m_headers;
+    std::unordered_map<std::string, std::string, custom_header_hash> m_headers = {};
 };
 
 #endif
