@@ -197,4 +197,14 @@ namespace utils {
         // If we didn't find any mismatches, then regex1 is a subset of regex2
         return true;
     }
+
+    bool isPathInsideOtherPath(const std::filesystem::path& path1, const std::filesystem::path& path2) {
+        // Convert both paths to absolute paths to avoid any relative path confusion
+        auto absPath1 = std::filesystem::absolute(path1);
+        auto absPath2 = std::filesystem::absolute(path2);
+
+        // Check if path1 is inside path2
+        auto relativePath = std::filesystem::relative(absPath1, absPath2);
+        return !relativePath.empty() && relativePath != "..";
+    }
 }

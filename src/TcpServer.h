@@ -56,6 +56,7 @@ private:
     void registerMiddlewares();
     void runMiddleware(const Request &request, Response &response, std::stack<Middleware_t> &middlewareStack);
     void callMiddleware(const Request &request, Response &response, endpoint_t endpoint);
+    void reloadMiddleware(const std::string& path);
 
 
     static std::unique_ptr<TcpServer> m_instance;
@@ -76,6 +77,7 @@ private:
     void status();
     void help();
 
+    std::unordered_map<std::string, std::string> m_middlewarePathToName;
     std::unordered_map<std::string, Middleware_t> m_middlewares;
     std::unordered_map<std::string, void *> m_middlewareLibraries;
     std::vector<std::pair<std::string, std::vector<std::string>>> m_middlewareMatcher;

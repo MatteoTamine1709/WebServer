@@ -31,6 +31,7 @@ void TcpServer::registerMiddlewares() {
         for (const auto &route : routes)
             m_middlewareMatcher.push_back({utils::replace(route, "*", ".*"), middlewareNames});
         m_middlewares[name] = middlewareFunc;
+        m_middlewarePathToName[fs::canonical(middlewareFile.path()).string()] = name;
     }
     std::sort(m_middlewareMatcher.begin(), m_middlewareMatcher.end(),
         [](const std::pair<std::string, std::vector<std::string>> &a, const std::pair<std::string, std::vector<std::string>> &b) {
@@ -68,11 +69,48 @@ void TcpServer::callMiddleware(const Request &request, Response &response, endpo
                 continue;
             middlewareSet.insert(middleware->second);
             middlewareStack.push(middleware->second);
-            spdlog::debug("Middleware {}", (void *)middleware->second);
+            spdlog::debug("Middleware {} {}", regex, (void *)middleware->second);
         }
     }
     spdlog::debug("Number of middlewares: {}", middlewareStack.size());
     runMiddleware(request, response, middlewareStack);
     if (!response.headersSent)
         endpoint(request, response);
+}
+
+void TcpServer::reloadMiddleware(const std::string &path) {
+    std::string oldName = m_middlewarePathToName[path];
+    m_middlewares.erase(oldName);
+    m_middlewareMatcher.erase(std::remove_if(m_middlewareMatcher.begin(), m_middlewareMatcher.end(),
+        [&](const std::pair<std::string, std::vector<std::string>> &a) {
+            return std::find(a.second.begin(), a.second.end(), oldName) != a.second.end();
+        }), m_middlewareMatcher.end());
+    dlclose(m_middlewareLibraries[path]);
+    m_middlewareLibraries.erase(path);
+
+    void *handle = dlopen(path.c_str(), RTLD_NOW);
+    if (!handle) {
+        spdlog::error("Failed to load middleware {}: {}", path, dlerror());
+        return;
+    }
+    m_middlewareLibraries[fs::canonical(path).string()] = handle;
+    auto useFunc = (const std::pair<std::vector<std::string>, std::vector<std::string>>(*)())(dlsym(handle, "use"));
+    auto nameFunc = (const std::string (*)())(dlsym(handle, "name"));
+    if (!useFunc || !nameFunc) {
+        spdlog::error("Failed to load middleware {}: {}", path, dlerror());
+        return;
+    }
+    spdlog::debug("Registering middleware {} for routes {}", nameFunc(), utils::join(useFunc().first, ", "));
+    auto middlewareFunc = (Middleware_t)(dlsym(handle, nameFunc().c_str()));
+    if (!middlewareFunc) {
+        spdlog::error("Failed to load middleware {}: {}", path, dlerror());
+        return;
+    }
+    auto [routes, middlewareNames] = useFunc();
+    auto name = nameFunc();
+    
+    for (const auto &route : routes)
+        m_middlewareMatcher.push_back({utils::replace(route, "*", ".*"), middlewareNames});
+    m_middlewares[name] = middlewareFunc;
+    m_middlewarePathToName[fs::canonical(path).string()] = name;
 }

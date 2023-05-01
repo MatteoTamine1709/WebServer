@@ -63,7 +63,6 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
         return SPDLOG_WARN("Hot reloader disconnected");
     }
 
-    std::string canonical = "";
     if (m_signal == SIGUSR2 && hotReloaderConnected) {
         char hotReloaded_path[1024];
         ssize_t n_read = ::read(m_pipeFD, hotReloaded_path, sizeof(hotReloaded_path));
@@ -75,7 +74,11 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
 
         fs::path path(hotReloaded_path);
         path.replace_extension(".so");
-        canonical = fs::weakly_canonical(path);
+        std::string canonical = fs::weakly_canonical(path);
+        if (utils::isPathInsideOtherPath(path, m_middlewareFolder)) {
+            SPDLOG_INFO("Hot reloaded middleware: {}", canonical);
+            return reloadMiddleware(canonical);
+        }
         if (m_endpoints.find(canonical) != m_endpoints.end()) {
             SPDLOG_INFO("Hot reloaded library: {}", canonical);
             dlclose(m_endpoints[canonical].first);

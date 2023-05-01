@@ -31,7 +31,7 @@
 
   - [x] Ability to stream files like video or audio efficiently (not downloading 1GB of data straight on loading) (**Which was the reason I started this project**) ([Reference](https://blog.logrocket.com/build-video-streaming-server-node/))
   - [ ] Express interface
-    - [ ] Middleware support [Reference](https://nextjs.org/docs/advanced-features/middleware)
+    - [x] Middleware support [Reference](https://nextjs.org/docs/advanced-features/middleware)
     - [x] Res and Req from [req](https://expressjs.com/en/5x/api.html#req) and [res](https://expressjs.com/en/5x/api.html#res) <span style="color:red">(Not everything is implemented yet)</span>.
   - [ ] A system to communicate with databases / have modules that every endpoint can access
 
