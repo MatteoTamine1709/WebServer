@@ -64,7 +64,8 @@ std::optional<std::string> TcpServer::getCorrectPath(const std::filesystem::path
                 selectedPath = childName;
                 found = true;
             }
-            if (utils::startsWith(childName, "[...") && utils::endsWith(childName, "].so")) {
+            if ((utils::startsWith(childName, "[...") && utils::endsWith(childName, "].so")) ||
+                (utils::startsWith(childName, "[[...") && utils::endsWith(childName, "]].so"))) {
                 fallback = newPath / childName;
             } else if (!found && utils::startsWith(childName, "[") && (utils::endsWith(childName, "]") || utils::endsWith(childName, "].so"))) {
                 selectedPath = childName;
@@ -79,20 +80,35 @@ std::optional<std::string> TcpServer::getCorrectPath(const std::filesystem::path
             newPath /= selectedPath;
         if (pathPart.empty() && !found && std::filesystem::is_regular_file(newPath))
             return newPath.string();
+        spdlog::debug("newPath: {}", (newPath / "index.so").string());
         if (pathPart.empty() && found &&
             std::filesystem::is_directory(newPath) &&
-            std::filesystem::is_regular_file(newPath / "index.so"))
+            std::filesystem::is_regular_file(newPath / "index.so") &&
+            std::filesystem::exists(newPath / "index.so"))
             return (newPath / "index.so").string();
-
+        if (found && std::filesystem::is_directory(newPath) && pathPart.empty())
+            for (const auto &child : std::filesystem::directory_iterator(newPath)) {
+                std::string childName = child.path().filename();
+                if (utils::startsWith(childName, "[[") && utils::endsWith(childName, "]].so") &&
+                    std::filesystem::is_regular_file(newPath / childName))
+                    return (newPath / childName).string();
+                if (utils::startsWith(childName, "[[") && utils::endsWith(childName, "]]") &&
+                    std::filesystem::is_directory(newPath / childName) &&
+                    std::filesystem::is_regular_file(newPath / childName / "index.so")) {
+                    return (newPath / childName / "index.so").string();
+                }
+            }
         if ((!found && !fallback.empty()) ||
             (found && std::filesystem::is_regular_file(newPath) && !pathPart.empty()) ||
             (found && std::filesystem::is_directory(newPath) && pathPart.empty()))
             return fallback.string();
     }
-    if (std::filesystem::is_directory(newPath))
+    if (std::filesystem::is_directory(newPath) && std::filesystem::is_regular_file(newPath / "index.so"))
         return (newPath / "index.so").string();
-    if (std::filesystem::exists(newPath))
+    if (std::filesystem::exists(newPath) && std::filesystem::is_regular_file(newPath))
         return newPath.string();
+    if (!fallback.empty())
+        return fallback.string();
     return std::nullopt;
 }
 

@@ -64,7 +64,7 @@ As of right now, we are loading the endpoints from compiled shared library in ea
   - `/user/[...id]/[...otherID]/name`
   - `/user/[...id]/[...otherID]/name/[...otherName]`
 
-- [ ] Also, we would like to handle optional parameters like `/user/[[id]]` or `/user/[[...id]]` (refer to [next.js](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes) for more info)
+- [x] Also, we would like to handle optional parameters like `/user/[[id]]` or `/user/[[...id]]` (refer to [next.js](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes) for more info)
 - [x] We would like to add a way to handle redirects
 - [x] We would like to make the parameters in the route available in the endpoint like
 
