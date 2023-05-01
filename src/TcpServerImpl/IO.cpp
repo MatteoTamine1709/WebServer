@@ -80,7 +80,6 @@ std::optional<std::string> TcpServer::getCorrectPath(const std::filesystem::path
             newPath /= selectedPath;
         if (pathPart.empty() && !found && std::filesystem::is_regular_file(newPath))
             return newPath.string();
-        spdlog::debug("newPath: {}", (newPath / "index.so").string());
         if (pathPart.empty() && found &&
             std::filesystem::is_directory(newPath) &&
             std::filesystem::is_regular_file(newPath / "index.so") &&

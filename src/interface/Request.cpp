@@ -120,4 +120,3 @@ std::optional<Request::Range> Request::range(size_t size) const {
     size_t end = std::stoul(rangeEnd);
     return Request::Range{rangeType, start, end};
 }
-

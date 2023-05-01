@@ -21,19 +21,18 @@
 - Server:
 
   - [x] A good config file system using [nlohmann/json](https://github.com/nlohmann/json) ([Reference](#config-file))
-    - [ ] Add options as the project goes on
-  - [ ] The ability to write command to the server like `stop` or `reload` or `restart` or `status`
-  - [ ] [Routing system](#routing-system) like [next.js](https://nextjs.org/docs/routing/introduction)
+    - Add options as the project goes on
+  - [x] The ability to write command to the server like `stop` or `status` or `help`
+  - [x] [Routing system](#routing-system) like [next.js](https://nextjs.org/docs/routing/introduction)
   - [ ] A way to handle sessions (MAYBE)
   - [ ] Upload files to the server
-  - [x] Res and Req from [req](https://expressjs.com/en/5x/api.html#req) and [res](https://expressjs.com/en/5x/api.html#res) <span style="color:red">(Not everything is implemented yet)</span>.
-
-  - [ ] Middleware support [Reference](https://nextjs.org/docs/advanced-features/middleware)
 
 - Endpoints:
 
   - [x] Ability to stream files like video or audio efficiently (not downloading 1GB of data straight on loading) (**Which was the reason I started this project**) ([Reference](https://blog.logrocket.com/build-video-streaming-server-node/))
   - [ ] Express interface
+    - [ ] Middleware support [Reference](https://nextjs.org/docs/advanced-features/middleware)
+    - [x] Res and Req from [req](https://expressjs.com/en/5x/api.html#req) and [res](https://expressjs.com/en/5x/api.html#res) <span style="color:red">(Not everything is implemented yet)</span>.
   - [ ] A system to communicate with databases / have modules that every endpoint can access
 
 - Hosting:
@@ -66,7 +65,7 @@ As of right now, we are loading the endpoints from compiled shared library in ea
 
 - [x] Also, we would like to handle optional parameters like `/user/[[id]]` or `/user/[[...id]]` (refer to [next.js](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes) for more info)
 - [x] We would like to add a way to handle redirects
-- [x] We would like to make the parameters in the route available in the endpoint like
+- [ ] We would like to make the parameters in the route available in the endpoint like
 
   - `GET /user/[id]` → `req.params.id`
   - `GET /user/[id]/[name]` → `req.params.id` and `req.params.name`

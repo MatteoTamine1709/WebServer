@@ -42,6 +42,9 @@ TcpServer::TcpServer() {
         configFile.close();
     }
     registerSignals(std::vector(std::begin(m_defaultSignals), std::end(m_defaultSignals)));
+    std::thread([this]() {
+        handleCommands();
+    }).detach();
 
     addrinfo hints;
     addrinfo *result;
@@ -109,12 +112,14 @@ void TcpServer::accept() {
 
     std::thread([clientSocket, this] () {
         m_mutex.lock();
-        m_numberThreads++;
-        spdlog::info("New connection, total: {}", m_numberThreads);
+        m_numberConnections++;
         m_mutex.unlock();
         TcpConnection connection(clientSocket);
         while (connection.isOpen()) {
             auto requestHeader = read(connection);
+            m_mutex.lock();
+            m_numberRequests++;
+            m_mutex.unlock();
             auto start = std::chrono::high_resolution_clock::now();
             if (!requestHeader)
                 continue;
@@ -132,8 +137,7 @@ void TcpServer::accept() {
         }
         close(clientSocket);
         m_mutex.lock();
-        m_numberThreads--;
-        spdlog::info("Connection closed, total: {}", m_numberThreads);
+        m_numberConnections--;
         m_mutex.unlock();
     }).detach();
 }

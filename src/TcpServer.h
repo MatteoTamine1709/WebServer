@@ -37,7 +37,6 @@ private:
     void accept();
     // HttpRequestHeader &completeRequest(HttpRequestHeader &requesst);
     std::optional<HttpRequestHeader> read(TcpConnection& connection);
-    // HttpResponseHeader &completeResponse(HttpResponseHeader &response, const HttpRequestHeader &request);
     Response handleRequest(HttpRequestHeader& request);
     std::optional<std::string> getCorrectPath(const std::filesystem::path &path);
     Response handleEndpoint(HttpRequestHeader& request);
@@ -47,12 +46,25 @@ private:
     void registerSignals(std::vector<int> signals);
     void handleSignal(int signum, siginfo_t *info, void *contex);
 
+    void handleCommands();
+
     static std::unique_ptr<TcpServer> m_instance;
 
     int m_socket;
 
     volatile std::sig_atomic_t m_signal;
     const std::array<int, 2> m_defaultSignals = {SIGINT, SIGTERM};
+
+    std::unordered_map<std::string, void (TcpServer::*)()> m_commands = {
+        {"stop", &TcpServer::stop},
+        {"kill", &TcpServer::stop},
+        {"status", &TcpServer::status},
+        {"help", &TcpServer::help}
+    };
+
+    void stop();
+    void status();
+    void help();
 
     int m_pipeFD = -1;
     bool m_running = true;
@@ -69,7 +81,8 @@ private:
     fs::path m_publicFolder = "./public";
     bool m_watch = false;
 
-    uint64_t m_numberThreads = 0;
+    uint64_t m_numberConnections = 0;
+    uint64_t m_numberRequests = 0;
     std::mutex m_mutex;
 
     typedef std::string ConfigKey;

@@ -7,7 +7,7 @@ enable_testing()
 file(GLOB TcpServerImpl src/TcpServerImpl/*.cpp)
 file(GLOB Interface src/interface/*.cpp)
 
-add_library(projectLib ${TcpServerImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/HttpResponseHeader.cpp src/utils.cpp)
+add_library(projectLib ${TcpServerImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/utils.cpp)
 add_executable(WebServer main.cpp)
 target_link_libraries(WebServer PRIVATE projectLib)
 
