@@ -79,14 +79,16 @@ void TcpServer::callMiddleware(const Request &request, Response &response, endpo
 }
 
 void TcpServer::reloadMiddleware(const std::string &path) {
-    std::string oldName = m_middlewarePathToName[path];
-    m_middlewares.erase(oldName);
-    m_middlewareMatcher.erase(std::remove_if(m_middlewareMatcher.begin(), m_middlewareMatcher.end(),
-        [&](const std::pair<std::string, std::vector<std::string>> &a) {
-            return std::find(a.second.begin(), a.second.end(), oldName) != a.second.end();
-        }), m_middlewareMatcher.end());
-    dlclose(m_middlewareLibraries[path]);
-    m_middlewareLibraries.erase(path);
+    if (m_middlewareLibraries.find(path) != m_middlewareLibraries.end()) {
+        std::string oldName = m_middlewarePathToName[path];
+        m_middlewares.erase(oldName);
+        m_middlewareMatcher.erase(std::remove_if(m_middlewareMatcher.begin(), m_middlewareMatcher.end(),
+            [&](const std::pair<std::string, std::vector<std::string>> &a) {
+                return std::find(a.second.begin(), a.second.end(), oldName) != a.second.end();
+            }), m_middlewareMatcher.end());
+        dlclose(m_middlewareLibraries[path]);
+        m_middlewareLibraries.erase(path);
+    }
 
     void *handle = dlopen(path.c_str(), RTLD_NOW);
     if (!handle) {

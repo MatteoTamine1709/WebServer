@@ -7,13 +7,13 @@ extern "C" {
     const std::string name() { return "logMiddleware"; };
     const std::pair<std::vector<std::string>, std::vector<std::string>> use() {
         return {
-            {"/entity/*/image"},
+            {"/*"},
             {"logMiddleware"}
         };
     };
 }
 
 void logMiddleware(const Request &req, Response &res, Next_t next) {
-    std::cout << "LOGGGG => " << req.method << " " << req.baseUrl << std::endl;
+    std::cout << req.body.dump(2) << std::endl;
     next();
 }

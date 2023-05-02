@@ -32,9 +32,11 @@ HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
         m_headers[key] = value;
     }
     if (m_headers.find("Content-Length") != m_headers.end()) {
-        int contentLength = std::stoi(m_headers["Content-Length"].data());
-        m_body.resize(contentLength);
-        issHeader.read(m_body.data(), contentLength);
+        int contentLength = std::stoi(m_headers["Content-Length"]);
+        std::string requestContent = issHeader.str();
+        requestContent.erase(0, requestContent.find("\r\n\r\n") + 4);
+        if (requestContent.length() >= contentLength)
+            m_body = requestContent.substr(0, contentLength);
     }
     std::vector<std::string> urlParts = utils::split(route, {"?"});
     m_url = fs::weakly_canonical(urlParts[0]);

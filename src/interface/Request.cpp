@@ -37,6 +37,13 @@ Request::Request(const HttpRequestHeader &header, const TcpServer &server)
     for (const auto &domain : utils::split(host, {"."}))
         subdomains.push_back(domain);
     xhr = m_headers.find("X-Requested-With") != m_headers.end() && m_headers["X-Requested-With"] == "XMLHttpRequest";
+
+    body = { "blob", header.getBody() };
+    if (m_headers.find("Content-Type") != m_headers.end() && m_headers["Content-Type"].find("application/json") != std::string::npos) {
+        if (!header.getBody().empty())
+            body = nlohmann::json::parse(header.getBody());
+    }
+    
 }
 
 std::optional<std::string> Request::accepts(const std::vector<std::string> &types) const {

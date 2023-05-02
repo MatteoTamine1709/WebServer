@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include <iostream>
+#include <nlohmann/json.hpp>
 
 // #include "TcpServer.h"
 #include "HttpRequestHeader.h"
@@ -52,7 +53,7 @@ public:
 
     TcpServer &app;
     std::string baseUrl;
-    std::unordered_map<std::string, std::string> body;
+    nlohmann::json body;
     std::unordered_map<std::string, std::string> cookies;
     bool fresh;
     std::string host;

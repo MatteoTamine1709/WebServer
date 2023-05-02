@@ -14,9 +14,7 @@ void get(const Request &req, Response &res) {
         std::cout << "=> " << cookie.first << ": " << cookie.second << std::endl;
     }
     std::cout << "Body: " << std::endl;
-    for (auto &body : req.body) {
-        std::cout << "=> " << body.first << ": " << body.second << std::endl;
-    }
+    std::cout << "=> " << req.body.dump(2) << std::endl;
     std::cout << "Fresh: " << req.fresh << std::endl;
     std::cout << "Host: " << req.host << std::endl;
     std::cout << "Hostname: " << req.hostname << std::endl;

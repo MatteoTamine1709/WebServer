@@ -74,8 +74,8 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
 
         fs::path path(hotReloaded_path);
         path.replace_extension(".so");
-        std::string canonical = fs::weakly_canonical(path);
-        if (utils::isPathInsideOtherPath(path, m_middlewareFolder)) {
+        std::string canonical = fs::weakly_canonical(path).string();
+        if (canonical.find(m_middlewareFolder.string()) != std::string::npos) {
             SPDLOG_INFO("Hot reloaded middleware: {}", canonical);
             return reloadMiddleware(canonical);
         }
