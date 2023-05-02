@@ -7,6 +7,7 @@
 
 #include <iostream>
 
+// TODO: Refactor this constructor regarding the body
 HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
     std::istringstream issHeader(header.data());
     std::string line;
@@ -32,11 +33,12 @@ HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
         m_headers[key] = value;
     }
     if (m_headers.find("Content-Length") != m_headers.end()) {
+        // TODO: Make different type of handlers for different content types
         int contentLength = std::stoi(m_headers["Content-Length"]);
-        std::string requestContent = issHeader.str();
-        requestContent.erase(0, requestContent.find("\r\n\r\n") + 4);
-        if (requestContent.length() >= contentLength)
-            m_body = requestContent.substr(0, contentLength);
+        size_t body_pos = header.find("\r\n\r\n");
+        if (body_pos != std::string::npos) {
+            m_body = header.substr(body_pos + 4);
+        }
     }
     std::vector<std::string> urlParts = utils::split(route, {"?"});
     m_url = fs::weakly_canonical(urlParts[0]);

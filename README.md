@@ -75,7 +75,7 @@ As of right now, we are loading the endpoints from compiled shared library in ea
 - [x] Adding ETag support [Reference](https://stackoverflow.com/questions/4533/http-generating-etag-header)
 - Support a maximum of header fields see [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
 
-### HotReload
+### 🔗<u>[HotReload](https://github.com/MatteoTamine1709/CppHotReloader)</u>
 
 We now have a HotReloader projet which is able to watch for changes in the `api` folder and rebuild the shared library. We are now able to reload the endpoints without having to restart the server.
 It works by watching for changes in the `api` folder and then rebuild the shared library. It then sends a signal to the server to reload the endpoints.
