@@ -67,7 +67,8 @@
     "span": "cpp",
     "bitset": "cpp",
     "regex": "cpp",
-    "set": "cpp"
+    "set": "cpp",
+    "list": "cpp"
   },
   "files.exclude": {
     "**/.svn": true,

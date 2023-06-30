@@ -1,15 +1,13 @@
-#include "../TcpServer.h"
 #include <iostream>
 
-void TcpServer::stop() {
-    kill(getpid(), SIGTERM);
-}
+#include "../TcpServer.h"
+
+void TcpServer::stop() { kill(getpid(), SIGTERM); }
 
 void TcpServer::status() {
     spdlog::info("Server is running on {}:{}", m_host, m_port);
     spdlog::info("PID: {}", getpid());
-    spdlog::info("The number of active connections: {}", m_numberConnections);
-    spdlog::info("The number of handled requests: {}", m_numberRequests);
+    spdlog::info("The number of tasks queued: {}", m_threadpool.getTaskCount());
 }
 
 void TcpServer::help() {

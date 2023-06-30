@@ -5,13 +5,14 @@ project(WebServer VERSION 0.1.0)
 enable_testing()
 
 file(GLOB TcpServerImpl src/TcpServerImpl/*.cpp)
+file(GLOB ThreadpoolImpl src/ThreadpoolImpl/*.cpp)
 file(GLOB Interface src/interface/*.cpp)
 
-add_library(projectLib ${TcpServerImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/utils.cpp)
+add_library(projectLib ${TcpServerImpl} ${ThreadpoolImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/utils.cpp)
 add_executable(WebServer main.cpp)
 target_link_libraries(WebServer PRIVATE projectLib)
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)

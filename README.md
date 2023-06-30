@@ -17,6 +17,7 @@
   - [ ] Call Javascript functions from C++ [Reference](https://stackoverflow.com/questions/2713289/how-to-execute-javascript-function-in-c)
   - [ ] Dockerize the project (_If needed_)
   - [x] Being able to show the server to other devices on the network (using [ngrok](https://ngrok.com/)?)
+  - [ ] Scripts to build the project in either development or production mode and run it.
 
 - Server:
 
@@ -47,6 +48,24 @@
   - [ ] Reduce memory footprint
   - [ ] Reduce CPU usage
 
+### Architecture
+
+The server is composed of 3 main parts:
+
+- The server itself
+- The endpoints
+- The hot reloader
+
+The server is the main part of the project. It is the one that handles the requests and sends them to the endpoints. It also handles the config file and the logger.
+
+The endpoints are the files that are loaded by the server and are used to handle the requests. They are compiled into a shared library and loaded by the server.
+
+The hot reloader is a separate project that is used to watch for changes in the endpoints folder and rebuild the shared library. It is also able to send a signal to the server to reload the endpoints.
+
+### Internal system of the server
+
+I would like to have MAX_THREAD number of threads that are always running and waiting for a request. When a request comes in, it is added to a queue and the first available thread will take it and handle it. If there are no available threads, the request is added to the queue and will be handled when a thread is available.
+
 ### Routing System
 
 As of right now, we are loading the endpoints from compiled shared library in each folder using a Next like approach. We are able to manage all methods as long as they are defined, otherwise 404 is returned.
@@ -75,7 +94,7 @@ As of right now, we are loading the endpoints from compiled shared library in ea
 - [x] Adding ETag support [Reference](https://stackoverflow.com/questions/4533/http-generating-etag-header)
 - Support a maximum of header fields see [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
 
-### 🔗<u>[HotReload](https://github.com/MatteoTamine1709/CppHotReloader)</u>
+### 🔗[HotReload](https://github.com/MatteoTamine1709/CppHotReloader)
 
 We now have a HotReloader projet which is able to watch for changes in the `api` folder and rebuild the shared library. We are now able to reload the endpoints without having to restart the server.
 It works by watching for changes in the `api` folder and then rebuild the shared library. It then sends a signal to the server to reload the endpoints.

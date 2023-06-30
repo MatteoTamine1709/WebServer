@@ -1,21 +1,22 @@
+#include <sys/stat.h>
+
+#include <fstream>
+#include <sstream>
+
 #include "src/HttpRequestHeader.h"
 #include "src/HttpResponseHeader.h"
 #include "src/utils.h"
 
-#include <fstream>
-#include <sstream>
-#include <sys/stat.h>
-
 extern "C" {
-    HttpResponseHeader get(const HttpRequestHeader &header);
-    HttpResponseHeader post(const HttpRequestHeader &header);
+HttpResponseHeader get(const HttpRequestHeader &header);
+HttpResponseHeader post(const HttpRequestHeader &header);
 }
-
 
 HttpResponseHeader get(const HttpRequestHeader &header) {
     HttpResponseHeader response{};
-    const std::string &etag = utils::makeEtag("./public/index.html");
-    if (header.getParameter("Etag").has_value() && header.getParameter("Etag").value() == etag) {
+    const std::string &etag = utils::makeEtag("./app/dist/index.html");
+    if (header.getParameter("Etag").has_value() &&
+        header.getParameter("Etag").value() == etag) {
         response.setProtocol("HTTP/1.1");
         response.setStatusCode(304);
         response.setStatusMessage("Not Modified");
