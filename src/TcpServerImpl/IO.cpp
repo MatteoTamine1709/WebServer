@@ -1,27 +1,24 @@
-#include "../TcpServer.h"
+#include <dlfcn.h>
+#include <fcntl.h>
+#include <spdlog/spdlog.h>
+#include <unistd.h>
+
+#include <filesystem>
+#include <fstream>
+#include <optional>
+#include <sstream>
+#include <stack>
+
 #include "../HttpRequestHeader.h"
 #include "../Request.h"
 #include "../Response.h"
+#include "../TcpServer.h"
 #include "../utils.h"
 
-#include <fstream>
-#include <sstream>
-
-#include <dlfcn.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-#include <spdlog/spdlog.h>
-
-#include <filesystem>
-#include <optional>
-#include <stack>
-
-std::optional<HttpRequestHeader> TcpServer::read(TcpConnection& connection) {
+std::optional<HttpRequestHeader> TcpServer::read(TcpConnection &connection) {
     const std::string &data = connection.read();
-    if (data.empty())
-        return std::nullopt;
-    
+    if (data.empty()) return std::nullopt;
+
     HttpRequestHeader header(data);
     header.complete();
 
@@ -37,8 +34,7 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
 
     std::stack<fs::path> pathPart;
     fs::path newPath = fs::weakly_canonical(path);
-    while (newPath.has_parent_path() &&
-        newPath.string() != m_apiFolder) {
+    while (newPath.has_parent_path() && newPath.string() != m_apiFolder) {
         pathPart.push(newPath.filename());
         newPath = newPath.parent_path();
     }
@@ -50,8 +46,7 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
             pathPart.pop();
             spdlog::debug(".so: {}", newPath.string());
             if (!fs::is_directory(newPath) && pathPart.size() > 0) {
-                if (fallback.filename().string().empty())
-                    return std::nullopt;
+                if (fallback.filename().string().empty()) return std::nullopt;
                 return fallback.string();
             }
             continue;
@@ -64,10 +59,14 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
                 selectedPath = childName;
                 found = true;
             }
-            if ((utils::startsWith(childName, "[...") && utils::endsWith(childName, "].so")) ||
-                (utils::startsWith(childName, "[[...") && utils::endsWith(childName, "]].so"))) {
+            if ((utils::startsWith(childName, "[...") &&
+                 utils::endsWith(childName, "].so")) ||
+                (utils::startsWith(childName, "[[...") &&
+                 utils::endsWith(childName, "]].so"))) {
                 fallback = newPath / childName;
-            } else if (!found && utils::startsWith(childName, "[") && (utils::endsWith(childName, "]") || utils::endsWith(childName, "].so"))) {
+            } else if (!found && utils::startsWith(childName, "[") &&
+                       (utils::endsWith(childName, "]") ||
+                        utils::endsWith(childName, "].so"))) {
                 selectedPath = childName;
                 found = true;
             }
@@ -76,22 +75,22 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
         spdlog::debug("Found: {}, selectedPath: {}", found, selectedPath);
         spdlog::debug("newPath: {}", newPath.string());
         spdlog::debug("fallback: {}", fallback.string());
-        if (found)
-            newPath /= selectedPath;
+        if (found) newPath /= selectedPath;
         if (pathPart.empty() && !found && fs::is_regular_file(newPath))
             return newPath.string();
-        if (pathPart.empty() && found &&
-            fs::is_directory(newPath) &&
+        if (pathPart.empty() && found && fs::is_directory(newPath) &&
             fs::is_regular_file(newPath / "index.so") &&
             fs::exists(newPath / "index.so"))
             return (newPath / "index.so").string();
         if (found && fs::is_directory(newPath) && pathPart.empty())
             for (const auto &child : fs::directory_iterator(newPath)) {
                 std::string childName = child.path().filename();
-                if (utils::startsWith(childName, "[[") && utils::endsWith(childName, "]].so") &&
+                if (utils::startsWith(childName, "[[") &&
+                    utils::endsWith(childName, "]].so") &&
                     fs::is_regular_file(newPath / childName))
                     return (newPath / childName).string();
-                if (utils::startsWith(childName, "[[") && utils::endsWith(childName, "]]") &&
+                if (utils::startsWith(childName, "[[") &&
+                    utils::endsWith(childName, "]]") &&
                     fs::is_directory(newPath / childName) &&
                     fs::is_regular_file(newPath / childName / "index.so")) {
                     return (newPath / childName / "index.so").string();
@@ -106,24 +105,27 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
         return (newPath / "index.so").string();
     if (fs::exists(newPath) && fs::is_regular_file(newPath))
         return newPath.string();
-    if (!fallback.empty())
-        return fallback.string();
+    if (!fallback.empty()) return fallback.string();
     return std::nullopt;
 }
 
 Response TcpServer::handleRequest(HttpRequestHeader &request) {
-    // spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
+    // spdlog::debug("Request path: {} {}", request.getMethod(),
+    // request.getPath().string());
     if (request.getMethod() == "get" && !request.isEndpoint()) {
         // spdlog::debug("Public folder: {}", m_publicFolder.string());
-        request.setPath((m_publicFolder / request.getPath().relative_path().string()).string());
-        // spdlog::debug("Request path: {} {}", request.getMethod(), request.getPath().string());
+        request.setPath(
+            (m_publicFolder / request.getPath().relative_path()).string());
+        // spdlog::debug("Request path: {} {}", request.getMethod(),
+        // request.getPath().string());
         if (!request.isPathValid())
             return Response(Request(request, getInstance()), getInstance());
         return handleFile(request);
         // response.complete(request);
         // return response;
     }
-    auto correctPath = getCorrectPath(m_apiFolder / request.getPath().relative_path());
+    auto correctPath =
+        getCorrectPath(m_apiFolder / request.getPath().relative_path());
     if (!correctPath.has_value())
         return Response(Request(request, getInstance()), getInstance());
     spdlog::debug("Found correct path {}", correctPath.value());
@@ -134,10 +136,13 @@ Response TcpServer::handleRequest(HttpRequestHeader &request) {
 
 Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
     if (m_endpoints.find(request.getPath()) != m_endpoints.end() &&
-        m_endpoints[request.getPath()].second.find(request.getMethod().data()) != m_endpoints[request.getPath()].second.end()) {
+        m_endpoints[request.getPath()].second.find(
+            request.getMethod().data()) !=
+            m_endpoints[request.getPath()].second.end()) {
         auto &[lib, methods] = m_endpoints[request.getPath()];
         endpoint_t endpoint = methods[request.getMethod().data()];
-        spdlog::debug("Found endpoint {} in library {}", request.getMethod(), request.getPath().string());
+        spdlog::debug("Found endpoint {} in library {}", request.getMethod(),
+                      request.getPath().string());
         auto req = Request(request, getInstance());
         auto res = Response(req, getInstance());
         callMiddleware(req, res, endpoint);
@@ -152,16 +157,19 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
         if (!lib) {
             SPDLOG_ERROR("Cannot open library: {}", dlerror());
             Response response(Request(request, getInstance()), getInstance());
-            response.status(404).set("Content-Type", "text/html").send("Not Found");
+            response.status(404)
+                .set("Content-Type", "text/html")
+                .send("Not Found");
             return response;
         }
         m_endpoints[request.getPath()] = {lib, {}};
     }
     // Load the symbols
-    endpoint_t endpoint = (endpoint_t) dlsym(lib, request.getMethod().data());
-    const char* dlsym_error = dlerror();
+    endpoint_t endpoint = (endpoint_t)dlsym(lib, request.getMethod().data());
+    const char *dlsym_error = dlerror();
     if (dlsym_error) {
-        SPDLOG_ERROR("Cannot load symbol '{}': {}", request.getMethod(), dlsym_error);
+        SPDLOG_ERROR("Cannot load symbol '{}': {}", request.getMethod(),
+                     dlsym_error);
         dlclose(lib);
         Response response(Request(request, getInstance()), getInstance());
         response.status(404).set("Content-Type", "text/html").send("Not Found");
@@ -172,13 +180,17 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
         auto req = Request(request, getInstance());
         auto res = Response(req, getInstance());
         callMiddleware(req, res, endpoint);
-        m_endpoints[request.getPath()].second[request.getMethod().data()] = endpoint;
+        m_endpoints[request.getPath()].second[request.getMethod().data()] =
+            endpoint;
         return res;
-    } catch (const std::exception& e) {
-        SPDLOG_ERROR("Error: [{} {}] {}", request.getMethod(), request.getRoute().string(), e.what());
+    } catch (const std::exception &e) {
+        SPDLOG_ERROR("Error: [{} {}] {}", request.getMethod(),
+                     request.getRoute().string(), e.what());
         dlclose(lib);
         Response res(Request(request, getInstance()), getInstance());
-        res.status(500).set("Content-Type", "text/html").send("Internal Server Error");
+        res.status(500)
+            .set("Content-Type", "text/html")
+            .send("Internal Server Error");
         return res;
     }
 }
@@ -194,11 +206,16 @@ Response TcpServer::handleFile(HttpRequestHeader &request) {
     // response.set("Content-Type", utils::getContentType(request.getPath()));
     // response.set("Content-Length", std::to_string(filesize));
     // spdlog::debug("File size: {}", filesize);
-    const std::vector<std::string> accepted = utils::split(request.getHeader("Accept").value().data(), {","});
+    const std::vector<std::string> accepted =
+        utils::split(request.getHeader("Accept").value().data(), {","});
 
     const std::string contentType = utils::getContentType(request.getPath());
-    if (std::find(accepted.begin(), accepted.end(), contentType) == accepted.end() &&
-        std::find_if(accepted.begin(), accepted.end(), [](const std::string &s) { return utils::startsWith(s, "*/*"); }) == accepted.end()) {
+    if (std::find(accepted.begin(), accepted.end(), contentType) ==
+            accepted.end() &&
+        std::find_if(accepted.begin(), accepted.end(),
+                     [](const std::string &s) {
+                         return utils::startsWith(s, "*/*");
+                     }) == accepted.end()) {
         spdlog::debug("Not acceptable");
         Response response(Request(request, getInstance()), getInstance());
         response.sendStatus(406);
@@ -226,7 +243,7 @@ Response TcpServer::handleFile(HttpRequestHeader &request) {
     return response;
 }
 
-void TcpServer::write(TcpConnection& connection, Response& response) {
+void TcpServer::write(TcpConnection &connection, Response &response) {
     spdlog::debug("{}", response.toReadableString());
     connection.write(response.toString());
 }

@@ -66,6 +66,10 @@ class TcpServer {
 
     int m_socket;
     bool m_running = true;
+    std::mutex m_connectionMutex;
+    uint64_t m_numberOfConnection = 0;
+    std::mutex m_requestMutex;
+    uint64_t m_numberOfRequestHandled = 0;
     Threadpool m_threadpool;
 
     // Watcher

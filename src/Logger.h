@@ -119,7 +119,7 @@ struct fmt::formatter<LoggedInfo> {
                         size /= 1024;
                         unit = "GB";
                     }
-                    return format_to(ctx.out(), "{} {}",
+                    return format_to(ctx.out(), "{}{}",
                                      std::ceil(size * 100.0) / 100.0, unit);
                 }
                 return format_to(ctx.out(), "{}", logInfo.headers.at(header));

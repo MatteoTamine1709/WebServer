@@ -131,6 +131,9 @@ void TcpServer::accept() {
                                  std::string(strerror(errno)));
     spdlog::info("New connection from {}:{}", inet_ntoa(client.sin_addr),
                  ntohs(client.sin_port));
+    m_connectionMutex.lock();
+    m_numberOfConnection++;
+    m_connectionMutex.unlock();
     std::thread([clientSocket, this]() {
         TcpConnection connection(clientSocket);
         spdlog::debug("New task for client {}", clientSocket);
@@ -158,8 +161,15 @@ void TcpServer::accept() {
                     requestHeader.value().getHeader("Connection").value() !=
                         "keep-alive")
                     close(clientSocket);
+                m_requestMutex.lock();
+                m_numberOfRequestHandled++;
+                m_requestMutex.unlock();
             });
         };
+        close(clientSocket);
+        m_connectionMutex.lock();
+        m_numberOfConnection--;
+        m_connectionMutex.unlock();
     }).detach();
 }
 
