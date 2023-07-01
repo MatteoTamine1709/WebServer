@@ -1,9 +1,7 @@
 #include "src/TcpServer.h"
 
 int main(int, char**) {
-    TcpServer &server = TcpServer::getInstance();
-
-    server.run();
+    TcpServer::getInstance().run();
 
     return 0;
 }

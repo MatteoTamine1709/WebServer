@@ -2,7 +2,7 @@
 
 #include "../TcpServer.h"
 
-void TcpServer::stop() { kill(getpid(), SIGTERM); }
+void TcpServer::stop() { m_running = false; }
 
 void TcpServer::status() {
     spdlog::info("Server is running on {}:{}", m_host, m_port);

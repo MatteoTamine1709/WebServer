@@ -111,6 +111,18 @@ std::string TcpServer::getIp() {
 }
 
 void TcpServer::accept() {
+    fd_set readFds;
+    FD_ZERO(&readFds);
+    FD_SET(m_socket, &readFds);
+    timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+    int status = select(m_socket + 1, &readFds, NULL, NULL, &timeout);
+    if (status == -1) {
+        throw std::runtime_error("select() failed: " +
+                                 std::string(strerror(errno)));
+    }
+    if (status == 0) return;
     sockaddr_in client;
     socklen_t clientSize = sizeof(client);
     int clientSocket = ::accept(m_socket, (sockaddr*)&client, &clientSize);

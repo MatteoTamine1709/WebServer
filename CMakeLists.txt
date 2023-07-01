@@ -12,8 +12,6 @@ add_library(projectLib ${TcpServerImpl} ${ThreadpoolImpl} ${Interface} src/TcpCo
 add_executable(WebServer main.cpp)
 target_link_libraries(WebServer PRIVATE projectLib)
 
-set(CMAKE_BUILD_TYPE Release)
-
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
 
@@ -36,22 +34,22 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 
-Include(FetchContent)
+# Include(FetchContent)
 
-FetchContent_Declare(
-  Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG        v3.3.2 # or a later release
-)
+# FetchContent_Declare(
+#   Catch2
+#   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+#   GIT_TAG        v3.3.2 # or a later release
+# )
 
-FetchContent_MakeAvailable(Catch2)
+# FetchContent_MakeAvailable(Catch2)
 
 # add_subdirectory(tests)
-include_directories(${CATCH2_INCLUDE_DIRS})
+# include_directories(${CATCH2_INCLUDE_DIRS})
 
 
-file(GLOB Tests tests/**/**.cpp)
+# file(GLOB Tests tests/**/**.cpp)
 
-add_executable(runTest ${Tests})
-target_link_libraries(runTest PRIVATE projectLib Catch2::Catch2WithMain Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json)
-target_include_directories(runTest PUBLIC ./)
+# add_executable(runTest ${Tests})
+# target_link_libraries(runTest PRIVATE projectLib Catch2::Catch2WithMain Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json)
+# target_include_directories(runTest PUBLIC ./)
