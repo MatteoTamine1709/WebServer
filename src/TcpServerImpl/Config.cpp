@@ -69,17 +69,18 @@ void setFormat(std::string format) {
          "{:method} {:url} {:status} {:response-time}ms - "
          "{:header[Content-Length]}"},
         {"combined",
-         "{:remote-addr} - {:remote-user} [{:date[clf]}] \":method :url "
-         "HTTP/:http-version\" {:status} {:res[Content-Length]} \":referrer\" "
-         "\":user-agent\""},
+         "{:remote-addr} - {:remote-user} [{:date[clf]}] \"{:method} {:url} "
+         "{:http-version}\" {:status} {:header[Content-Length]} "
+         "\"{:referrer}\" "
+         "\"{:user-agent}\""},
         {"common",
-         "{:remote-addr} - {:remote-user} [{:date[clf]}] \":method :url "
-         "HTTP/:http-version\" {:status} {:res[Content-Length]}"},
+         "{:remote-addr} - {:remote-user} [{:date[clf]}] \"{:method} {:url} "
+         "{:http-version}\" {:status} {:header[Content-Length]}"},
         {"short",
-         "{:remote-addr} {:remote-user} {:method} {:url} HTTP/:http-version "
-         "{:status} {:res[Content-Length]} - {:response-time} ms"},
+         "{:remote-addr} {:remote-user} {:method} {:url} {:http-version} "
+         "{:status} {:header[Content-Length]} - {:response-time} ms"},
         {"tiny",
-         "{:method} {:url} {:status} {:res[Content-Length]} - "
+         "{:method} {:url} {:status} {:header[Content-Length]} - "
          "{:response-time} ms"}};
 
     if (format_map.find(format) != format_map.end()) {

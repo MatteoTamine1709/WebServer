@@ -24,6 +24,8 @@ std::string TcpConnection::read() {
 }
 
 void TcpConnection::write(const std::string& message) {
+    if (message.empty()) return;
+    if (!this->isOpen()) return;
     int bytes = ::send(m_socket, message.data(), message.size(), 0);
     if (bytes == -1)
         throw std::runtime_error("send() failed: " +
