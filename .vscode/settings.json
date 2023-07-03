@@ -87,6 +87,7 @@
     "**/*.exe": true,
     "**/*.o": true,
     "**/*.a": true,
-    "**/*.lib": true
+    "**/*.lib": true,
+    ".old": true
   }
 }

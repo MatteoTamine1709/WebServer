@@ -18,7 +18,6 @@
 std::optional<HttpRequestHeader> TcpServer::read(TcpConnection &connection) {
     const std::string &data = connection.read();
     if (data.empty()) return std::nullopt;
-
     HttpRequestHeader header(data);
     header.complete();
 
@@ -40,6 +39,7 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
     }
     // Get all children
     fs::path fallback = "";
+    bool hasBeenFullyFollowed = true;
     while (pathPart.size() > 0) {
         if (fs::is_regular_file(newPath / (pathPart.top().string() + ".so"))) {
             newPath /= (pathPart.top().string() + ".so");
@@ -71,6 +71,7 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
                 found = true;
             }
         }
+        hasBeenFullyFollowed = !(pathPart.size() > 0 && selectedPath.empty());
         pathPart.pop();
         spdlog::debug("Found: {}, selectedPath: {}", found, selectedPath);
         spdlog::debug("newPath: {}", newPath.string());
@@ -101,7 +102,8 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
             (found && fs::is_directory(newPath) && pathPart.empty()))
             return fallback.string();
     }
-    if (fs::is_directory(newPath) && fs::is_regular_file(newPath / "index.so"))
+    if (hasBeenFullyFollowed && fs::is_directory(newPath) && pathPart.empty() &&
+        fs::is_regular_file(newPath / "index.so"))
         return (newPath / "index.so").string();
     if (fs::exists(newPath) && fs::is_regular_file(newPath))
         return newPath.string();
@@ -118,16 +120,23 @@ Response TcpServer::handleRequest(HttpRequestHeader &request) {
             (m_publicFolder / request.getPath().relative_path()).string());
         // spdlog::debug("Request path: {} {}", request.getMethod(),
         // request.getPath().string());
-        if (!request.isPathValid())
-            return Response(Request(request, getInstance()), getInstance());
+        if (!request.isPathValid()) {
+            auto resp =
+                Response(Request(request, getInstance()), getInstance());
+            resp.status(404).set("Content-Type", "text/html").send("Not Found");
+            return resp;
+        }
         return handleFile(request);
         // response.complete(request);
         // return response;
     }
     auto correctPath =
         getCorrectPath(m_apiFolder / request.getPath().relative_path());
-    if (!correctPath.has_value())
-        return Response(Request(request, getInstance()), getInstance());
+    if (!correctPath.has_value()) {
+        auto resp = Response(Request(request, getInstance()), getInstance());
+        resp.status(404).set("Content-Type", "text/html").send("Not Found");
+        return resp;
+    }
     spdlog::debug("Found correct path {}", correctPath.value());
     request.setPath(correctPath.value());
     // response.complete(request);
@@ -196,16 +205,6 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
 }
 
 Response TcpServer::handleFile(HttpRequestHeader &request) {
-    // std::ifstream file(request.getPath().c_str(), std::ios::binary);
-    if (!fs::exists(request.getPath())) {
-        Response response(Request(request, getInstance()), getInstance());
-        response.status(404).set("Content-Type", "text/html").send("Not Found");
-        return response;
-    }
-    // file.seekg(0, std::ios::end);
-    // response.set("Content-Type", utils::getContentType(request.getPath()));
-    // response.set("Content-Length", std::to_string(filesize));
-    // spdlog::debug("File size: {}", filesize);
     const std::vector<std::string> accepted =
         utils::split(request.getHeader("Accept").value().data(), {","});
 

@@ -10,6 +10,7 @@
     "watch": "vite build --watch"
   },
   "devDependencies": {
+    "@types/node": "^20.3.3",
     "typescript": "^5.0.2",
     "vite": "^4.3.2"
   },

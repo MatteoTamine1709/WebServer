@@ -1,48 +1,14 @@
-#include <sys/stat.h>
-
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
-#include "src/HttpRequestHeader.h"
-#include "src/HttpResponseHeader.h"
-#include "src/utils.h"
+#include "src/Request.h"
+#include "src/Response.h"
 
 extern "C" {
-HttpResponseHeader get(const HttpRequestHeader &header);
-HttpResponseHeader post(const HttpRequestHeader &header);
+void get(const Request &req, Response &res);
 }
 
-HttpResponseHeader get(const HttpRequestHeader &header) {
-    HttpResponseHeader response{};
-    const std::string &etag = utils::makeEtag("./app/dist/index.html");
-    if (header.getParameter("Etag").has_value() &&
-        header.getParameter("Etag").value() == etag) {
-        response.setProtocol("HTTP/1.1");
-        response.setStatusCode(304);
-        response.setStatusMessage("Not Modified");
-        response.setHeader("Content-Type", "text/html");
-        response.setHeader("Etag", etag);
-        return response;
-    }
-    response.setProtocol("HTTP/1.1");
-    response.setStatusCode(200);
-    response.setStatusMessage("OK");
-    response.setHeader("Content-Type", "text/html");
-    response.setHeader("Etag", etag);
-    std::ifstream file("./app/dist/index.html");
-    std::stringstream ss;
-    ss << file.rdbuf();
-    response.setBody(ss.str());
-    return response;
-}
-
-HttpResponseHeader post(const HttpRequestHeader &header) {
-    HttpResponseHeader response{};
-
-    response.setProtocol("HTTP/1.1");
-    response.setStatusCode(200);
-    response.setStatusMessage("OK");
-    response.setHeader("Content-Type", "application/json");
-    response.setBody("{\"message\": \"Hello World!\"}");
-    return response;
+void get(const Request &req, Response &res) {
+    res.sendFile("./app/dist/index.html");
 }
