@@ -8,11 +8,10 @@ HtmlBuilder::~HtmlBuilder() {}
 
 HtmlBuilder &HtmlBuilder::a(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<a";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<a" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("a");
     return *this;
 }
@@ -27,11 +26,10 @@ HtmlBuilder &HtmlBuilder::a_() {
 
 HtmlBuilder &HtmlBuilder::abbr(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<abbr";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<abbr" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("abbr");
     return *this;
 }
@@ -46,11 +44,10 @@ HtmlBuilder &HtmlBuilder::abbr_() {
 
 HtmlBuilder &HtmlBuilder::address(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<address";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<address" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("address");
     return *this;
 }
@@ -65,11 +62,10 @@ HtmlBuilder &HtmlBuilder::address_() {
 
 HtmlBuilder &HtmlBuilder::area(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<area";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<area" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("area");
     return *this;
 }
@@ -84,11 +80,10 @@ HtmlBuilder &HtmlBuilder::area_() {
 
 HtmlBuilder &HtmlBuilder::article(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<article";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<article" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("article");
     return *this;
 }
@@ -103,11 +98,10 @@ HtmlBuilder &HtmlBuilder::article_() {
 
 HtmlBuilder &HtmlBuilder::aside(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<aside";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<aside" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("aside");
     return *this;
 }
@@ -122,11 +116,10 @@ HtmlBuilder &HtmlBuilder::aside_() {
 
 HtmlBuilder &HtmlBuilder::audio(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<audio";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<audio" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("audio");
     return *this;
 }
@@ -141,11 +134,10 @@ HtmlBuilder &HtmlBuilder::audio_() {
 
 HtmlBuilder &HtmlBuilder::b(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<b";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<b" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("b");
     return *this;
 }
@@ -160,11 +152,10 @@ HtmlBuilder &HtmlBuilder::b_() {
 
 HtmlBuilder &HtmlBuilder::base(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<base";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<base" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("base");
     return *this;
 }
@@ -179,11 +170,10 @@ HtmlBuilder &HtmlBuilder::base_() {
 
 HtmlBuilder &HtmlBuilder::bdi(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<bdi";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<bdi" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("bdi");
     return *this;
 }
@@ -198,11 +188,10 @@ HtmlBuilder &HtmlBuilder::bdi_() {
 
 HtmlBuilder &HtmlBuilder::bdo(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<bdo";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<bdo" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("bdo");
     return *this;
 }
@@ -217,11 +206,10 @@ HtmlBuilder &HtmlBuilder::bdo_() {
 
 HtmlBuilder &HtmlBuilder::blockquote(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<blockquote";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<blockquote" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("blockquote");
     return *this;
 }
@@ -236,11 +224,10 @@ HtmlBuilder &HtmlBuilder::blockquote_() {
 
 HtmlBuilder &HtmlBuilder::body(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<body";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<body" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("body");
     return *this;
 }
@@ -255,11 +242,10 @@ HtmlBuilder &HtmlBuilder::body_() {
 
 HtmlBuilder &HtmlBuilder::br(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<br";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<br" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("br");
     return *this;
 }
@@ -274,11 +260,10 @@ HtmlBuilder &HtmlBuilder::br_() {
 
 HtmlBuilder &HtmlBuilder::button(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<button";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<button" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("button");
     return *this;
 }
@@ -293,11 +278,10 @@ HtmlBuilder &HtmlBuilder::button_() {
 
 HtmlBuilder &HtmlBuilder::canvas(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<canvas";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<canvas" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("canvas");
     return *this;
 }
@@ -312,11 +296,10 @@ HtmlBuilder &HtmlBuilder::canvas_() {
 
 HtmlBuilder &HtmlBuilder::caption(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<caption";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<caption" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("caption");
     return *this;
 }
@@ -331,11 +314,10 @@ HtmlBuilder &HtmlBuilder::caption_() {
 
 HtmlBuilder &HtmlBuilder::cite(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<cite";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<cite" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("cite");
     return *this;
 }
@@ -350,11 +332,10 @@ HtmlBuilder &HtmlBuilder::cite_() {
 
 HtmlBuilder &HtmlBuilder::code(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<code";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<code" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("code");
     return *this;
 }
@@ -369,11 +350,10 @@ HtmlBuilder &HtmlBuilder::code_() {
 
 HtmlBuilder &HtmlBuilder::col(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<col";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<col" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("col");
     return *this;
 }
@@ -388,11 +368,10 @@ HtmlBuilder &HtmlBuilder::col_() {
 
 HtmlBuilder &HtmlBuilder::colgroup(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<colgroup";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<colgroup" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("colgroup");
     return *this;
 }
@@ -407,11 +386,10 @@ HtmlBuilder &HtmlBuilder::colgroup_() {
 
 HtmlBuilder &HtmlBuilder::data(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<data";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<data" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("data");
     return *this;
 }
@@ -426,11 +404,10 @@ HtmlBuilder &HtmlBuilder::data_() {
 
 HtmlBuilder &HtmlBuilder::datalist(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<datalist";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<datalist" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("datalist");
     return *this;
 }
@@ -445,11 +422,10 @@ HtmlBuilder &HtmlBuilder::datalist_() {
 
 HtmlBuilder &HtmlBuilder::dd(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<dd";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<dd" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("dd");
     return *this;
 }
@@ -464,11 +440,10 @@ HtmlBuilder &HtmlBuilder::dd_() {
 
 HtmlBuilder &HtmlBuilder::del(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<del";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<del" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("del");
     return *this;
 }
@@ -483,11 +458,10 @@ HtmlBuilder &HtmlBuilder::del_() {
 
 HtmlBuilder &HtmlBuilder::details(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<details";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<details" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("details");
     return *this;
 }
@@ -502,11 +476,10 @@ HtmlBuilder &HtmlBuilder::details_() {
 
 HtmlBuilder &HtmlBuilder::dfn(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<dfn";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<dfn" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("dfn");
     return *this;
 }
@@ -521,11 +494,10 @@ HtmlBuilder &HtmlBuilder::dfn_() {
 
 HtmlBuilder &HtmlBuilder::dialog(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<dialog";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<dialog" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("dialog");
     return *this;
 }
@@ -540,11 +512,10 @@ HtmlBuilder &HtmlBuilder::dialog_() {
 
 HtmlBuilder &HtmlBuilder::div(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<div";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<div" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("div");
     return *this;
 }
@@ -559,11 +530,10 @@ HtmlBuilder &HtmlBuilder::div_() {
 
 HtmlBuilder &HtmlBuilder::dl(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<dl";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<dl" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("dl");
     return *this;
 }
@@ -578,11 +548,10 @@ HtmlBuilder &HtmlBuilder::dl_() {
 
 HtmlBuilder &HtmlBuilder::dt(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<dt";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<dt" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("dt");
     return *this;
 }
@@ -597,11 +566,10 @@ HtmlBuilder &HtmlBuilder::dt_() {
 
 HtmlBuilder &HtmlBuilder::em(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<em";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<em" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("em");
     return *this;
 }
@@ -616,11 +584,10 @@ HtmlBuilder &HtmlBuilder::em_() {
 
 HtmlBuilder &HtmlBuilder::embed(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<embed";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<embed" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("embed");
     return *this;
 }
@@ -635,11 +602,10 @@ HtmlBuilder &HtmlBuilder::embed_() {
 
 HtmlBuilder &HtmlBuilder::fieldset(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<fieldset";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<fieldset" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("fieldset");
     return *this;
 }
@@ -654,11 +620,10 @@ HtmlBuilder &HtmlBuilder::fieldset_() {
 
 HtmlBuilder &HtmlBuilder::figcaption(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<figcaption";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<figcaption" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("figcaption");
     return *this;
 }
@@ -673,11 +638,10 @@ HtmlBuilder &HtmlBuilder::figcaption_() {
 
 HtmlBuilder &HtmlBuilder::figure(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<figure";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<figure" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("figure");
     return *this;
 }
@@ -692,11 +656,10 @@ HtmlBuilder &HtmlBuilder::figure_() {
 
 HtmlBuilder &HtmlBuilder::footer(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<footer";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<footer" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("footer");
     return *this;
 }
@@ -711,11 +674,10 @@ HtmlBuilder &HtmlBuilder::footer_() {
 
 HtmlBuilder &HtmlBuilder::form(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<form";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<form" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("form");
     return *this;
 }
@@ -730,11 +692,10 @@ HtmlBuilder &HtmlBuilder::form_() {
 
 HtmlBuilder &HtmlBuilder::h1(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<h1";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<h1" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("h1");
     return *this;
 }
@@ -749,11 +710,10 @@ HtmlBuilder &HtmlBuilder::h1_() {
 
 HtmlBuilder &HtmlBuilder::h2(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<h2";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<h2" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("h2");
     return *this;
 }
@@ -768,11 +728,10 @@ HtmlBuilder &HtmlBuilder::h2_() {
 
 HtmlBuilder &HtmlBuilder::h3(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<h3";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<h3" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("h3");
     return *this;
 }
@@ -787,11 +746,10 @@ HtmlBuilder &HtmlBuilder::h3_() {
 
 HtmlBuilder &HtmlBuilder::h4(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<h4";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<h4" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("h4");
     return *this;
 }
@@ -806,11 +764,10 @@ HtmlBuilder &HtmlBuilder::h4_() {
 
 HtmlBuilder &HtmlBuilder::h5(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<h5";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<h5" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("h5");
     return *this;
 }
@@ -825,11 +782,10 @@ HtmlBuilder &HtmlBuilder::h5_() {
 
 HtmlBuilder &HtmlBuilder::h6(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<h6";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<h6" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("h6");
     return *this;
 }
@@ -844,11 +800,10 @@ HtmlBuilder &HtmlBuilder::h6_() {
 
 HtmlBuilder &HtmlBuilder::head(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<head";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<head" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("head");
     return *this;
 }
@@ -863,11 +818,10 @@ HtmlBuilder &HtmlBuilder::head_() {
 
 HtmlBuilder &HtmlBuilder::header(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<header";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<header" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("header");
     return *this;
 }
@@ -882,11 +836,10 @@ HtmlBuilder &HtmlBuilder::header_() {
 
 HtmlBuilder &HtmlBuilder::hr(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<hr";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<hr" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("hr");
     return *this;
 }
@@ -901,11 +854,10 @@ HtmlBuilder &HtmlBuilder::hr_() {
 
 HtmlBuilder &HtmlBuilder::html(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<html";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<html" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("html");
     return *this;
 }
@@ -920,11 +872,10 @@ HtmlBuilder &HtmlBuilder::html_() {
 
 HtmlBuilder &HtmlBuilder::i(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<i";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<i" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("i");
     return *this;
 }
@@ -939,11 +890,10 @@ HtmlBuilder &HtmlBuilder::i_() {
 
 HtmlBuilder &HtmlBuilder::iframe(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<iframe";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<iframe" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("iframe");
     return *this;
 }
@@ -958,11 +908,10 @@ HtmlBuilder &HtmlBuilder::iframe_() {
 
 HtmlBuilder &HtmlBuilder::img(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<img";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<img" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("img");
     return *this;
 }
@@ -977,21 +926,19 @@ HtmlBuilder &HtmlBuilder::img_() {
 
 HtmlBuilder &HtmlBuilder::input(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<input";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<input" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     return *this;
 }
 
 HtmlBuilder &HtmlBuilder::ins(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<ins";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<ins" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("ins");
     return *this;
 }
@@ -1006,11 +953,10 @@ HtmlBuilder &HtmlBuilder::ins_() {
 
 HtmlBuilder &HtmlBuilder::kbd(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<kbd";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<kbd" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("kbd");
     return *this;
 }
@@ -1025,11 +971,10 @@ HtmlBuilder &HtmlBuilder::kbd_() {
 
 HtmlBuilder &HtmlBuilder::label(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<label";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<label" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("label");
     return *this;
 }
@@ -1044,11 +989,10 @@ HtmlBuilder &HtmlBuilder::label_() {
 
 HtmlBuilder &HtmlBuilder::legend(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<legend";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<legend" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("legend");
     return *this;
 }
@@ -1063,11 +1007,10 @@ HtmlBuilder &HtmlBuilder::legend_() {
 
 HtmlBuilder &HtmlBuilder::li(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<li";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<li" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("li");
     return *this;
 }
@@ -1082,11 +1025,10 @@ HtmlBuilder &HtmlBuilder::li_() {
 
 HtmlBuilder &HtmlBuilder::link(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<link";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<link" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     return *this;
 }
 
@@ -1100,11 +1042,10 @@ HtmlBuilder &HtmlBuilder::link_() {
 
 HtmlBuilder &HtmlBuilder::main(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<main";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<main" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("main");
     return *this;
 }
@@ -1119,11 +1060,10 @@ HtmlBuilder &HtmlBuilder::main_() {
 
 HtmlBuilder &HtmlBuilder::map(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<map";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<map" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("map");
     return *this;
 }
@@ -1138,11 +1078,10 @@ HtmlBuilder &HtmlBuilder::map_() {
 
 HtmlBuilder &HtmlBuilder::mark(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<mark";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<mark" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("mark");
     return *this;
 }
@@ -1157,11 +1096,10 @@ HtmlBuilder &HtmlBuilder::mark_() {
 
 HtmlBuilder &HtmlBuilder::meta(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<meta";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<meta" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("meta");
     return *this;
 }
@@ -1176,11 +1114,10 @@ HtmlBuilder &HtmlBuilder::meta_() {
 
 HtmlBuilder &HtmlBuilder::meter(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<meter";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<meter" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("meter");
     return *this;
 }
@@ -1195,11 +1132,10 @@ HtmlBuilder &HtmlBuilder::meter_() {
 
 HtmlBuilder &HtmlBuilder::nav(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<nav";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<nav" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("nav");
     return *this;
 }
@@ -1214,11 +1150,10 @@ HtmlBuilder &HtmlBuilder::nav_() {
 
 HtmlBuilder &HtmlBuilder::noscript(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<noscript";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<noscript" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("noscript");
     return *this;
 }
@@ -1233,11 +1168,10 @@ HtmlBuilder &HtmlBuilder::noscript_() {
 
 HtmlBuilder &HtmlBuilder::object(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<object";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<object" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("object");
     return *this;
 }
@@ -1252,11 +1186,10 @@ HtmlBuilder &HtmlBuilder::object_() {
 
 HtmlBuilder &HtmlBuilder::ol(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<ol";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<ol" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("ol");
     return *this;
 }
@@ -1271,11 +1204,10 @@ HtmlBuilder &HtmlBuilder::ol_() {
 
 HtmlBuilder &HtmlBuilder::optgroup(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<optgroup";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<optgroup" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("optgroup");
     return *this;
 }
@@ -1290,11 +1222,10 @@ HtmlBuilder &HtmlBuilder::optgroup_() {
 
 HtmlBuilder &HtmlBuilder::option(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<option";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<option" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("option");
     return *this;
 }
@@ -1309,11 +1240,10 @@ HtmlBuilder &HtmlBuilder::option_() {
 
 HtmlBuilder &HtmlBuilder::output(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<output";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<output" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("output");
     return *this;
 }
@@ -1328,11 +1258,10 @@ HtmlBuilder &HtmlBuilder::output_() {
 
 HtmlBuilder &HtmlBuilder::p(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<p";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<p" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("p");
     return *this;
 }
@@ -1347,11 +1276,10 @@ HtmlBuilder &HtmlBuilder::p_() {
 
 HtmlBuilder &HtmlBuilder::param(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<param";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<param" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("param");
     return *this;
 }
@@ -1366,11 +1294,10 @@ HtmlBuilder &HtmlBuilder::param_() {
 
 HtmlBuilder &HtmlBuilder::picture(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<picture";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<picture" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("picture");
     return *this;
 }
@@ -1385,11 +1312,10 @@ HtmlBuilder &HtmlBuilder::picture_() {
 
 HtmlBuilder &HtmlBuilder::pre(
     const std::unordered_map<std::string, std::string> &attributes) {
-    std::string attributesString = "";
+    m_html += "<pre";
     for (auto &attribute : attributes)
-        attributesString +=
-            " " + attribute.first + "=\"" + attribute.second + "\"";
-    m_html += "<pre" + attributesString + ">";
+        m_html += " " + attribute.first + "=\"" + attribute.second + "\"";
+    m_html += ">";
     m_tags.push("pre");
     return *this;
 }

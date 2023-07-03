@@ -18,15 +18,10 @@ set(CMAKE_CXX_STANDARD 20)
 find_package(Threads REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(nlohmann_json 3.2.0 REQUIRED)
+find_package(SQLite3 REQUIRED)
 
-target_link_libraries(WebServer PRIVATE Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json)
+target_link_libraries(WebServer PRIVATE Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json ${SQLite3_LIBRARIES})
 target_include_directories(WebServer PUBLIC ./)
-
-
-# add assets folder
-file(COPY utils DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY api DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY public DESTINATION ${CMAKE_BINARY_DIR})
 
 # add optimization flags
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
