@@ -68,7 +68,11 @@
     "bitset": "cpp",
     "regex": "cpp",
     "set": "cpp",
-    "list": "cpp"
+    "list": "cpp",
+    "future": "cpp",
+    "variant": "cpp",
+    "stack": "cpp",
+    "unordered_set": "cpp"
   },
   "files.exclude": {
     "**/.svn": true,

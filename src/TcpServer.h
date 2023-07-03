@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "HtmlBuilder.h"
 #include "HttpRequestHeader.h"
 #include "Middleware.h"
 #include "Request.h"

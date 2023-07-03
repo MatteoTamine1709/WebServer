@@ -11,5 +11,6 @@
     "no-stdout": false,
     "timestamp": true
   },
-  "watch": false
+  "numberOfThread": 15,
+  "watch": true
 }
