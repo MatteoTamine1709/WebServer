@@ -15,13 +15,14 @@ class TcpConnection {
     ~TcpConnection();
 
     std::string read();
+    std::string read(size_t size);
     void write(const std::string& message);
 
     bool isOpen() const;
 
    private:
     int m_socket;
-    std::array<char, 4 * ONE_MEGABYTE> m_buffer;
+    std::vector<char> m_buffer;
 };
 
 #endif

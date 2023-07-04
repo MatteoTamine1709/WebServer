@@ -35,7 +35,7 @@ HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
         int contentLength = std::stoi(m_headers["Content-Length"]);
         size_t body_pos = header.find("\r\n\r\n");
         if (body_pos != std::string::npos) {
-            m_body = header.substr(body_pos + 4);
+            m_body = header.substr(body_pos + 4, contentLength);
         }
     }
     std::vector<std::string> urlParts = utils::split(route, {"?"});
@@ -204,8 +204,13 @@ void HttpRequestHeader::setHeader(const std::string_view& key,
 
 void HttpRequestHeader::setBody(const std::string_view& body) { m_body = body; }
 
-void HttpRequestHeader::complete() {
+void HttpRequestHeader::complete(TcpConnection& connection) {
     if (getProtocol().empty()) setProtocol("HTTP/1.1");
+    if (!getHeader("Content-Length")) return;
+    int contentLength = std::stoi(m_headers["Content-Length"]);
+    if (contentLength == 0) return;
+    if (m_body.size() == contentLength) return;
+    setBody(connection.read(contentLength));
 }
 
 // Operators

@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "TcpConnection.h"
+
 namespace fs = std::filesystem;
 
 class HttpRequestHeader {
@@ -42,7 +44,7 @@ class HttpRequestHeader {
     void setHeader(const std::string_view& key, const std::string_view& value);
     void setBody(const std::string_view& body);
 
-    void complete();
+    void complete(TcpConnection& connection);
 
     // Operators
     friend std::ostream& operator<<(std::ostream& os,

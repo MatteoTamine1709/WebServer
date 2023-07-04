@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.2"
+      integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h"
+      crossorigin="anonymous"
+    ></script>
+    <title>Search</title>
+  </head>
+  <body>
+    <h1>Upload:</h1>
+    <form id="form" hx-encoding="multipart/form-data" hx-post="/upload">
+      <input type="file" name="file" />
+      <button>Upload</button>
+      <progress id="progress" value="0" max="100"></progress>
+    </form>
+    <script>
+      htmx.on("#form", "htmx:xhr:progress", function (evt) {
+        htmx
+          .find("#progress")
+          .setAttribute("value", (evt.detail.loaded / evt.detail.total) * 100);
+      });
+    </script>
+  </body>
+</html>

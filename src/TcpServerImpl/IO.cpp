@@ -19,7 +19,7 @@ std::optional<HttpRequestHeader> TcpServer::read(TcpConnection &connection) {
     const std::string &data = connection.read();
     if (data.empty()) return std::nullopt;
     HttpRequestHeader header(data);
-    header.complete();
+    header.complete(connection);
 
     return header;
 }

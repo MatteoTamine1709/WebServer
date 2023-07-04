@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include <exception>
+#include <iostream>
 
 TcpConnection::TcpConnection(int socket) : m_socket(socket) {
     spdlog::debug("new connection {}", m_socket);
@@ -14,13 +15,34 @@ TcpConnection::TcpConnection(int socket) : m_socket(socket) {
 TcpConnection::~TcpConnection() { close(m_socket); }
 
 std::string TcpConnection::read() {
-    int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
+    m_buffer.reserve(4 * ONE_MEGABYTE);
+    m_buffer.clear();
+    int bytes = ::read(m_socket, m_buffer.data(), 4 * ONE_MEGABYTE);
     if (bytes == 0 || bytes == -1) {
         close(m_socket);
         spdlog::debug("connection closed {}", m_socket);
         return "";
     }
     return std::string(m_buffer.data(), bytes);
+}
+
+std::string TcpConnection::read(size_t size) {
+    if (size == 0) return "";
+    m_buffer.reserve(size);
+    m_buffer.clear();
+    size_t count = 0;
+    do {
+        std::array<char, 4 * ONE_MEGABYTE> buffer;
+        int bytes = ::read(m_socket, buffer.data(), buffer.size());
+        if (bytes == 0 || bytes == -1) {
+            close(m_socket);
+            spdlog::debug("connection closed {}", m_socket);
+            return "";
+        }
+        m_buffer.insert(m_buffer.end(), buffer.begin(), buffer.begin() + bytes);
+        count += bytes;
+    } while (count < size);
+    return std::string(m_buffer.data(), count);
 }
 
 void TcpConnection::write(const std::string& message) {

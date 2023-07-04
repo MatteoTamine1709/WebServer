@@ -42,8 +42,7 @@ Request::Request(const HttpRequestHeader &header, const TcpServer &server)
         subdomains.push_back(domain);
     xhr = m_headers.find("X-Requested-With") != m_headers.end() &&
           m_headers["X-Requested-With"] == "XMLHttpRequest";
-
-    body = {"blob", header.getBody()};
+    body = {{"blob", header.getBody()}};
     if (m_headers.find("Content-Type") != m_headers.end() &&
         m_headers["Content-Type"].find("application/json") !=
             std::string::npos) {
