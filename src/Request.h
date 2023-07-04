@@ -2,29 +2,31 @@
 #ifndef HTTP_REQUEST_HEADER_INTERFACE_H
 #define HTTP_REQUEST_HEADER_INTERFACE_H
 
+#include <iostream>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
-#include <nlohmann/json.hpp>
 
 // #include "TcpServer.h"
 #include "HttpRequestHeader.h"
 #include "utils.h"
 class TcpServer;
 
-
 class Request {
-private:
+   private:
     typedef struct Range_s {
         std::string type;
         std::vector<std::pair<size_t, size_t>> ranges;
 
-        Range_s(const std::string &type, const std::vector<std::pair<size_t, size_t>> &ranges) : type(type), ranges(ranges) {}
-        Range_s(const std::string &type, size_t start, size_t end) : type(type) {
+        Range_s(const std::string &type,
+                const std::vector<std::pair<size_t, size_t>> &ranges)
+            : type(type), ranges(ranges) {}
+        Range_s(const std::string &type, size_t start, size_t end)
+            : type(type) {
             ranges.emplace_back(start, end);
         }
-        
+
         std::string toString() {
             std::stringstream ss;
             ss << type << "=";
@@ -36,7 +38,9 @@ private:
             return s;
         }
 
-        static std::string toString(const std::string &type, const std::vector<std::pair<size_t, size_t>> &ranges) {
+        static std::string toString(
+            const std::string &type,
+            const std::vector<std::pair<size_t, size_t>> &ranges) {
             std::stringstream ss;
             ss << type << "=";
             for (auto &range : ranges) {
@@ -47,7 +51,8 @@ private:
             return s;
         }
     } Range;
-public:
+
+   public:
     Request(const HttpRequestHeader &header, const TcpServer &server);
     ~Request() = default;
 
@@ -65,8 +70,7 @@ public:
     std::unordered_map<std::string, std::string> params;
     std::string path;
     std::string protocol;
-    std::string query;
-    std::unordered_map<std::string, std::string> querystring;
+    std::unordered_map<std::string, std::string> query;
     std::string route;
     bool secure;
     std::vector<std::string> signedCookies;
@@ -74,9 +78,12 @@ public:
     std::vector<std::string> subdomains;
     bool xhr;
 
-    std::optional<std::string> accepts(const std::vector<std::string> &types) const;
-    std::optional<std::string> acceptsEncodings(const std::vector<std::string> &encodings) const;
-    std::optional<std::string> acceptsLanguages(const std::vector<std::string> &languages) const;
+    std::optional<std::string> accepts(
+        const std::vector<std::string> &types) const;
+    std::optional<std::string> acceptsEncodings(
+        const std::vector<std::string> &encodings) const;
+    std::optional<std::string> acceptsLanguages(
+        const std::vector<std::string> &languages) const;
     std::optional<std::string> get(const std::string &field) const;
     std::optional<std::string> header(const std::string &field) const {
         return get(field);
@@ -85,13 +92,14 @@ public:
 
     std::optional<Range> range(size_t size) const;
 
-private:
+   private:
     struct custom_header_hash {
         inline std::size_t operator()(const std::string &key) const {
             return std::hash<std::string>{}(utils::toLower(key));
         }
     };
-    std::unordered_map<std::string, std::string, custom_header_hash> m_headers = {};
+    std::unordered_map<std::string, std::string, custom_header_hash> m_headers =
+        {};
 };
 
 #endif

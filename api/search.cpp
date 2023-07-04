@@ -13,13 +13,20 @@ void get(const Request &req, Response &res);
 
 void get(const Request &req, Response &res) {
     CssBuilder css{};
-    css.createSelector("#searchResult").addProperty("background-color", "red");
+    css.createSelector("li").addProperty("background-color", "red");
     HtmlBuilder html{};
     html.style().text(css.toString()).style_();
+    html.h3().text("Query").h3_();
     html.ul();
-    for (int i = 0; i < 10; ++i) {
-        html.li().text("Item " + req.params.at("query")).li_();
-    }
+    for (const auto &[key, value] : req.query)
+        html.li().text(key + ": " + value).li_();
     html.ul_();
+
+    html.h3().text("Parameters").h3_();
+    html.ul();
+    for (const auto &[key, value] : req.params)
+        html.li().text(key + ": " + value).li_();
+    html.ul_();
+
     res.send(html.toString());
 }

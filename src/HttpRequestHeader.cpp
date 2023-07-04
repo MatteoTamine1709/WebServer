@@ -1,11 +1,11 @@
 #include "HttpRequestHeader.h"
-#include "utils.h"
 
-#include <sstream>
 #include <algorithm>
 #include <filesystem>
-
 #include <iostream>
+#include <sstream>
+
+#include "utils.h"
 
 // TODO: Refactor this constructor regarding the body
 HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
@@ -19,15 +19,13 @@ HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
     std::getline(issRequestLine, route, ' ');
     std::getline(issRequestLine, m_protocol, '\r');
     while (std::getline(issHeader, line)) {
-        if (line.empty())
-            break;
+        if (line.empty()) break;
         std::istringstream issHeaderInfo(line);
         std::string key;
         std::getline(issHeaderInfo, key, ':');
         std::string value;
         std::getline(issHeaderInfo, value);
-        if (utils::startsWith(value, " "))
-            value = value.substr(1);
+        if (utils::startsWith(value, " ")) value = value.substr(1);
         value.erase(std::remove(value.begin(), value.end(), '\n'), value.end());
         value.erase(std::remove(value.begin(), value.end(), '\r'), value.end());
         m_headers[key] = value;
@@ -43,52 +41,40 @@ HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
     std::vector<std::string> urlParts = utils::split(route, {"?"});
     m_url = fs::weakly_canonical(urlParts[0]);
     if (m_url.string().back() == '/')
-        m_url = m_url.string().substr(0, m_url.string().length() - 1);
+        m_url = m_url.string().substr(0, m_url.string().size() - 1);
     m_path = m_url;
     m_route = m_url;
-    if (m_route.string().empty())
-        m_route = "/";
+    if (m_route.string().empty()) m_route = "/";
 
     if (urlParts.size() > 1) {
-        std::vector<std::string> parameters = utils::split(urlParts[1], {"&"});
-        for (const std::string& parameter : parameters) {
-            std::vector<std::string> parameterParts = utils::split(parameter, {"="});
-            if (parameterParts.size() > 1)
-                m_parameters[parameterParts[0]] = parameterParts[1];
+        std::vector<std::string> queries = utils::split(urlParts[1], {"&"});
+        for (const std::string& query : queries) {
+            std::vector<std::string> queryParts = utils::split(query, {"="});
+            if (queryParts.size() > 1) m_queries[queryParts[0]] = queryParts[1];
         }
     }
-    
 }
 
-std::string_view HttpRequestHeader::getMethod() const {
-    return m_method;
-}
+std::string_view HttpRequestHeader::getMethod() const { return m_method; }
 
-fs::path HttpRequestHeader::getPath() const {
-    return m_path;
-}
+fs::path HttpRequestHeader::getPath() const { return m_path; }
 
-fs::path HttpRequestHeader::getRoute() const {
-    return m_route;
-}
+fs::path HttpRequestHeader::getRoute() const { return m_route; }
 
-std::string_view HttpRequestHeader::getProtocol() const {
-    return m_protocol;
-}
+std::string_view HttpRequestHeader::getProtocol() const { return m_protocol; }
 
-std::optional<std::string_view> HttpRequestHeader::getHeader(const std::string_view& key) const {
-    if (m_headers.find(key.data()) == m_headers.end())
-        return std::nullopt;
+std::optional<std::string_view> HttpRequestHeader::getHeader(
+    const std::string_view& key) const {
+    if (m_headers.find(key.data()) == m_headers.end()) return std::nullopt;
     return m_headers.at(key.data());
 }
 
-const std::unordered_map<std::string, std::string>& HttpRequestHeader::getHeaders() const {
+const std::unordered_map<std::string, std::string>&
+HttpRequestHeader::getHeaders() const {
     return m_headers;
 }
 
-fs::path HttpRequestHeader::getUrl() const {
-    return m_url;
-}
+fs::path HttpRequestHeader::getUrl() const { return m_url; }
 
 std::string_view HttpRequestHeader::getRemoteAddress() const {
     if (m_headers.find("Remote-Address") != m_headers.end())
@@ -122,18 +108,23 @@ std::string_view HttpRequestHeader::getContentType() const {
     return "";
 }
 
-std::string_view HttpRequestHeader::getBody() const {
-    return m_body;
-}
+std::string_view HttpRequestHeader::getBody() const { return m_body; }
 
-std::optional<std::string_view> HttpRequestHeader::getParameter(const std::string_view& key) const {
+std::optional<std::string_view> HttpRequestHeader::getParameter(
+    const std::string_view& key) const {
     if (m_parameters.find(key.data()) == m_parameters.end())
         return std::nullopt;
     return m_parameters.at(key.data());
 }
 
-const std::unordered_map<std::string, std::string>& HttpRequestHeader::getParameters() const {
+const std::unordered_map<std::string, std::string>&
+HttpRequestHeader::getParameters() const {
     return m_parameters;
+}
+
+const std::unordered_map<std::string, std::string>&
+HttpRequestHeader::getQueries() const {
+    return m_queries;
 }
 
 bool HttpRequestHeader::isEndpoint() const {
@@ -144,9 +135,59 @@ void HttpRequestHeader::setPath(const std::string_view& path) {
     m_path = fs::weakly_canonical(path);
 }
 
-bool HttpRequestHeader::isPathValid() const {
-    return fs::exists(m_path);
+void HttpRequestHeader::setParameters(const fs::path& apiPath) {
+    // Extract url parameters
+
+    // routeParts: entity, aaa
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI,
+    // entity, [id], index.so
+    // id: "aaa"
+
+    // routeParts: entity, aaa, image
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI,
+    // entity, [id], image.so
+    // id: "aaa"
+
+    // routeParts: blog
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI, blog,
+    // [[id]], index.so
+    // id: ""
+
+    // routeParts: blog, ppp
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI, blog,
+    // [[id]], index.so
+    // id: "ppp"
+
+    // routeParts: blog, ppp, mmm
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI, blog,
+    // [[id]], [plop].so
+    // id: "ppp" plop: "mmm"
+    std::string pathStr = m_path.string().substr(apiPath.string().size());
+    std::vector<std::string> routeParts = utils::split(m_route.string(), {"/"});
+    std::vector<std::string> pathParts = utils::split(pathStr, {"/"});
+
+    for (int i = 0; i < pathParts.size(); ++i)
+        if (utils::startsWith(pathParts[i], "[")) {
+            std::string parameterName = pathParts[i];
+            while (utils::startsWith(parameterName, "["))
+                parameterName = parameterName.substr(1);
+            if (utils::startsWith(parameterName, "..."))
+                parameterName = parameterName.substr(3);
+            if (utils::endsWith(parameterName, ".so"))
+                parameterName =
+                    parameterName.substr(0, parameterName.size() - 3);
+            while (utils::endsWith(parameterName, "]"))
+                parameterName =
+                    parameterName.substr(0, parameterName.size() - 1);
+            if (i < routeParts.size()) {
+                m_parameters[parameterName] = routeParts[i];
+            } else {
+                m_parameters[parameterName] = "";
+            }
+        }
 }
+
+bool HttpRequestHeader::isPathValid() const { return fs::exists(m_path); }
 
 bool HttpRequestHeader::isPathDirectory() const {
     return fs::is_directory(m_path);
@@ -156,22 +197,21 @@ void HttpRequestHeader::setProtocol(const std::string_view& protocol) {
     m_protocol = protocol;
 }
 
-void HttpRequestHeader::setHeader(const std::string_view& key, const std::string_view& value) {
+void HttpRequestHeader::setHeader(const std::string_view& key,
+                                  const std::string_view& value) {
     m_headers[key.data()] = value;
 }
 
-void HttpRequestHeader::setBody(const std::string_view& body) {
-    m_body = body;
-}
+void HttpRequestHeader::setBody(const std::string_view& body) { m_body = body; }
 
 void HttpRequestHeader::complete() {
-    if (getProtocol().empty())
-        setProtocol("HTTP/1.1");
+    if (getProtocol().empty()) setProtocol("HTTP/1.1");
 }
 
 // Operators
 std::ostream& operator<<(std::ostream& os, const HttpRequestHeader& header) {
-    os << header.m_method << " " << header.m_path << " " << header.m_protocol << std::endl;
+    os << header.m_method << " " << header.m_path << " " << header.m_protocol
+       << std::endl;
     for (const auto& [key, value] : header.m_headers) {
         os << key << ": " << value << std::endl;
     }

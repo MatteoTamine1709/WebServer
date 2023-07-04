@@ -139,6 +139,7 @@ Response TcpServer::handleRequest(HttpRequestHeader &request) {
     }
     spdlog::debug("Found correct path {}", correctPath.value());
     request.setPath(correctPath.value());
+    request.setParameters(m_apiFolder);
     // response.complete(request);
     return handleEndpoint(request);
 }
