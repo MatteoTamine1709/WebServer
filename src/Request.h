@@ -2,6 +2,11 @@
 #ifndef HTTP_REQUEST_HEADER_INTERFACE_H
 #define HTTP_REQUEST_HEADER_INTERFACE_H
 
+#include <spdlog/spdlog.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -10,9 +15,9 @@
 
 // #include "TcpServer.h"
 #include "HttpRequestHeader.h"
+#include "StreamFile.h"
 #include "utils.h"
 class TcpServer;
-
 class Request {
    private:
     typedef struct Range_s {
@@ -77,6 +82,8 @@ class Request {
     bool stale;
     std::vector<std::string> subdomains;
     bool xhr;
+    std::unordered_map<std::string, StreamFile> files;
+    StreamFile tmpFile;
 
     std::optional<std::string> accepts(
         const std::vector<std::string> &types) const;
@@ -100,6 +107,7 @@ class Request {
     };
     std::unordered_map<std::string, std::string, custom_header_hash> m_headers =
         {};
+    int m_socket = -1;
 };
 
 #endif

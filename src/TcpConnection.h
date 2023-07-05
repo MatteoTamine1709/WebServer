@@ -1,13 +1,12 @@
 #ifndef HTTP_TCP_CONNECTION_H
 #define HTTP_TCP_CONNECTION_H
 
-#include <memory>
-#include <mutex>
+#include <array>
+#include <fstream>
 #include <string>
-#include <thread>
-#include <vector>
 
 #include "Constants.h"
+#include "StreamFile.h"
 
 class TcpConnection {
    public:
@@ -15,14 +14,14 @@ class TcpConnection {
     ~TcpConnection();
 
     std::string read();
-    std::string read(size_t size);
+    StreamFile readTmp(size_t size);
     void write(const std::string& message);
 
     bool isOpen() const;
 
    private:
     int m_socket;
-    std::vector<char> m_buffer;
+    std::array<char, 4 * ONE_MEGABYTE> m_buffer;
 };
 
 #endif

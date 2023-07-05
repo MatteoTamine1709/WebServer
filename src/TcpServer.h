@@ -1,6 +1,7 @@
 #ifndef HTTP_TCP_SERVER_H
 #define HTTP_TCP_SERVER_H
 
+#include <dlfcn.h>
 #include <spdlog/common.h>
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/spdlog.h>
@@ -8,6 +9,7 @@
 #include <array>
 #include <csignal>
 #include <filesystem>
+#include <map>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -39,7 +41,7 @@ class TcpServer {
    private:
     typedef std::string Endpoint;
     typedef std::string Method;
-    typedef void (*endpoint_t)(const Request &, Response &);
+    typedef void (*endpoint_t)(Request &, Response &);
     typedef std::unordered_map<Method, endpoint_t> EndpointMethods;
 
     TcpServer();
@@ -56,10 +58,11 @@ class TcpServer {
     void registerSignals(std::vector<int> signals);
     void handleSignal(int signum, siginfo_t *info, void *contex);
     void handleCommands();
+    void registerMiddleware(const fs::path &path);
     void registerMiddlewares();
-    void runMiddleware(const Request &request, Response &response,
+    void runMiddleware(Request &request, Response &response,
                        std::stack<Middleware_t> &middlewareStack);
-    void callMiddleware(const Request &request, Response &response,
+    void callMiddleware(Request &request, Response &response,
                         endpoint_t endpoint);
     void reloadMiddleware(const std::string &path);
 
@@ -90,11 +93,72 @@ class TcpServer {
     void help();
 
     // Middlewares
-    std::unordered_map<std::string, std::string> m_middlewarePathToName;
-    std::unordered_map<std::string, Middleware_t> m_middlewares;
-    std::unordered_map<std::string, void *> m_middlewareLibraries;
-    std::vector<std::pair<std::string, std::vector<std::string>>>
-        m_middlewareMatcher;
+    typedef struct MiddlewareInfo_s {
+       private:
+        void *m_library = nullptr;
+        fs::path m_path;
+
+       public:
+        std::string name;
+        Middleware_t func = nullptr;
+        MiddlewareUseFunc_t useFunc = nullptr;
+        MiddlewareNameFunc_t nameFunc = nullptr;
+
+        MiddlewareInfo_s() = default;
+
+        MiddlewareInfo_s(const fs::path &path) { open(path); }
+
+        bool open(const fs::path &path) {
+            m_path = path;
+            m_library = dlopen(m_path.string().c_str(), RTLD_NOW | RTLD_LOCAL);
+            if (!m_library) {
+                spdlog::error("Failed to load middleware {}: {}",
+                              m_path.filename().string(), dlerror());
+                return false;
+            }
+            useFunc = (MiddlewareUseFunc_t)(dlsym(m_library, "use"));
+            nameFunc = (MiddlewareNameFunc_t)(dlsym(m_library, "name"));
+            if (!useFunc || !nameFunc) {
+                spdlog::error("Failed to load middleware {}: {}",
+                              m_path.filename().string(), dlerror());
+                return false;
+            }
+            auto [routes, middlewareNames] = useFunc();
+            name = nameFunc();
+            spdlog::debug("Registering middleware {} for routes {}", nameFunc(),
+                          utils::join(routes, ", "));
+            func = (Middleware_t)(dlsym(m_library, nameFunc().c_str()));
+            if (!func) {
+                spdlog::error("Failed to load middleware {}: {}",
+                              m_path.filename().string(), dlerror());
+                return false;
+            }
+            return true;
+        }
+
+        bool open() { return open(m_path); }
+
+        bool close() {
+            if (!m_library) return false;
+            int v = dlclose(m_library);
+            func = nullptr;
+            useFunc = nullptr;
+            nameFunc = nullptr;
+            m_library = nullptr;
+            return v;
+        }
+
+        bool reload() {
+            spdlog::info("Reloading middleware {}", name);
+            close();
+            return open();
+        }
+    } MiddlewareInfo;
+    typedef std::string Path;
+    std::unordered_map<Path, MiddlewareInfo> m_middlewares;
+    typedef std::string RouteRegex;
+    typedef std::vector<std::string> Paths;
+    std::vector<std::pair<RouteRegex, Paths>> m_middlewareMatcher;
 
     std::unordered_map<Endpoint, std::pair<void *, EndpointMethods>>
         m_endpoints;

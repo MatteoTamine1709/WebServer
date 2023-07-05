@@ -2,6 +2,7 @@
 #define HTTP_REQUEST_HEADER_H
 
 #include <filesystem>
+#include <functional>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -49,6 +50,8 @@ class HttpRequestHeader {
     // Operators
     friend std::ostream& operator<<(std::ostream& os,
                                     const HttpRequestHeader& header);
+
+    StreamFile tmpFile;
 
    private:
     std::string m_method;

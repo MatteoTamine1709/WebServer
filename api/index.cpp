@@ -6,9 +6,9 @@
 #include "src/Response.h"
 
 extern "C" {
-void get(const Request &req, Response &res);
+void get(Request &req, Response &res);
 }
 
-void get(const Request &req, Response &res) {
+void get(Request &req, Response &res) {
     res.sendFile("./app/dist/index.html");
 }

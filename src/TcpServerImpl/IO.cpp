@@ -163,7 +163,7 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
         lib = m_endpoints[request.getPath()].first;
     } else {
         spdlog::debug("Loading library {}", request.getPath().string());
-        lib = dlopen(request.getPath().c_str(), RTLD_LAZY);
+        lib = dlopen(request.getPath().c_str(), RTLD_NOW | RTLD_LOCAL);
         if (!lib) {
             SPDLOG_ERROR("Cannot open library: {}", dlerror());
             Response response(Request(request, getInstance()), getInstance());

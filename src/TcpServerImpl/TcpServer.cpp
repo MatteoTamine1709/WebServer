@@ -84,7 +84,7 @@ TcpServer::TcpServer() {
 
 TcpServer::~TcpServer() {
     for (const auto& [_path, lib] : m_endpoints) dlclose(lib.first);
-    for (const auto& [_path, lib] : m_middlewareLibraries) dlclose(lib);
+    for (auto& [_path, middlewareInfo] : m_middlewares) middlewareInfo.close();
     close(m_socket);
     close(m_pipeWatchFD);
 }
