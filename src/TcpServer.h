@@ -110,8 +110,6 @@ class TcpServer {
 
         bool open(const fs::path &path) {
             m_path = path;
-            std::cout << "I AM OPENING THIS SHIT " << m_path.string().c_str()
-                      << std::endl;
             m_library = dlopen(m_path.string().c_str(), RTLD_NOW | RTLD_LOCAL);
             if (!m_library) {
                 spdlog::error("Failed to load middleware {}: {}",
@@ -133,8 +131,8 @@ class TcpServer {
                               m_path.filename().string(), dlerror());
                 return false;
             }
-            spdlog::info("Registering middleware {} for routes {} at {}",
-                         nameFunc(), utils::join(routes, ", "), m_library);
+            SPDLOG_INFO("Registering middleware {} for routes {} at {}",
+                        nameFunc(), utils::join(routes, ", "), m_library);
             return true;
         }
 
@@ -142,7 +140,7 @@ class TcpServer {
 
         bool close() {
             if (!m_library) return false;
-            spdlog::info("Closing middleware {}, {}", name, m_library);
+            SPDLOG_INFO("Closing middleware {}, {}", name, m_library);
             if (dlclose(m_library)) {
                 spdlog::error("Failed to close middleware {}: {}", name,
                               dlerror());
@@ -156,7 +154,7 @@ class TcpServer {
         }
 
         bool reload() {
-            spdlog::info("Reloading middleware {}", name);
+            SPDLOG_INFO("Reloading middleware {}", name);
             close();
             return open();
         }

@@ -112,14 +112,9 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
 }
 
 Response TcpServer::handleRequest(HttpRequestHeader &request) {
-    // spdlog::debug("Request path: {} {}", request.getMethod(),
-    // request.getPath().string());
     if (request.getMethod() == "get" && !request.isEndpoint()) {
-        // spdlog::debug("Public folder: {}", m_publicFolder.string());
         request.setPath(
             (m_publicFolder / request.getPath().relative_path()).string());
-        // spdlog::debug("Request path: {} {}", request.getMethod(),
-        // request.getPath().string());
         if (!request.isPathValid()) {
             auto resp =
                 Response(Request(request, getInstance()), getInstance());

@@ -15,8 +15,6 @@ TcpConnection::TcpConnection(int socket) : m_socket(socket) {
 TcpConnection::~TcpConnection() { close(m_socket); }
 
 std::string TcpConnection::read() {
-    // m_buffer.reserve(4 * ONE_MEGABYTE);
-    // m_buffer.clear();
     int bytes = ::read(m_socket, m_buffer.data(), 4 * ONE_MEGABYTE);
     if (bytes == 0 || bytes == -1) {
         close(m_socket);
@@ -28,8 +26,6 @@ std::string TcpConnection::read() {
 
 StreamFile TcpConnection::readTmp(size_t size) {
     if (size == 0) return StreamFile();
-    // std::string tmpFilePath = "/tmp/http-tmp-" +
-    // std::to_string(time(nullptr)); std::ofstream tmpFile(tmpFilePath);
     StreamFile tmpFile;
     size_t count = 0;
     do {
@@ -52,8 +48,6 @@ void TcpConnection::write(const std::string& message) {
     if (bytes == -1)
         throw std::runtime_error("send() failed: " +
                                  std::string(strerror(errno)));
-    // if (bytes > 0)
-    // spdlog::debug("sent {} bytes from {}", bytes, message.size());
 }
 
 bool TcpConnection::isOpen() const {

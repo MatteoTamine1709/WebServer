@@ -31,6 +31,7 @@ void TcpServer::registerMiddleware(const fs::path &middlewareFilePath) {
               [](const auto &a, const auto &b) {
                   return utils::isRegexSubset(a.first, b.first);
               });
+    spdlog::debug("Middleware matcher list:");
     for (const auto &middleware : m_middlewares) {
         spdlog::debug("Middleware {} {}", middleware.second.name,
                       (void *)middleware.second.func);
@@ -53,8 +54,6 @@ void TcpServer::runMiddleware(Request &request, Response &response,
         runMiddleware(request, response, middlewareStack);
     };
     std::function<void()> next = lambda;
-    std::cout << "Running middleware " << (void *)middlewareStack.top()
-              << std::endl;
     middlewareStack.top()(request, response, next);
 }
 
@@ -64,8 +63,6 @@ void TcpServer::callMiddleware(Request &request, Response &response,
     std::stack<Middleware_t> middlewareStack;
     size_t i = 0;
     for (i = 0; i < m_middlewareMatcher.size(); ++i) {
-        std::cout << request.path << ", " << m_middlewareMatcher[i].first
-                  << std::endl;
         if (utils::isRegexSubset(request.path, m_middlewareMatcher[i].first)) {
             for (size_t j = 0; j < m_middlewareMatcher[i].second.size(); ++j) {
                 if (middlewareSet.find(m_middlewareMatcher[i].second[j]) !=
@@ -74,14 +71,9 @@ void TcpServer::callMiddleware(Request &request, Response &response,
                 middlewareSet.insert(m_middlewareMatcher[i].second[j]);
                 middlewareStack.push(
                     m_middlewares[m_middlewareMatcher[i].second[j]].func);
-                spdlog::debug(
-                    "Middleware {} {}", m_middlewareMatcher[i].second.size(),
-                    (void *)m_middlewares[m_middlewareMatcher[i].second[j]]
-                        .func);
             }
         }
     }
-    spdlog::debug("Number of middlewares: {}", middlewareStack.size());
     runMiddleware(request, response, middlewareStack);
     if (!response.headersSent) endpoint(request, response);
 }

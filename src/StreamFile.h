@@ -104,8 +104,7 @@ typedef struct StreamFile_s {
 
     void write(const char *s, size_t bytes) {
         if (m_file != NULL) {
-            std::cout << "Written " << fwrite(s, sizeof(char), bytes, m_file)
-                      << std::endl;
+            fwrite(s, sizeof(char), bytes, m_file);
         }
     }
 

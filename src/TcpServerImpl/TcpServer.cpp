@@ -129,8 +129,8 @@ void TcpServer::accept() {
     if (clientSocket == -1 && errno != EINTR)
         throw std::runtime_error("accept() failed: " +
                                  std::string(strerror(errno)));
-    spdlog::info("New connection from {}:{}", inet_ntoa(client.sin_addr),
-                 ntohs(client.sin_port));
+    SPDLOG_INFO("New connection from {}:{}", inet_ntoa(client.sin_addr),
+                ntohs(client.sin_port));
     m_connectionMutex.lock();
     m_numberOfConnection++;
     m_connectionMutex.unlock();
