@@ -9,6 +9,7 @@ use() {
 }
 
 extern "C" void zzz(Request &req, Response &res, Next_t next) {
+    std::cout << "ZZZ TI AMO POR FAVOR SVP PLEASE" << std::endl;
     // std::string contentType = req.header("Content-Type").value_or("");
     // if (contentType.find("multipart/form-data") == std::string::npos)
     //     return next();

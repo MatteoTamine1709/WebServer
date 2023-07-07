@@ -20,6 +20,8 @@ find_package(spdlog REQUIRED)
 find_package(nlohmann_json 3.2.0 REQUIRED)
 find_package(SQLite3 REQUIRED)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-gnu-unique")
+
 target_link_libraries(WebServer PRIVATE Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json ${SQLite3_LIBRARIES})
 target_include_directories(WebServer PUBLIC ./)
 

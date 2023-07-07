@@ -110,6 +110,8 @@ class TcpServer {
 
         bool open(const fs::path &path) {
             m_path = path;
+            std::cout << "I AM OPENING THIS SHIT " << m_path.string().c_str()
+                      << std::endl;
             m_library = dlopen(m_path.string().c_str(), RTLD_NOW | RTLD_LOCAL);
             if (!m_library) {
                 spdlog::error("Failed to load middleware {}: {}",
@@ -125,14 +127,14 @@ class TcpServer {
             }
             auto [routes, middlewareNames] = useFunc();
             name = nameFunc();
-            spdlog::debug("Registering middleware {} for routes {}", nameFunc(),
-                          utils::join(routes, ", "));
             func = (Middleware_t)(dlsym(m_library, nameFunc().c_str()));
             if (!func) {
                 spdlog::error("Failed to load middleware {}: {}",
                               m_path.filename().string(), dlerror());
                 return false;
             }
+            spdlog::info("Registering middleware {} for routes {} at {}",
+                         nameFunc(), utils::join(routes, ", "), m_library);
             return true;
         }
 
@@ -140,12 +142,17 @@ class TcpServer {
 
         bool close() {
             if (!m_library) return false;
-            int v = dlclose(m_library);
+            spdlog::info("Closing middleware {}, {}", name, m_library);
+            if (dlclose(m_library)) {
+                spdlog::error("Failed to close middleware {}: {}", name,
+                              dlerror());
+                return false;
+            }
             func = nullptr;
             useFunc = nullptr;
             nameFunc = nullptr;
             m_library = nullptr;
-            return v;
+            return true;
         }
 
         bool reload() {
@@ -166,9 +173,9 @@ class TcpServer {
     // Config
     std::string m_host = "localhost";
     std::string m_port = "8081";
-    fs::path m_apiFolder = "./api";
-    fs::path m_publicFolder = "./public";
-    fs::path m_middlewareFolder = "./__middleware__";
+    fs::path m_apiFolder = fs::weakly_canonical("./api");
+    fs::path m_publicFolder = fs::weakly_canonical("./public");
+    fs::path m_middlewareFolder = fs::weakly_canonical("./api/__middleware__");
     uint32_t m_threadCount = 10;
     bool m_watch = false;
 
