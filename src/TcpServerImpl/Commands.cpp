@@ -27,6 +27,6 @@ void TcpServer::handleCommands() {
         if (m_commands.find(command) != m_commands.end())
             (this->*m_commands[command])();
         else
-            spdlog::error("Unknown command: {}", command);
+            SPDLOG_ERROR("Unknown command: {}", command);
     }
 }

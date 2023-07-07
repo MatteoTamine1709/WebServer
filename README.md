@@ -1,5 +1,14 @@
 # WebServer
 
+## TODOs
+
+- [ ] This Readme
+- [ ] Indexer of pages
+- [ ] Communicate with sqlite database from config file
+- [ ] Interface to view different type of files (images, videos, pdf, txt, ...)
+- [ ] For videos, use dash and stream the video
+- [ ] Use ffmpeg to convert videos to dash format to have multiple quality of the video
+
 ## Stuff I wanna do
 
 - Tools:
@@ -94,7 +103,9 @@ As of right now, we are loading the endpoints from compiled shared library in ea
 - [x] Adding ETag support [Reference](https://stackoverflow.com/questions/4533/http-generating-etag-header)
 - Support a maximum of header fields see [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers)
 
-### 🔗[HotReload](https://github.com/MatteoTamine1709/CppHotReloader)
+### HotReload
+
+- 🔗[Github](https://github.com/MatteoTamine1709/CppHotReloader)
 
 We now have a HotReloader projet which is able to watch for changes in the `api` folder and rebuild the shared library. We are now able to reload the endpoints without having to restart the server.
 It works by watching for changes in the `api` folder and then rebuild the shared library. It then sends a signal to the server to reload the endpoints.

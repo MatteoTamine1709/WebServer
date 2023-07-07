@@ -112,23 +112,23 @@ class TcpServer {
             m_path = path;
             m_library = dlopen(m_path.string().c_str(), RTLD_NOW | RTLD_LOCAL);
             if (!m_library) {
-                spdlog::error("Failed to load middleware {}: {}",
-                              m_path.filename().string(), dlerror());
+                SPDLOG_ERROR("Failed to load middleware {}: {}",
+                             m_path.filename().string(), dlerror());
                 return false;
             }
             useFunc = (MiddlewareUseFunc_t)(dlsym(m_library, "use"));
             nameFunc = (MiddlewareNameFunc_t)(dlsym(m_library, "name"));
             if (!useFunc || !nameFunc) {
-                spdlog::error("Failed to load middleware {}: {}",
-                              m_path.filename().string(), dlerror());
+                SPDLOG_ERROR("Failed to load middleware {}: {}",
+                             m_path.filename().string(), dlerror());
                 return false;
             }
             auto [routes, middlewareNames] = useFunc();
             name = nameFunc();
             func = (Middleware_t)(dlsym(m_library, nameFunc().c_str()));
             if (!func) {
-                spdlog::error("Failed to load middleware {}: {}",
-                              m_path.filename().string(), dlerror());
+                SPDLOG_ERROR("Failed to load middleware {}: {}",
+                             m_path.filename().string(), dlerror());
                 return false;
             }
             SPDLOG_INFO("Registering middleware {} for routes {} at {}",
@@ -142,8 +142,8 @@ class TcpServer {
             if (!m_library) return false;
             SPDLOG_INFO("Closing middleware {}, {}", name, m_library);
             if (dlclose(m_library)) {
-                spdlog::error("Failed to close middleware {}: {}", name,
-                              dlerror());
+                SPDLOG_ERROR("Failed to close middleware {}: {}", name,
+                             dlerror());
                 return false;
             }
             func = nullptr;

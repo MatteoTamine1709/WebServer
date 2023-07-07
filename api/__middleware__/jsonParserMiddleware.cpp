@@ -9,7 +9,6 @@ use() {
 };
 
 extern "C" void jsonParserMiddleware(Request &req, Response &res, Next_t next) {
-    std::cout << "TTAYAAAA" << std::endl;
     if (req.header("Content-Type").value_or("").find("application/json") ==
         std::string::npos)
         return next();
