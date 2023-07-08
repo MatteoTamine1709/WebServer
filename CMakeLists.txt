@@ -9,7 +9,7 @@ file(GLOB ThreadpoolImpl src/ThreadpoolImpl/*.cpp)
 file(GLOB Interface src/interface/*.cpp)
 
 # add_library(projectLib )
-add_executable(WebServer main.cpp ${TcpServerImpl} ${ThreadpoolImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/utils.cpp)
+add_executable(WebServer main.cpp src/xmlParser.cpp ${TcpServerImpl} ${ThreadpoolImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/utils.cpp)
 # target_link_libraries(WebServer PUBLIC projectLib)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,9 +20,12 @@ find_package(spdlog REQUIRED)
 find_package(nlohmann_json 3.2.0 REQUIRED)
 find_package(SQLite3 REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBXMLXX REQUIRED IMPORTED_TARGET libxml++-2.6)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-gnu-unique")
 
-target_link_libraries(WebServer PRIVATE Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json ${SQLite3_LIBRARIES})
+target_link_libraries(WebServer PRIVATE Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json ${SQLite3_LIBRARIES} PkgConfig::LIBXMLXX)
 target_include_directories(WebServer PUBLIC ./)
 
 # add optimization flags

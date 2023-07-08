@@ -20,33 +20,26 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
         std::string boundary =
             "--" + contentType.substr(contentType.find("boundary=") + 9);
         // Read whole stream of tmpFile and parse it and store it in
-        std::cout << "BOUNDARY!!: " << boundary << std::endl;
-        int bytes = 0;
         std::string filename;
         req.tmpFile.resetCursor();
         do {
-            char buffer[1024];
-            bytes = req.tmpFile.read(buffer, 1024);
-            std::string s(buffer, bytes);
+            std::string s = req.tmpFile.readLine();
             if (s.find(boundary + "--") != std::string::npos) {
-                // Append to file
-                std::string body = s.substr(0, s.find("\n" + boundary + "--"));
-                req.files[filename].write(body);
-                std::cout << "END OF MULTIPART" << std::endl;
                 break;
             } else if (s.find(boundary) != std::string::npos) {
-                std::cout << "NEW FILE" << std::endl;
-                std::string headers = s.substr(0, s.find("\n\r\n"));
-                filename = headers.substr(
-                    headers.find("filename=\"") + 10,
-                    headers.find("\"", headers.find("filename=\"") + 10) -
-                        headers.find("filename=\"") - 10);
-                std::cout << filename << std::endl;
-                std::string mimetype = headers.substr(
-                    headers.find("Content-Type: ") + 14,
-                    headers.find("\n", headers.find("Content-Type: ") + 14) -
-                        headers.find("Content-Type: ") - 14);
-                std::cout << mimetype << std::endl;
+                // Read headers
+                std::string contentDisposition = req.tmpFile.readLine();
+                filename = contentDisposition.substr(
+                    contentDisposition.find("filename=\"") + 10,
+                    contentDisposition.find(
+                        "\"", contentDisposition.find("filename=\"") + 10) -
+                        contentDisposition.find("filename=\"") - 10);
+                std::string contentType(req.tmpFile.readLine());
+                std::string mimetype = contentType.substr(
+                    contentType.find("Content-Type: ") + 14,
+                    contentType.find("\n",
+                                     contentType.find("Content-Type: ") + 14) -
+                        contentType.find("Content-Type: ") - 14);
                 // Make the file in tmp as we don't know if the end user want to
                 // save it
                 req.files[filename] = StreamFile("/tmp/" + filename);
@@ -54,48 +47,19 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
                 req.files[filename].name = filename;
                 req.files[filename].size = 0;
 
-                // Append to file
-                std::string body = s.substr(s.find("\n\r\n") + 3);
-                req.files[filename].write(body);
+                req.tmpFile.readLine();
             } else {
                 // Append to file
                 req.files[filename].write(s);
             }
-        } while (bytes > 0 && !req.tmpFile.isEnd());
+        } while (!req.tmpFile.isEnd());
 
-        for (auto &[_, fileInfo] : req.files) fileInfo.resetCursor();
-
-        // find boundary
-        // std::vector<std::string> parts;
-        // // Find start
-        // // std::cout << "UPLOAD" << std::endl;
-        // while (blob.size() > boundary.size() + 2) {
-        //     size_t startOfPart =
-        //         blob.find(boundary) + boundary.size() + 2;  // +2 for the
-        //         \n\r
-        //     size_t endOfPart = blob.find(boundary, startOfPart);
-        //     if (endOfPart == std::string::npos) break;
-        //     std::cout << startOfPart << ", " << endOfPart << std::endl;
-        //     parts.push_back(blob.substr(startOfPart, endOfPart -
-        //     startOfPart)); blob.erase(0, endOfPart);
-        // }
-
-        // for (const auto &part : parts) {
-        //     // read headers
-        //     std::string headers = part.substr(0, part.find("\n\r\n"));
-        //     std::string body = part.substr(part.find("\n\r\n") + 3);
-        //     std::string filename = headers.substr(
-        //         headers.find("filename=\"") + 10,
-        //         headers.find("\"", headers.find("filename=\"") + 10) -
-        //             headers.find("filename=\"") - 10);
-        //     // save file
-        //     std::ofstream file("./download/" + filename);
-        //     file << body;
-        //     file.close();
-        // }
-        // std::cout << "====================" << req.tmpFile << std::endl;
+        for (auto &[_, fileInfo] : req.files) {
+            fileInfo.size = fileInfo.getSize();
+            fileInfo.resetCursor();
+        }
     } catch (const std::exception &e) {
-        return res.status(400).json({"Error", "Invalid JSON"});
+        return res.status(400).json({{"error", e.what()}});
     }
     next();
 }

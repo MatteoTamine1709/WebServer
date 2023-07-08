@@ -210,7 +210,7 @@ void HttpRequestHeader::complete(TcpConnection& connection) {
     int contentLength = std::stoi(m_headers["Content-Length"]);
     if (contentLength == 0) return;
     if (m_body.size() == contentLength) return;
-    if (contentLength > 4 * ONE_GIGABYTE) return;
+    if (contentLength > 4ul * ONE_GIGABYTE) return;
     tmpFile = connection.readTmp(contentLength);
 }
 

@@ -6,10 +6,13 @@
 #include <unistd.h>
 
 #include <array>
+#include <filesystem>
 #include <iostream>
 #include <string>
 
 #include "Constants.h"
+
+namespace fs = std::filesystem;
 typedef struct StreamFile_s {
     std::string name;
     std::string mimetype;
@@ -17,7 +20,7 @@ typedef struct StreamFile_s {
 
     StreamFile_s() {
         // Generate random file name using mkdstemp
-        char tmptmpname[] = "/tmp/http-tmp-XXXXXX";
+        char tmptmpname[] = "/tmp/http-tmp-XXXXXXXXXXXXXXXXXX";
         int fd = mkstemp(tmptmpname);
         m_path = tmptmpname;
         if (fd == -1) {
@@ -32,6 +35,8 @@ typedef struct StreamFile_s {
     }
 
     StreamFile_s(const std::string &path) : m_path(path) {
+        if (path.find_last_of("/") != std::string::npos)
+            fs::create_directories(path.substr(0, path.find_last_of("/")));
         m_file = fopen(m_path.c_str(), "w+");
         if (m_file == NULL) {
             SPDLOG_ERROR("Failed to open file: {}", m_path);
@@ -64,6 +69,8 @@ typedef struct StreamFile_s {
     StreamFile_s &operator=(const StreamFile_s &other) {
         // if (m_file != NULL) fclose(m_file);
         m_path = other.m_path;
+        if (m_path.find_last_of("/") != std::string::npos)
+            fs::create_directories(m_path.substr(0, m_path.find_last_of("/")));
         m_file = fopen(m_path.c_str(), "a+");
         name = other.name;
         mimetype = other.mimetype;
@@ -89,6 +96,16 @@ typedef struct StreamFile_s {
         return s;
     }
 
+    std::string readLine() {
+        char *buffer = NULL;
+        size_t bytes = 0;
+        if (m_file != NULL) {
+            size_t b = getline(&buffer, &bytes, m_file);
+            return std::string(std::move(buffer), b);
+        }
+        return "";
+    }
+
     size_t read(char *buffer, int bytes) {
         if (m_file != NULL) return fread(buffer, sizeof(char), bytes, m_file);
         return 0;
@@ -107,6 +124,20 @@ typedef struct StreamFile_s {
     bool isEnd() const {
         if (m_file == NULL) return true;
         return feof(m_file);
+    }
+
+    size_t getSize() {
+        if (m_file == NULL) return -1;
+        size_t pos = ftell(m_file);
+        fseek(m_file, 0, SEEK_END);
+        size_t size = ftell(m_file);
+        fseek(m_file, pos, SEEK_SET);
+        return size;
+    }
+
+    size_t getCursor() const {
+        if (m_file == NULL) return -1;
+        return ftell(m_file);
     }
 
     int setCursor(size_t pos) {

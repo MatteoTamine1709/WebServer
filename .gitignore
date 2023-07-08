@@ -12,3 +12,5 @@ _deps
 build/
 *.so
 logs/
+download/
+utils/HTMLFiles

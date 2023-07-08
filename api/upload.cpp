@@ -14,20 +14,23 @@ void get(Request &req, Response &res) {
 }
 
 void post(Request &req, Response &res) {
+    std::cout << "# files:" << req.files.size() << std::endl;
     for (auto &[_, fileInfo] : req.files) {
         std::cout << "Filename: " << fileInfo.name << std::endl;
         std::cout << "Mimetype: " << fileInfo.mimetype << std::endl;
         std::cout << "Size: " << fileInfo.size << std::endl;
         // Save to download folder
+        if (fileInfo.name.find_last_of("/") != std::string::npos)
+            fs::create_directories(
+                "./download/" +
+                fileInfo.name.substr(0, fileInfo.name.find_last_of("/")) + "/");
         std::ofstream file("./download/" + fileInfo.name);
-        int bytes = 0;
-        do {
-            char buffer[4 * ONE_MEGABYTE];
-            bytes = fileInfo.read(buffer, 4 * ONE_MEGABYTE);
-            file.write(buffer, bytes);
-        } while (bytes > 0);
+        char *buffer = new char[fileInfo.size];
+        size_t bytes = fileInfo.read(buffer, fileInfo.size);
+        file.write(buffer, bytes);
         file.close();
         std::cout << "File saved to ./download/" << fileInfo.name << std::endl;
     }
-    res.sendFile("./app/dist/upload.html");
+    // Redirect to upload
+    res.redirect("/upload");
 }

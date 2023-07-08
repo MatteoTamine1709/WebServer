@@ -4,10 +4,12 @@
 
 - [ ] This Readme
 - [ ] Indexer of pages
-- [ ] Communicate with sqlite database from config file
+- [ ] Communicate with sqlite database (address is from config file)
 - [ ] Interface to view different type of files (images, videos, pdf, txt, ...)
 - [ ] For videos, use dash and stream the video
 - [ ] Use ffmpeg to convert videos to dash format to have multiple quality of the video
+- [ ] Url encoded
+- [ ] Multipart form data variables
 
 ## Stuff I wanna do
 
