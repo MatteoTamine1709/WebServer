@@ -27,6 +27,7 @@ std::string TcpConnection::read() {
 StreamFile TcpConnection::readTmp(size_t size) {
     if (size == 0) return StreamFile();
     StreamFile tmpFile;
+    tmpFile.create();
     size_t count = 0;
     do {
         int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());

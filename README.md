@@ -4,12 +4,35 @@
 
 - [ ] This Readme
 - [ ] Indexer of pages
-- [ ] Communicate with sqlite database (address is from config file)
+  - [x] Indexer of HTML pages
+  - [ ] Indexer of PDF pages
+  - [ ] Indexer of TXT pages
+  - [ ] Indexer of DOC/Word pages
+  - [ ] Indexer of video (using a short description, the title, the tags, etc.)
+  - [ ] Indexer of audio (using a short description, the title, the tags, etc.)
+  - [ ] Indexer of images (using a short description, the title, the tags, etc.)
+- [ ] Search engine
+- [x] Communicate with sqlite database (_I am unsure of having SQLite intrface as part of the server or as part of the projet_)
+  - [ ] address is from config file
 - [ ] Interface to view different type of files (images, videos, pdf, txt, ...)
 - [ ] For videos, use dash and stream the video
 - [ ] Use ffmpeg to convert videos to dash format to have multiple quality of the video
-- [ ] Url encoded
-- [ ] Multipart form data variables
+- [ ] Url encoded middleware
+- [ ] Multipart form data variables parsing in middleware
+- [ ] Move the Css and HTML builder to a utils directory
+- [x] **StreamFile leaks FD**
+- [ ] StreamFile fills the /tmp folder, need to find a solution
+- [ ] TODO App
+- [ ] Add tags on documents
+- [ ] Filter by doc type
+- [ ] Filter by tags
+- [ ] Write an article about the project
+- [ ] Make the server more secure (maybe docker can help)
+- [ ] Make the server available on LAN
+- [ ] Create a script to build the endpoints and middleware
+- [ ] Make hotreloader accept a command line input to config the compiile command
+- [ ] Make html parser value the tag name
+- [ ] Make Htmlparser lexer better
 
 ## Stuff I wanna do
 
@@ -28,7 +51,7 @@
   - [ ] Call Javascript functions from C++ [Reference](https://stackoverflow.com/questions/2713289/how-to-execute-javascript-function-in-c)
   - [ ] Dockerize the project (_If needed_)
   - [x] Being able to show the server to other devices on the network (using [ngrok](https://ngrok.com/)?)
-  - [ ] Scripts to build the project in either development or production mode and run it.
+  - [x] Scripts to build the project in either development or production mode and run it.
 
 - Server:
 
@@ -37,7 +60,7 @@
   - [x] The ability to write command to the server like `stop` or `status` or `help`
   - [x] [Routing system](#routing-system) like [next.js](https://nextjs.org/docs/routing/introduction)
   - [ ] A way to handle sessions (MAYBE)
-  - [ ] Upload of files to the server
+  - [x] Upload of files to the server
 
 - Endpoints:
 
@@ -53,7 +76,7 @@
 
 - Optimisation
 
-  - [x] Asynchronous endpoints and read/write
+  - [x] Asynchronous endpoints and read/write (I use thread)
   - [ ] A way to measure the performance of the server using [google benchmark](https://github.com/google/benchmark)
   - [ ] A way to optimise the server to handle a lot of requests (maybe using [libuv](https://libuv.org/))
   - [ ] Reduce memory footprint

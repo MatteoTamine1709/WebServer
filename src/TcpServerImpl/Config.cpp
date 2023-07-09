@@ -136,6 +136,7 @@ void TcpServer::handleLogConfig(nlohmann::json &log) {
         }
         auto combinedLogger = std::make_shared<spdlog::logger>(
             "Logger", begin(sinks), end(sinks));
+        combinedLogger->flush_on(spdlog::level::debug);
         spdlog::set_default_logger(combinedLogger);
         auto combinedRouteLogger = std::make_shared<spdlog::logger>(
             "RouteLogger", begin(routeSinks), end(routeSinks));

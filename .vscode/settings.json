@@ -89,5 +89,6 @@
     "**/*.a": true,
     "**/*.lib": true,
     ".old": true
-  }
+  },
+  "C_Cpp.errorSquiggles": "enabled"
 }

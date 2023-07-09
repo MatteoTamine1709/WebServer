@@ -15,7 +15,6 @@
 #include <string>
 #include <vector>
 
-#include "HtmlBuilder.h"
 #include "HttpRequestHeader.h"
 #include "Middleware.h"
 #include "Request.h"
@@ -131,8 +130,8 @@ class TcpServer {
                              m_path.filename().string(), dlerror());
                 return false;
             }
-            SPDLOG_INFO("Registering middleware {} for routes {} at {}",
-                        nameFunc(), utils::join(routes, ", "), m_library);
+            SPDLOG_INFO("Registering middleware {} for routes {}", nameFunc(),
+                        utils::join(routes, ", "));
             return true;
         }
 
@@ -140,7 +139,8 @@ class TcpServer {
 
         bool close() {
             if (!m_library) return false;
-            SPDLOG_INFO("Closing middleware {}, {}", name, m_library);
+            // TODO: This makes the program crash on exit, fix it
+            // SPDLOG_INFO("Closing middleware {}", name);
             if (dlclose(m_library)) {
                 SPDLOG_ERROR("Failed to close middleware {}: {}", name,
                              dlerror());
@@ -176,6 +176,7 @@ class TcpServer {
     fs::path m_middlewareFolder = fs::weakly_canonical("./api/__middleware__");
     uint32_t m_threadCount = 10;
     bool m_watch = false;
+    bool m_isHotReloaderConnected = false;
 
     typedef std::string ConfigKey;
     std::unordered_map<ConfigKey, void (TcpServer::*)(nlohmann::json &)>

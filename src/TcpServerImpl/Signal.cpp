@@ -37,7 +37,6 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
         return;
     }
     if (!m_watch) return;
-    static bool hotReloaderConnected = false;
     static pid_t hotReloaderPID = -1;
     if (signum == SIGUSR1 && hotReloaderPID == -1) {
         SPDLOG_INFO("Connecting to hot reloader...");
@@ -56,17 +55,17 @@ void TcpServer::handleSignal(int signum, siginfo_t *info, void *context) {
         kill(hotReloaderPID, SIGUSR1);
         return;
     }
-    if (signum == SIGUSR1 && !hotReloaderConnected) {
-        hotReloaderConnected = true;
+    if (signum == SIGUSR1 && !m_isHotReloaderConnected) {
+        m_isHotReloaderConnected = true;
         return SPDLOG_INFO("Hot reloader connected");
     }
-    if (signum == SIGUSR1 && hotReloaderConnected) {
-        hotReloaderConnected = false;
+    if (signum == SIGUSR1 && m_isHotReloaderConnected) {
+        m_isHotReloaderConnected = false;
         hotReloaderPID = -1;
         return SPDLOG_WARN("Hot reloader disconnected");
     }
 
-    if (m_signal == SIGUSR2 && hotReloaderConnected) {
+    if (m_signal == SIGUSR2 && m_isHotReloaderConnected) {
         char hotReloaded_path[1024];
         ssize_t n_read =
             ::read(m_pipeWatchFD, hotReloaded_path, sizeof(hotReloaded_path));

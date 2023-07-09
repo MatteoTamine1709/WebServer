@@ -1,14 +1,23 @@
 {
-  "configurations": [
-    {
-      "name": "Linux",
-      "includePath": ["${workspaceFolder}/**", "${workspaceFolder}"],
-      "defines": [],
-      "compilerPath": "/usr/bin/gcc",
-      "cStandard": "c17",
-      "cppStandard": "gnu++20",
-      "compileCommands": "${workspaceFolder}/build/compile_commands.json"
-    }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}",
+                "/usr/include/libxml++-2.6",
+                "/usr/include/glibmm-2.4",
+                "/usr/lib/x86_64-linux-gnu/glibmm-2.4/include",
+                "/usr/include/glib-2.0",
+                "/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+                "/usr/lib/x86_64-linux-gnu/libxml++-2.6/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++20",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
 }

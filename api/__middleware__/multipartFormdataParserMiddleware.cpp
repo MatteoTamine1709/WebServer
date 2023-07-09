@@ -15,6 +15,8 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
     std::string contentType = req.header("Content-Type").value_or("");
     if (contentType.find("multipart/form-data") == std::string::npos)
         return next();
+    if (contentType.find("boundary=") == std::string::npos) return next();
+    if (req.tmpFile.getSize() == 0) return next();
 
     try {
         std::string boundary =
@@ -22,12 +24,19 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
         // Read whole stream of tmpFile and parse it and store it in
         std::string filename;
         req.tmpFile.resetCursor();
+        size_t size = 0;
         do {
             std::string s = req.tmpFile.readLine();
             if (s.find(boundary + "--") != std::string::npos) {
                 break;
             } else if (s.find(boundary) != std::string::npos) {
                 // Read headers
+                if (!filename.empty()) {
+                    req.files[filename].size = size;
+                    req.files[filename].resetCursor();
+                    size = 0;
+                    req.files[filename].close();
+                }
                 std::string contentDisposition = req.tmpFile.readLine();
                 filename = contentDisposition.substr(
                     contentDisposition.find("filename=\"") + 10,
@@ -50,14 +59,10 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
                 req.tmpFile.readLine();
             } else {
                 // Append to file
-                req.files[filename].write(s);
+                size_t bytes = req.files[filename].write(s);
+                size += bytes;
             }
         } while (!req.tmpFile.isEnd());
-
-        for (auto &[_, fileInfo] : req.files) {
-            fileInfo.size = fileInfo.getSize();
-            fileInfo.resetCursor();
-        }
     } catch (const std::exception &e) {
         return res.status(400).json({{"error", e.what()}});
     }

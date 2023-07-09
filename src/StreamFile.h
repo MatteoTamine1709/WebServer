@@ -14,29 +14,47 @@
 
 namespace fs = std::filesystem;
 typedef struct StreamFile_s {
-    std::string name;
-    std::string mimetype;
-    size_t size;
+    std::string name{};
+    std::string mimetype{};
+    size_t size = 0;
 
-    StreamFile_s() {
-        // Generate random file name using mkdstemp
-        char tmptmpname[] = "/tmp/http-tmp-XXXXXXXXXXXXXXXXXX";
-        int fd = mkstemp(tmptmpname);
+    StreamFile_s() = default;
+
+    bool create() {
+        std::string tmptmpname = "/tmp/http-tmp-" + std::to_string(rand()) +
+                                 "-" + std::to_string(time(NULL)) + "-XXXXXX";
+        int fd = mkstemp(&tmptmpname[0]);
         m_path = tmptmpname;
         if (fd == -1) {
             SPDLOG_ERROR("Failed to create tmp file: {}", m_path);
-            return;
+            return false;
         }
         m_file = fdopen(fd, "w+");
         if (m_file == NULL) {
             SPDLOG_ERROR("Failed to open file: {}", m_path);
-            return;
+            return false;
+        }
+        return true;
+    }
+
+    bool open() {
+        m_file = fopen(m_path.c_str(), "a+");
+        if (m_file == NULL) {
+            SPDLOG_ERROR("Failed to open file: {}", m_path);
+            return false;
+        }
+        return true;
+    }
+
+    void close() {
+        if (m_file != NULL) {
+            fclose(m_file);
+            m_file = NULL;
         }
     }
 
     StreamFile_s(const std::string &path) : m_path(path) {
-        if (path.find_last_of("/") != std::string::npos)
-            fs::create_directories(path.substr(0, path.find_last_of("/")));
+        fs::create_directories(fs::path(path).parent_path());
         m_file = fopen(m_path.c_str(), "w+");
         if (m_file == NULL) {
             SPDLOG_ERROR("Failed to open file: {}", m_path);
@@ -46,9 +64,10 @@ typedef struct StreamFile_s {
 
     // Copy constructor
     StreamFile_s(const StreamFile_s &other) {
-        // if (m_file != NULL) fclose(m_file);
+        if (other.m_file == NULL) return;
         m_path = other.m_path;
-        m_file = fopen(m_path.c_str(), "+");
+        m_file = fopen(m_path.c_str(), "a+");
+        if (m_file == NULL) SPDLOG_ERROR("Failed to open file: {}", m_path);
         name = other.name;
         mimetype = other.mimetype;
         size = other.size;
@@ -56,7 +75,7 @@ typedef struct StreamFile_s {
 
     // Move constructor
     StreamFile_s(StreamFile_s &&other) {
-        // if (m_file != NULL) fclose(m_file);
+        if (other.m_file == NULL) return;
         m_path = other.m_path;
         m_file = other.m_file;
         name = other.name;
@@ -67,11 +86,11 @@ typedef struct StreamFile_s {
 
     // Copy assignment operator
     StreamFile_s &operator=(const StreamFile_s &other) {
-        // if (m_file != NULL) fclose(m_file);
+        if (other.m_file == NULL) return *this;
         m_path = other.m_path;
-        if (m_path.find_last_of("/") != std::string::npos)
-            fs::create_directories(m_path.substr(0, m_path.find_last_of("/")));
+        fs::create_directories(fs::path(m_path).parent_path());
         m_file = fopen(m_path.c_str(), "a+");
+        if (m_file == NULL) SPDLOG_ERROR("Failed to open file: {}", m_path);
         name = other.name;
         mimetype = other.mimetype;
         size = other.size;
@@ -111,12 +130,14 @@ typedef struct StreamFile_s {
         return 0;
     }
 
-    void write(const std::string &s) {
-        if (m_file != NULL) fwrite(s.data(), sizeof(char), s.size(), m_file);
+    size_t write(const std::string &s) {
+        if (m_file == NULL) return 0;
+        return fwrite(s.data(), sizeof(char), s.size(), m_file);
     }
 
-    void write(const char *s, size_t bytes) {
-        if (m_file != NULL) fwrite(s, sizeof(char), bytes, m_file);
+    size_t write(const char *s, size_t bytes) {
+        if (m_file == NULL) return 0;
+        return fwrite(s, sizeof(char), bytes, m_file);
     }
 
     bool isOpen() const { return m_file != NULL; }
@@ -127,7 +148,7 @@ typedef struct StreamFile_s {
     }
 
     size_t getSize() {
-        if (m_file == NULL) return -1;
+        if (m_file == NULL) return 0;
         size_t pos = ftell(m_file);
         fseek(m_file, 0, SEEK_END);
         size_t size = ftell(m_file);
@@ -150,7 +171,7 @@ typedef struct StreamFile_s {
 
    private:
     std::string m_path = "/tmp/http-tmp-XXXXXX";
-    FILE *m_file;
+    FILE *m_file = nullptr;
 } StreamFile;
 
 #endif

@@ -50,7 +50,10 @@ HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
         std::vector<std::string> queries = utils::split(urlParts[1], {"&"});
         for (const std::string& query : queries) {
             std::vector<std::string> queryParts = utils::split(query, {"="});
-            if (queryParts.size() > 1) m_queries[queryParts[0]] = queryParts[1];
+            if (queryParts.size() > 1)
+                m_queries[utils::join(utils::split(queryParts[0], {"%20"}),
+                                      " ")] =
+                    utils::join(utils::split(queryParts[1], {"%20"}), " ");
         }
     }
 }
@@ -211,6 +214,7 @@ void HttpRequestHeader::complete(TcpConnection& connection) {
     if (contentLength == 0) return;
     if (m_body.size() == contentLength) return;
     if (contentLength > 4ul * ONE_GIGABYTE) return;
+    std::cout << "contentLength: " << contentLength << std::endl;
     tmpFile = connection.readTmp(contentLength);
 }
 

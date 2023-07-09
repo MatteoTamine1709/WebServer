@@ -28,6 +28,7 @@ bool Sqlite::close() {
     return true;
 }
 
+bool Sqlite::exec(const std::string sql) { return exec(sql.c_str()); }
 bool Sqlite::exec(const char* sql) {
     if (m_db == nullptr) return false;
 
@@ -41,6 +42,9 @@ bool Sqlite::exec(const char* sql) {
     return true;
 }
 
+bool Sqlite::exec(const std::string sql, Callback callback, void* data) {
+    return exec(sql.c_str(), callback, data);
+}
 bool Sqlite::exec(const char* sql, Callback callback, void* data) {
     if (m_db == nullptr) return false;
 
@@ -105,7 +109,7 @@ bool Sqlite::isTableExist(const char* tableName) {
         return false;
     }
 
-    char sql[256];
+    char sql[1024 * 4];
     sprintf(
         sql,
         "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%s'",
@@ -133,36 +137,53 @@ bool Sqlite::isTableExist(const char* tableName) {
     return count > 0;
 }
 
+bool Sqlite::insert(const std::string tableName, const std::string columns,
+                    const std::string values) {
+    return insert(tableName.c_str(), columns.c_str(), values.c_str());
+}
+
 bool Sqlite::insert(const char* tableName, const char* columns,
                     const char* values) {
     if (m_db == nullptr) return false;
 
-    char sql[256];
+    char sql[1024 * 4];
     sprintf(sql, "INSERT INTO %s (%s) VALUES (%s)", tableName, columns, values);
     return exec(sql);
 }
 
+bool Sqlite::update(const std::string tableName, const std::string set,
+                    const std::string where) {
+    return update(tableName.c_str(), set.c_str(), where.c_str());
+}
 bool Sqlite::update(const char* tableName, const char* set, const char* where) {
     if (m_db == nullptr) return false;
 
-    char sql[256];
+    char sql[1024 * 4];
     sprintf(sql, "UPDATE %s SET %s WHERE %s", tableName, set, where);
     return exec(sql);
 }
 
+bool Sqlite::remove(const std::string tableName, const std::string where) {
+    return remove(tableName.c_str(), where.c_str());
+}
 bool Sqlite::remove(const char* tableName, const char* where) {
     if (m_db == nullptr) return false;
 
-    char sql[256];
+    char sql[1024 * 4];
     sprintf(sql, "DELETE FROM %s WHERE %s", tableName, where);
     return exec(sql);
 }
 
+bool Sqlite::select(const std::string tableName, const std::string columns,
+                    const std::string where, Callback callback, void* data) {
+    return select(tableName.c_str(), columns.c_str(), where.c_str(), callback,
+                  data);
+}
 bool Sqlite::select(const char* tableName, const char* columns,
                     const char* where, Callback callback, void* data) {
     if (m_db == nullptr) return false;
 
-    char sql[256];
+    char sql[1024 * 4];
     sprintf(sql, "SELECT %s FROM %s WHERE %s", columns, tableName,
             where ? where : "1");
     return exec(sql, callback, data);

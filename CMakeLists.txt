@@ -9,7 +9,7 @@ file(GLOB ThreadpoolImpl src/ThreadpoolImpl/*.cpp)
 file(GLOB Interface src/interface/*.cpp)
 
 # add_library(projectLib )
-add_executable(WebServer main.cpp src/xmlParser.cpp ${TcpServerImpl} ${ThreadpoolImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/utils.cpp)
+add_executable(WebServer main.cpp ${TcpServerImpl} ${ThreadpoolImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/utils.cpp)
 # target_link_libraries(WebServer PUBLIC projectLib)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
