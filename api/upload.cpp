@@ -38,11 +38,10 @@ void post(Request &req, Response &res) {
                     "/");
             std::string path = "./download/" + fileInfo.name;
             std::ofstream file("./app/dist/" + path, std::ios::binary);
-            char *buffer = new char[fileInfo.size];
-            size_t bytes = fileInfo.read(buffer, fileInfo.size);
-            file.write(buffer, bytes);
             if (utils::endsWith(fileInfo.name, ".xml") ||
                 utils::endsWith(fileInfo.name, ".html")) {
+                char *buffer = new char[fileInfo.size];
+                size_t bytes = fileInfo.read(buffer, fileInfo.size);
                 std::pair<std::unordered_map<Word, Frequency>, size_t>
                     wordFreqAndTotalByFile;
                 HtmlParser parser(buffer, fileInfo.size);
@@ -77,10 +76,10 @@ void post(Request &req, Response &res) {
                                     "', " + std::to_string(freq))
                             .c_str());
                 }
+                delete[] buffer;
             }
-
-            delete[] buffer;
             file.close();
+            fileInfo.moveFile("./app/dist/" + path);
             fileInfo.close();
         }
         for (auto &[word, freq] : numberOfFilesContainWord) {

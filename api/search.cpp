@@ -21,7 +21,8 @@ double tf(size_t wordFreq, size_t numberOfWords) {
 }
 
 double idf(size_t numberOfFiles, size_t numberOfFilesContainWord) {
-    return log10(numberOfFiles / (double)(1 + numberOfFilesContainWord));
+    return log10(numberOfFiles /
+                 (double)(std::max(numberOfFilesContainWord, 1UL)));
 }
 
 void get(Request &req, Response &res) {

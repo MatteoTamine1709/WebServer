@@ -169,6 +169,18 @@ typedef struct StreamFile_s {
 
     int resetCursor() { return setCursor(0); }
 
+    bool moveFile(const std::string &path) {
+        if (m_file == NULL) return false;
+        close();
+        fs::create_directories(fs::path(path).parent_path());
+        if (rename(m_path.c_str(), path.c_str()) == 0) {
+            m_path = path;
+            open();
+            return true;
+        }
+        return false;
+    }
+
    private:
     std::string m_path = "/tmp/http-tmp-XXXXXX";
     FILE *m_file = nullptr;
