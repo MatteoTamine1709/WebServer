@@ -1,5 +1,7 @@
 #include "HttpRequestHeader.h"
 
+#include <curl/curl.h>
+
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
@@ -47,14 +49,17 @@ HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
     if (m_route.string().empty()) m_route = "/";
 
     if (urlParts.size() > 1) {
-        std::vector<std::string> queries = utils::split(urlParts[1], {"&"});
+        char* decodedKey =
+            curl_unescape(urlParts[1].c_str(), urlParts[1].size());
+        std::vector<std::string> queries =
+            utils::split(std::string(decodedKey), {" "});
         for (const std::string& query : queries) {
             std::vector<std::string> queryParts = utils::split(query, {"="});
-            if (queryParts.size() > 1)
-                m_queries[utils::join(utils::split(queryParts[0], {"%20"}),
-                                      " ")] =
-                    utils::join(utils::split(queryParts[1], {"%20"}), " ");
+            if (queryParts.size() > 1) {
+                m_queries[queryParts[0]] = queryParts[1];
+            }
         }
+        curl_free(decodedKey);
     }
 }
 

@@ -94,11 +94,12 @@ void post(Request &req, Response &res) {
                                     wordExist.insert(token);
                                 }
                             } else if (child->type == XML_ELEMENT_NODE) {
+                                Weight offset = 0;
                                 std::string tag =
                                     xmlCharPtrToString(child->name);
                                 if (tagsWeight.find(tag) != tagsWeight.end())
-                                    weight += tagsWeight[tag];
-                                recursive(child, weight);
+                                    offset = tagsWeight[tag];
+                                recursive(child, weight + offset);
                             }
                         }
                     };

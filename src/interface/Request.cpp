@@ -33,7 +33,6 @@ Request::Request(const HttpRequestHeader &header, const TcpServer &server)
 
     path = header.getRoute();
     protocol = header.getProtocol();
-    // query = header.getQuery();
     // route = header.getRoute();
     secure = utils::toLower(protocol) == "https";
     // signedCookies = {};
