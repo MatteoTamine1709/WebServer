@@ -32,12 +32,12 @@
 - [ ] Create a script to build the endpoints and middleware
 - [ ] Make hotreloader accept a command line input to config the compiile command
 - [x] Make html parser value the tag name
-  - [ ] Still require tweaking
+  - [x] Still require tweaking
 - [ ] Make Htmlparser lexer better
 - [ ] Keep track of link clicked after a search and show the most clicked link first
 - [ ] Stem in the indexer
 - [ ] Consider typo in the query
-- [ ] Look for BM25 algorithm in the indexer
+- [x] Look for BM25 algorithm in the indexer
 - [ ] Implement PageRank in the indexer
 
 ## Stuff I wanna do

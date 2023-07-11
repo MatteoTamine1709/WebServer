@@ -21,9 +21,13 @@ double tf(double wordWeight, size_t numberOfWords) {
 }
 
 double idf(size_t numberOfFiles, size_t numberOfFilesContainWord) {
-    return log10(numberOfFiles /
-                 (double)(std::max(numberOfFilesContainWord, 1UL)));
+    return log(((double)(numberOfFiles - numberOfFilesContainWord) + 0.5) /
+               (double)(numberOfFilesContainWord + 0.5)) +
+           1;
 }
+
+const double K1 = 2;
+const double b = 0.75;
 
 void get(Request &req, Response &res) {
     std::string query = req.query["query"];
@@ -32,15 +36,25 @@ void get(Request &req, Response &res) {
     typedef double Score;
     typedef double Weight;
     std::unordered_map<Path, Score> scores;
-    size_t numberOfFiles = 0;
+    size_t N = 0;
     Sqlite::exec(
         "SELECT COUNT(id) FROM files",
         [](void *data, int argc, char **argv, char **azColName) -> int {
-            auto &numberOfFiles = *(size_t *)data;
-            numberOfFiles = atoi(argv[0]);
+            auto &N = *(size_t *)data;
+            N = atol(argv[0]);
             return 0;
         },
-        &numberOfFiles);
+        &N);
+    double averageNumberOfWords = 0;
+    Sqlite::exec(
+        "SELECT AVG(numberOfWords) FROM files",
+        [](void *data, int argc, char **argv, char **azColName) -> int {
+            if (argv[0] == NULL) return 0;
+            auto &averageNumberOfWords = *(double *)data;
+            averageNumberOfWords = atof(argv[0]);
+            return 0;
+        },
+        &averageNumberOfWords);
     for (auto token : Lexer(query)) {
         std::cout << "Token: " << token << std::endl;
         std::unordered_map<Path, std::pair<Weight, size_t>>
@@ -72,8 +86,11 @@ void get(Request &req, Response &res) {
             &numberOfFilesContainWord);
         for (auto &[path, weightAndTotal] : tokensWeightAndTotalByFile) {
             if (scores.find(path) == scores.end()) scores[path] = 0;
-            scores[path] += tf(weightAndTotal.first, weightAndTotal.second) *
-                            idf(numberOfFiles, numberOfFilesContainWord);
+            double TF = tf(weightAndTotal.first, weightAndTotal.second);
+            double IDF = idf(N, numberOfFilesContainWord);
+            scores[path] +=
+                IDF *
+                ((TF * K1) / (TF + K1 * (1 - b + b * averageNumberOfWords)));
         }
     }
     std::vector<std::pair<Path, Score>> sortedScores;

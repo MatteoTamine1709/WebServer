@@ -52,7 +52,7 @@ HttpRequestHeader::HttpRequestHeader(const std::string_view& header) {
         char* decodedKey =
             curl_unescape(urlParts[1].c_str(), urlParts[1].size());
         std::vector<std::string> queries =
-            utils::split(std::string(decodedKey), {" "});
+            utils::split(std::string(decodedKey), {"&"});
         for (const std::string& query : queries) {
             std::vector<std::string> queryParts = utils::split(query, {"="});
             if (queryParts.size() > 1) {
@@ -219,7 +219,6 @@ void HttpRequestHeader::complete(TcpConnection& connection) {
     if (contentLength == 0) return;
     if (m_body.size() == contentLength) return;
     if (contentLength > 4ul * ONE_GIGABYTE) return;
-    std::cout << "contentLength: " << contentLength << std::endl;
     tmpFile = connection.readTmp(contentLength);
 }
 

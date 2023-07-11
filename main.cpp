@@ -23,6 +23,12 @@ int main(int, char**) {
         "FOREIGN KEY(fileId) REFERENCES files(id))");
     // Create indexes
     Sqlite::exec("CREATE INDEX IF NOT EXISTS files_name ON files (name)");
+    Sqlite::exec("CREATE INDEX IF NOT EXISTS files_path ON files (path)");
+    Sqlite::exec(
+        "CREATE INDEX IF NOT EXISTS files_mimetype ON files (mimetype)");
+    Sqlite::exec(
+        "CREATE INDEX IF NOT EXISTS files_numberOfWords ON files "
+        "(numberOfWords)");
     Sqlite::exec(
         "CREATE INDEX IF NOT EXISTS wordsFileContain_word ON wordsFileContain "
         "(word)");
