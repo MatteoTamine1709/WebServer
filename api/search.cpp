@@ -16,8 +16,8 @@ void get(Request &req, Response &res);
 void post(Request &req, Response &res);
 }
 
-double tf(size_t wordFreq, size_t numberOfWords) {
-    return (double)wordFreq / (double)numberOfWords;
+double tf(double wordWeight, size_t numberOfWords) {
+    return wordWeight / (double)numberOfWords;
 }
 
 double idf(size_t numberOfFiles, size_t numberOfFilesContainWord) {
@@ -30,7 +30,7 @@ void get(Request &req, Response &res) {
     typedef std::string Path;
     typedef std::string Word;
     typedef double Score;
-    typedef size_t Frequency;
+    typedef double Weight;
     std::unordered_map<Path, Score> scores;
     size_t numberOfFiles = 0;
     Sqlite::exec(
@@ -43,23 +43,23 @@ void get(Request &req, Response &res) {
         &numberOfFiles);
     for (auto token : Lexer(query)) {
         std::cout << "Token: " << token << std::endl;
-        std::unordered_map<Path, std::pair<Frequency, size_t>>
-            tokensFreqAndTotalByFile;
+        std::unordered_map<Path, std::pair<Weight, size_t>>
+            tokensWeightAndTotalByFile;
         Sqlite::exec(
-            "SELECT files.path, wordsFreqByFile.freq, files.numberOfWords "
+            "SELECT files.path, wordsWeightByFile.weight, files.numberOfWords "
             "FROM files "
-            "INNER JOIN wordsFreqByFile ON files.id = wordsFreqByFile.fileId "
-            "WHERE wordsFreqByFile.word = '" +
-                token + "' ORDER BY wordsFreqByFile.freq ASC",
+            "INNER JOIN wordsWeightByFile ON files.id = "
+            "wordsWeightByFile.fileId "
+            "WHERE wordsWeightByFile.word = '" +
+                token + "' ORDER BY wordsWeightByFile.weight ASC",
             [](void *data, int argc, char **argv, char **azColName) -> int {
-                auto &tokensFreqAndTotalByFile =
-                    *(std::unordered_map<Path, std::pair<Frequency, size_t>> *)
-                        data;
-                tokensFreqAndTotalByFile[argv[0]] = {atoi(argv[1]),
-                                                     atoi(argv[2])};
+                auto &tokensWeightAndTotalByFile = *(
+                    std::unordered_map<Path, std::pair<Weight, size_t>> *)data;
+                tokensWeightAndTotalByFile[argv[0]] = {atof(argv[1]),
+                                                       atoi(argv[2])};
                 return 0;
             },
-            &tokensFreqAndTotalByFile);
+            &tokensWeightAndTotalByFile);
         size_t numberOfFilesContainWord = 0;
         Sqlite::exec(
             "SELECT numberOfFileContains FROM wordsFileContain WHERE word = '" +
@@ -70,9 +70,9 @@ void get(Request &req, Response &res) {
                 return 0;
             },
             &numberOfFilesContainWord);
-        for (auto &[path, freqAndTotal] : tokensFreqAndTotalByFile) {
+        for (auto &[path, weightAndTotal] : tokensWeightAndTotalByFile) {
             if (scores.find(path) == scores.end()) scores[path] = 0;
-            scores[path] += tf(freqAndTotal.first, freqAndTotal.second) *
+            scores[path] += tf(weightAndTotal.first, weightAndTotal.second) *
                             idf(numberOfFiles, numberOfFilesContainWord);
         }
     }
@@ -83,13 +83,13 @@ void get(Request &req, Response &res) {
                  const std::pair<Path, Score> &b) -> bool {
                   return a.second > b.second;
               });
-    std::vector<std::pair<Path, Score>> top10Scores;
-    for (size_t i = 0; i < 10 && i < sortedScores.size(); i++)
-        top10Scores.push_back(sortedScores[i]);
+    std::vector<std::pair<Path, Score>> top50Scores;
+    for (size_t i = 0; i < 50 && i < sortedScores.size(); i++)
+        top50Scores.push_back(sortedScores[i]);
     HtmlBuilder html{};
     html.h3().text("Links").h3_();
     html.ul();
-    for (const auto &[path, score] : top10Scores)
+    for (const auto &[path, score] : top50Scores)
         html.li()
             .a({
                 {"href", path},

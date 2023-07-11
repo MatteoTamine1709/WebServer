@@ -16,10 +16,10 @@ int main(int, char**) {
         "word TEXT UNIQUE,"
         "numberOfFileContains INTEGER NOT NULL)");
     Sqlite::exec(
-        "CREATE TABLE IF NOT EXISTS wordsFreqByFile ("
+        "CREATE TABLE IF NOT EXISTS wordsWeightByFile ("
         "fileId INTEGER NOT NULL,"
         "word TEXT NOT NULL,"
-        "freq INTEGER NOT NULL,"
+        "weight REAL NOT NULL,"
         "FOREIGN KEY(fileId) REFERENCES files(id))");
     // Create indexes
     Sqlite::exec("CREATE INDEX IF NOT EXISTS files_name ON files (name)");
@@ -27,7 +27,8 @@ int main(int, char**) {
         "CREATE INDEX IF NOT EXISTS wordsFileContain_word ON wordsFileContain "
         "(word)");
     Sqlite::exec(
-        "CREATE INDEX IF NOT EXISTS wordsFreqByFile_word ON wordsFreqByFile "
+        "CREATE INDEX IF NOT EXISTS wordsWeightByFile_word ON "
+        "wordsWeightByFile "
         "(word)");
     TcpServer::getInstance().run();
     Sqlite::close();

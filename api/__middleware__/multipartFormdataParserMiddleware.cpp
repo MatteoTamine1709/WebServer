@@ -28,6 +28,13 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
         do {
             std::string s = req.tmpFile.readLine();
             if (s.find(boundary + "--") != std::string::npos) {
+                // End of multipart/form-data
+                if (!filename.empty()) {
+                    req.files[filename].size = size;
+                    req.files[filename].resetCursor();
+                    size = 0;
+                    req.files[filename].close();
+                }
                 break;
             } else if (s.find(boundary) != std::string::npos) {
                 // Read headers

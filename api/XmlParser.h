@@ -58,6 +58,11 @@ class HtmlParser {
         return extractedContent;
     }
 
+    xmlNode* getRoot() {
+        if (!m_doc) return nullptr;
+        return xmlDocGetRootElement(m_doc);
+    }
+
    private:
     htmlDocPtr m_doc;
 };
