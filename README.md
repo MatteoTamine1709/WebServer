@@ -36,7 +36,7 @@
 - [ ] Make Htmlparser lexer better
 - [ ] Keep track of link clicked after a search and show the most clicked link first
 - [ ] Stem in the indexer
-- [ ] Consider typo in the query
+- [x] Consider typo in the query (using Levenshtein distance)
 - [x] Look for BM25 algorithm in the indexer
 - [ ] Implement PageRank in the indexer
 

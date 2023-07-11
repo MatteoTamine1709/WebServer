@@ -1,7 +1,25 @@
+#include <functional>
+
+#include "LevenshteinDist.h"
 #include "src/Sqlite.h"
 #include "src/TcpServer.h"
 
-int main(int, char**) {
+void distance(sqlite3_context *context, int argc, sqlite3_value **argv) {
+    if (argc != 2) {
+        sqlite3_result_error(context, "Invalid number of arguments", -1);
+        return;
+    }
+    if (sqlite3_value_type(argv[0]) != SQLITE_TEXT ||
+        sqlite3_value_type(argv[1]) != SQLITE_TEXT) {
+        sqlite3_result_error(context, "Invalid argument type", -1);
+        return;
+    }
+    const char *s1 = (const char *)sqlite3_value_text(argv[0]);
+    const char *s2 = (const char *)sqlite3_value_text(argv[1]);
+    sqlite3_result_int(context, LevenshteinDist::distance(s1, s2));
+}
+
+int main(int, char **) {
     Sqlite::open("./db.sqlite3");
     Sqlite::exec(
         "CREATE TABLE IF NOT EXISTS files ("
@@ -36,6 +54,15 @@ int main(int, char**) {
         "CREATE INDEX IF NOT EXISTS wordsWeightByFile_word ON "
         "wordsWeightByFile "
         "(word)");
+    Sqlite::exec(
+        "CREATE INDEX IF NOT EXISTS wordsWeightByFile_fileId ON "
+        "wordsWeightByFile "
+        "(fileId)");
+
+    sqlite3 *db = Sqlite::getDB();
+    sqlite3_create_function(db, "levenshtein", 2,
+                            SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, distance,
+                            NULL, NULL);
     TcpServer::getInstance().run();
     Sqlite::close();
 

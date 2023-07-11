@@ -59,18 +59,33 @@ void get(Request &req, Response &res) {
         std::cout << "Token: " << token << std::endl;
         std::unordered_map<Path, std::pair<Weight, size_t>>
             tokensWeightAndTotalByFile;
+        // Select using the levenshtein function to get the words that are
+        // similar to the token in a distance of 2 and keep the distance as a
+        // result of the query
         Sqlite::exec(
-            "SELECT files.path, wordsWeightByFile.weight, files.numberOfWords "
-            "FROM files "
-            "INNER JOIN wordsWeightByFile ON files.id = "
-            "wordsWeightByFile.fileId "
-            "WHERE wordsWeightByFile.word = '" +
-                token + "' ORDER BY wordsWeightByFile.weight ASC",
+            "SELECT files.path, wordsWeightByFile.weight, "
+            "files.numberOfWords, wordsWeightByFile.word, levenshtein(word, '" +
+                token +
+                "') AS distance"
+                " FROM files "
+                " INNER JOIN wordsWeightByFile ON files.id = "
+                "wordsWeightByFile.fileId "
+                "WHERE wordsWeightByFile.word IN (SELECT word FROM "
+                "wordsFileContain WHERE levenshtein(word, '" +
+                token + "') <= 1) ORDER BY wordsWeightByFile.weight ASC",
             [](void *data, int argc, char **argv, char **azColName) -> int {
                 auto &tokensWeightAndTotalByFile = *(
                     std::unordered_map<Path, std::pair<Weight, size_t>> *)data;
-                tokensWeightAndTotalByFile[argv[0]] = {atof(argv[1]),
-                                                       atoi(argv[2])};
+                std::string path = argv[0];
+                double weight = atof(argv[1]);
+                size_t numberOfWords = atoi(argv[2]);
+                std::string word = argv[3];
+                size_t distance = atoi(argv[4]);
+                if (tokensWeightAndTotalByFile.find(path) ==
+                    tokensWeightAndTotalByFile.end())
+                    tokensWeightAndTotalByFile[path] = {0, numberOfWords};
+                tokensWeightAndTotalByFile[path].first +=
+                    weight * (1 - pow(distance, 2) / word.length());
                 return 0;
             },
             &tokensWeightAndTotalByFile);
