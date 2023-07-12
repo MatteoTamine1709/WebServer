@@ -43,6 +43,9 @@ class Sqlite {
     static bool select(const char* tableName, const char* columns,
                        const char* where, Callback callback, void* data);
 
+    static bool delete_(const std::string tableName, const std::string where);
+    static bool delete_(const char* tableName, const char* where);
+
     static sqlite3_int64 lastInsertRowId() {
         return sqlite3_last_insert_rowid(m_db);
     }

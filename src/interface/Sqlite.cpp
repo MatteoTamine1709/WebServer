@@ -188,3 +188,15 @@ bool Sqlite::select(const char* tableName, const char* columns,
             where ? where : "1");
     return exec(sql, callback, data);
 }
+
+bool Sqlite::delete_(const std::string tableName, const std::string where) {
+    return delete_(tableName.c_str(), where.c_str());
+}
+
+bool Sqlite::delete_(const char* tableName, const char* where) {
+    if (m_db == nullptr) return false;
+
+    char sql[1024 * 4];
+    sprintf(sql, "DELETE FROM %s WHERE %s", tableName, where);
+    return exec(sql);
+}

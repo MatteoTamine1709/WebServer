@@ -21,7 +21,7 @@
 - [ ] Multipart form data variables parsing in middleware
 - [ ] Move the Css and HTML builder to a utils directory
 - [x] **StreamFile leaks FD**
-- [ ] StreamFile fills the /tmp folder, need to find a solution
+- [x] StreamFile fills the /tmp folder, need to find a solution
 - [ ] TODO App
 - [ ] Add tags on documents
 - [ ] Filter by doc type

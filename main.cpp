@@ -25,10 +25,11 @@ int main(int, char **) {
         "CREATE TABLE IF NOT EXISTS files ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "name TEXT NOT NULL,"
-        "path TEXT NOT NULL,"
-        "size INTEGER NOT NULL,"
-        "mimetype TEXT NOT NULL,"
-        "numberOfWords INTEGER NOT NULL)");
+        "path TEXT NOT NULL DEFAULT '',"
+        "size INTEGER NOT NULL DEFAULT 0,"
+        "mimetype TEXT NOT NULL DEFAULT '',"
+        "pageRank REAL NOT NULL DEFAULT 0,"
+        "numberOfWords INTEGER NOT NULL DEFAULT 0)");
     Sqlite::exec(
         "CREATE TABLE IF NOT EXISTS wordsFileContain ("
         "word TEXT UNIQUE,"
@@ -39,6 +40,13 @@ int main(int, char **) {
         "word TEXT NOT NULL,"
         "weight REAL NOT NULL,"
         "FOREIGN KEY(fileId) REFERENCES files(id))");
+    Sqlite::exec(
+        "CREATE TABLE IF NOT EXISTS CSRPageRankMatrix ("
+        "fr INTEGER NOT NULL,"
+        "t INTEGER NOT NULL,"
+        "PRIMARY KEY(fr, t),"
+        "FOREIGN KEY(fr) REFERENCES files(id),"
+        "FOREIGN KEY(t) REFERENCES files(id))");
     // Create indexes
     Sqlite::exec("CREATE INDEX IF NOT EXISTS files_name ON files (name)");
     Sqlite::exec("CREATE INDEX IF NOT EXISTS files_path ON files (path)");
@@ -47,6 +55,8 @@ int main(int, char **) {
     Sqlite::exec(
         "CREATE INDEX IF NOT EXISTS files_numberOfWords ON files "
         "(numberOfWords)");
+    Sqlite::exec(
+        "CREATE INDEX IF NOT EXISTS files_pageRank ON files (pageRank)");
     Sqlite::exec(
         "CREATE INDEX IF NOT EXISTS wordsFileContain_word ON wordsFileContain "
         "(word)");
@@ -58,6 +68,15 @@ int main(int, char **) {
         "CREATE INDEX IF NOT EXISTS wordsWeightByFile_fileId ON "
         "wordsWeightByFile "
         "(fileId)");
+    Sqlite::exec(
+        "CREATE INDEX IF NOT EXISTS pageRankMatrix_fr ON pageRankMatrix "
+        "(fr)");
+    Sqlite::exec(
+        "CREATE INDEX IF NOT EXISTS pageRankMatrix_t ON pageRankMatrix "
+        "(t)");
+    Sqlite::exec(
+        "CREATE INDEX IF NOT EXISTS pageRankMatrix_fr_t ON pageRankMatrix "
+        "(fr, t)");
 
     sqlite3 *db = Sqlite::getDB();
     sqlite3_create_function(db, "levenshtein", 2,
