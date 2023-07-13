@@ -64,6 +64,16 @@ function select_option {
     return $selected
 }
 
+echo "Compile api folder? (y/n)"
+read -n 1 -r
+echo
+
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    echo "Compiling api folder"
+    ./compileAPI.sh
+fi
+
 echo "Select build type:"
 echo
 

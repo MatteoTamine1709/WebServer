@@ -29,16 +29,26 @@
 - [ ] Write an article about the project
 - [ ] Make the server more secure (maybe docker can help)
 - [ ] Make the server available on LAN
-- [ ] Create a script to build the endpoints and middleware
+- [x] Create a script to build the endpoints and middleware
 - [ ] Make hotreloader accept a command line input to config the compiile command
 - [x] Make html parser value the tag name
-  - [x] Still require tweaking
-- [ ] Make Htmlparser lexer better
+  - [ ] Still require tweaking
+- [x] Make Htmlparser lexer better
+  - [ ] Still require tweaking
 - [ ] Keep track of link clicked after a search and show the most clicked link first
-- [ ] Stem in the indexer
+- [x] Stem in the lexer **(I need to think about wstring :thinking:)**
+  - [ ] Recognize the language of the page and use the correct stemmer
+  - [ ] Recognize the language of the request and use the correct stemmer
+- [ ] Add a way to add a new page to the indexer
 - [x] Consider typo in the query (using Levenshtein distance)
 - [x] Look for BM25 algorithm in the indexer
-- [ ] Implement PageRank in the indexer
+- [x] Implement PageRank in the indexer
+  - [ ] Multi-threaded PageRank
+- [ ] Being able in the interface to type a relative path for the files we are uploading
+- [ ] Autocomplete in the search bar
+- [ ] Download file from URL
+  - [ ] If it is a video, convert it to dash
+  - [ ] If it is an html page, index it (and allow a depth of download to the user to download linked pages)
 
 ## Stuff I wanna do
 

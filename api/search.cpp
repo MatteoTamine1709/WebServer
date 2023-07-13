@@ -116,19 +116,22 @@ void get(Request &req, Response &res) {
         }
     }
     std::vector<std::pair<Path, Score>> sortedScores;
+    const double FACTOR = 100 * 100 * 100;
     for (auto &[path, score] : scores)
-        sortedScores.push_back({path, score * pageRanks[path]});
+        sortedScores.push_back({path, score * pageRanks[path] * FACTOR});
     std::sort(sortedScores.begin(), sortedScores.end(),
               [](const std::pair<Path, Score> &a,
                  const std::pair<Path, Score> &b) -> bool {
                   return a.second > b.second;
               });
-    for (auto &[path, score] : sortedScores)
-        std::cout << path << " --- " << scores[path] << ", " << pageRanks[path]
-                  << std::endl;
     std::vector<std::pair<Path, Score>> top50Scores;
-    for (size_t i = 0; i < 50 && i < sortedScores.size(); i++)
+    for (size_t i = 0; i < 50 && i < sortedScores.size(); i++) {
+        std::cout << sortedScores[i].first << " --- "
+                  << scores[sortedScores[i].first] << " => "
+                  << sortedScores[i].second << ", "
+                  << pageRanks[sortedScores[i].first] << std::endl;
         top50Scores.push_back(sortedScores[i]);
+    }
     HtmlBuilder html{};
     html.h3().text("Links").h3_();
     html.ul();

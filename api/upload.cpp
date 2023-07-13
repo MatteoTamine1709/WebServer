@@ -208,7 +208,6 @@ void parseHtmlFile(
     Sqlite::select("files", "id", "name = '" + fileInfo.name + "'", callback,
                    &callbackData);
     if (found) {
-        std::cout << "Updating content for: " << fileInfo.name << std::endl;
         Sqlite::update("files",
                        "path = '" + path +
                            "', size = " + std::to_string(fileInfo.size) +
@@ -216,7 +215,6 @@ void parseHtmlFile(
                            std::to_string(wordWeightAndTotalByFile.second),
                        "name = '" + fileInfo.name + "'");
     } else {
-        std::cout << "Inserting content for: " << fileInfo.name << std::endl;
         Sqlite::insert(
             "files", "name, path, size, mimetype, numberOfWords",
             std::string("'" + fileInfo.name + "', '" + path + "', " +
@@ -225,15 +223,15 @@ void parseHtmlFile(
                 .c_str());
         fileID = Sqlite::lastInsertRowId();
     }
-    // Sqlite::insert("CSRPageRankMatrix", "fr, t, value",
+    // Sqlite::insert("CSRPageRankMatrix", "fr, t",
     //                std::string(std::to_string(fileID) + ", " +
-    //                            std::to_string(fileID) + ", 1")
+    //                            std::to_string(fileID))
     //                    .c_str());
     for (auto &link : links) {
-        Sqlite::insert("CSRPageRankMatrix", "fr, t, value",
-                       std::string(std::to_string(fileID) + ", " +
-                                   std::to_string(link) + ", 1")
-                           .c_str());
+        Sqlite::insert(
+            "CSRPageRankMatrix", "fr, t",
+            std::string(std::to_string(fileID) + ", " + std::to_string(link))
+                .c_str());
     }
     for (auto &[word, weight] : wordWeightAndTotalByFile.first) {
         Sqlite::insert("wordsWeightByFile", "fileId, word, weight",
@@ -261,33 +259,38 @@ void runPageRank() {
         },
         &N);
     std::vector<double> scores(N, 1.0 / N);
+    std::vector<double> newScores(N, 0);
+    std::vector<int> nbOuts(N, -1);
+    std::vector<std::vector<int>> ins(N);
     for (int it = 0; it < max_iterations; ++it) {
-        std::vector<double> newScores(N, 0);
         for (int j = 0; j < N; ++j) {
             // p = page[j]
-            std::vector<int> ins;
-            Sqlite::select(
-                "CSRPageRankMatrix", "fr", "t = " + std::to_string(j + 1),
-                [](void *data, int argc, char **argv, char **azColName) -> int {
-                    auto &ins = *(std::vector<int> *)data;
-                    ins.push_back(atoi(argv[0]));
-                    return 0;
-                },
-                &ins);
-            double sum = 0;
-            for (int k = 0; k < ins.size(); ++k) {
-                int nbOut = 1;
+            if (ins[j].empty()) {
                 Sqlite::select(
-                    "CSRPageRankMatrix", "COUNT(t)",
-                    "fr = " + std::to_string(ins[k]),
+                    "CSRPageRankMatrix", "fr", "t = " + std::to_string(j + 1),
                     [](void *data, int argc, char **argv,
                        char **azColName) -> int {
-                        auto &nbOut = *(int *)data;
-                        nbOut = atoi(argv[0]);
+                        auto &ins = *(std::vector<int> *)data;
+                        ins.push_back(atoi(argv[0]));
                         return 0;
                     },
-                    &nbOut);
-                sum += scores[ins[k] - 1] / nbOut;  // -1 because id start at 1
+                    &ins[j]);
+            }
+            double sum = 0;
+            for (int k = 0; k < ins[j].size(); ++k) {
+                if (nbOuts[ins[j][k] - 1] == -1)
+                    Sqlite::select(
+                        "CSRPageRankMatrix", "COUNT(t)",
+                        "fr = " + std::to_string(ins[j][k]),
+                        [](void *data, int argc, char **argv,
+                           char **azColName) -> int {
+                            auto &nbOuts = *(int *)data;
+                            nbOuts = atoi(argv[0]);
+                            return 0;
+                        },
+                        &nbOuts[ins[j][k] - 1]);
+                sum += scores[ins[j][k] - 1] /
+                       nbOuts[ins[j][k] - 1];  // -1 because id start at 1
             }
             double pr = (1 - damping_factor) / N + damping_factor * sum;
             newScores[j] = pr;

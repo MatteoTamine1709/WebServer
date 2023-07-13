@@ -5,7 +5,10 @@
 #include <cctype>
 #include <string>
 
+#include "stem/english_stem.h"
+
 struct Lexer {
+    stemming::english_stem<> StemEnglish;
     std::string content;
     size_t pos = 0;
 
@@ -36,11 +39,20 @@ struct Lexer {
     std::string next_token() {
         trim_left();
         if (pos >= content.size()) return "";
+        std::string token = "";
         if (isdigit(content[pos]))
-            return chopWhile([](char c) -> bool { return isdigit(c); });
-        if (isalpha(content[pos]))
-            return chopWhile([](char c) -> bool { return isalnum(c); });
-        return chop(1);
+            token = chopWhile([](char c) -> bool {
+                return isdigit(c) || c == '_' || c == 'x' || c == 'X';
+            });
+        else if (isalpha(content[pos]))
+            token = chopWhile([](char c) -> bool {
+                return isalnum(c) || c == '-' || c == '_';
+            });
+        else
+            token = chop(1);
+        std::wstring wtoken(token.begin(), token.end());
+        StemEnglish(wtoken);
+        return std::string(wtoken.begin(), wtoken.end());
     }
 
     // create iterator
