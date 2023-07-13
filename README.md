@@ -36,7 +36,7 @@
 - [x] Make Htmlparser lexer better
   - [ ] Still require tweaking
 - [ ] Keep track of link clicked after a search and show the most clicked link first
-- [x] Stem in the lexer **(I need to think about wstring :thinking:)**
+- [x] Stem in the lexer **(I need to think about wstring :thinking:)** ([Stem library](https://github.com/Blake-Madden/OleanderStemmingLibrary))
   - [ ] Recognize the language of the page and use the correct stemmer
   - [ ] Recognize the language of the request and use the correct stemmer
 - [ ] Add a way to add a new page to the indexer

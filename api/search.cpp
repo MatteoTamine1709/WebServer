@@ -75,7 +75,7 @@ void get(Request &req, Response &res) {
                 "wordsWeightByFile.fileId "
                 "WHERE wordsWeightByFile.word IN (SELECT word FROM "
                 "wordsFileContain WHERE levenshtein(word, '" +
-                token + "') <= 2)",
+                token + "') <= 1)",
             [](void *data, int argc, char **argv, char **azColName) -> int {
                 auto &tokensWeightAndTotalByFile =
                     *(std::unordered_map<Path, Data> *)data;
