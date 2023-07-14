@@ -34,6 +34,7 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
                     req.files[filename].resetCursor();
                     size = 0;
                     req.files[filename].close();
+                    filename = "";
                 }
                 break;
             } else if (s.find(boundary) != std::string::npos) {
@@ -43,8 +44,23 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
                     req.files[filename].resetCursor();
                     size = 0;
                     req.files[filename].close();
+                    filename = "";
                 }
                 std::string contentDisposition = req.tmpFile.readLine();
+                if (contentDisposition.find("filename=\"") ==
+                    std::string::npos) {
+                    // This is a variable parsing
+                    std::string name = contentDisposition.substr(
+                        contentDisposition.find("name=\"") + 6,
+                        contentDisposition.find(
+                            "\"", contentDisposition.find("name=\"") + 6) -
+                            contentDisposition.find("name=\"") - 6);
+                    req.tmpFile.readLine();  // Empty line after headers
+                    std::string value = req.tmpFile.readLine();
+                    value = value.substr(0, value.size() - 2);
+                    req.body[name] = value;
+                    continue;
+                }
                 filename = contentDisposition.substr(
                     contentDisposition.find("filename=\"") + 10,
                     contentDisposition.find(

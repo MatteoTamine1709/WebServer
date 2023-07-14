@@ -2,6 +2,7 @@
 
 ## TODOs
 
+- [ ] Postman is not able to send a request to the server, figure out why
 - [ ] This Readme
 - [ ] Indexer of pages
   - [x] Indexer of HTML pages
@@ -18,7 +19,7 @@
 - [ ] For videos, use dash and stream the video
 - [ ] Use ffmpeg to convert videos to dash format to have multiple quality of the video
 - [ ] Url encoded middleware
-- [ ] Multipart form data variables parsing in middleware
+- [x] Multipart form data variables parsing in middleware
 - [ ] Move the Css and HTML builder to a utils directory
 - [x] **StreamFile leaks FD**
 - [x] StreamFile fills the /tmp folder, need to find a solution
@@ -46,6 +47,7 @@
   - [ ] Multi-threaded PageRank
 - [ ] Being able in the interface to type a relative path for the files we are uploading
 - [ ] Autocomplete in the search bar
+- [ ] Autorize a depth of download when uploading a file
 - [ ] Download file from URL
   - [ ] If it is a video, convert it to dash
   - [ ] If it is an html page, index it (and allow a depth of download to the user to download linked pages)

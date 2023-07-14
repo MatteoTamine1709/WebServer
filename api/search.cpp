@@ -117,8 +117,10 @@ void get(Request &req, Response &res) {
     }
     std::vector<std::pair<Path, Score>> sortedScores;
     const double FACTOR = 100 * 100 * 100;
-    for (auto &[path, score] : scores)
+    for (auto &[path, score] : scores) {
+        score = score < 0 ? -score : score;
         sortedScores.push_back({path, score * pageRanks[path] * FACTOR});
+    }
     std::sort(sortedScores.begin(), sortedScores.end(),
               [](const std::pair<Path, Score> &a,
                  const std::pair<Path, Score> &b) -> bool {
