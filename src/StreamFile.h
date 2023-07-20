@@ -181,6 +181,8 @@ typedef struct StreamFile_s {
         return false;
     }
 
+    std::string getPath() const { return m_path; }
+
    private:
     std::string m_path = "/tmp/http-tmp-XXXXXX";
     FILE *m_file = nullptr;

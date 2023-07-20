@@ -51,6 +51,7 @@
 - [ ] Download file from URL
   - [ ] If it is a video, convert it to dash
   - [ ] If it is an html page, index it (and allow a depth of download to the user to download linked pages)
+- [ ] When clicking a downloaded file (html) that has links that we didn't download, prompt the user to know if he wants to download the linked pages and index them
 
 ## Stuff I wanna do
 

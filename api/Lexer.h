@@ -41,9 +41,8 @@ struct Lexer {
         if (pos >= content.size()) return "";
         std::string token = "";
         if (isdigit(content[pos]))
-            token = chopWhile([](char c) -> bool {
-                return isdigit(c) || c == '_' || c == 'x' || c == 'X';
-            });
+            token = chopWhile(
+                [](char c) -> bool { return isdigit(c) || c == '_'; });
         else if (isalpha(content[pos]))
             token = chopWhile([](char c) -> bool {
                 return isalnum(c) || c == '-' || c == '_';

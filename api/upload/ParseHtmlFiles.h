@@ -1,70 +1,19 @@
-#include <fstream>
-#include <iostream>
-#include <unordered_set>
+#ifndef PARSE_HTML_FILES_H
+#define PARSE_HTML_FILES_H
 
-#include "Lexer.h"
-#include "XmlParser.h"
 #include "src/Request.h"
-#include "src/Response.h"
-#include "src/Sqlite.h"
+#include "types.h"
 
-extern "C" {
-void get(Request &req, Response &res);
-void post(Request &req, Response &res);
-}
-
-void get(Request &req, Response &res) {
-    res.sendFile("./app/dist/upload.html");
-}
-
-typedef std::string Path;
-typedef std::string Word;
-typedef double Weight;
-typedef size_t Frequency;
-typedef std::string Tag;
-
-std::unordered_map<Tag, Weight> tagsWeight = {
+const std::unordered_map<Tag, Weight> tagsWeight = {
     {"h1", 1.5}, {"h2", 1},       {"h3", 0.8},     {"h4", 0.6}, {"h5", 0.5},
     {"h6", 0.4}, {"title", 2},    {"strong", 0.2}, {"i", 0.1},  {"b", 0.2},
     {"em", 0.1}, {"header", 0.4}, {"footer", 0.2}};
-
-std::string xmlCharPtrToString(const xmlChar *xmlCharPtr) {
-    std::string str((const char *)xmlCharPtr);
-    return str;
-}
-
-void updateWordsFileContain(const Word &word, const Frequency &freq) {
-    // If word already exist, update it
-    bool found = false;
-    struct CallbackData {
-        bool *found;
-        Word word;
-        Frequency freq;
-    };
-    auto callback = [](void *data, int argc, char **argv,
-                       char **azColName) -> int {
-        CallbackData *callbackData = (CallbackData *)data;
-        *callbackData->found = true;
-        Sqlite::update("wordsFileContain",
-                       "numberOfFileContains = " +
-                           std::to_string(atoi(argv[1]) + callbackData->freq),
-                       "word = '" + callbackData->word + "'");
-        return 0;
-    };
-    CallbackData callbackData = {&found, word, freq};
-    Sqlite::select("wordsFileContain", "word, numberOfFileContains",
-                   "word = '" + word + "'", callback, &callbackData);
-    if (found) return;
-    Sqlite::insert(
-        "wordsFileContain", "word, numberOfFileContains",
-        std::string("'" + word + "', " + std::to_string(freq)).c_str());
-}
 
 void parseATag(xmlNode *child, std::vector<size_t> &links,
                const Path &fileName) {
     xmlChar *href = xmlGetProp(child, (const xmlChar *)"href");
     if (href) {
-        std::string hrefStr = xmlCharPtrToString(href);
+        std::string hrefStr = (const char *)href;
         if (hrefStr.find("http") == std::string::npos &&
             hrefStr.find("https") == std::string::npos) {
             // We have a path to a file that will end up in the
@@ -154,7 +103,7 @@ void htmlNodeRecursive(xmlNode *node, Weight weight,
             Weight offset = 0;
             std::string tag = (const char *)child->name;
             if (tagsWeight.find(tag) != tagsWeight.end())
-                offset = tagsWeight[tag];
+                offset = tagsWeight.at(tag);
             if (tag == "a") parseATag(child, links, fileName);
             htmlNodeRecursive(child, weight + offset, wordExist,
                               wordWeightAndTotalByFile, fileName, links);
@@ -165,12 +114,10 @@ void htmlNodeRecursive(xmlNode *node, Weight weight,
 void parseHtmlFile(
     StreamFile &fileInfo,
     std::unordered_map<Word, Frequency> &numberOfFilesContainWord,
-    const std::string &path) {
-    char *buffer = new char[fileInfo.size];
-    size_t bytes = fileInfo.read(buffer, fileInfo.size);
+    const std::string &downloadPath) {
     std::pair<std::unordered_map<Word, Weight>, size_t>
         wordWeightAndTotalByFile;
-    HtmlParser parser(buffer, fileInfo.size);
+    HtmlParser parser(fileInfo.getPath());
     xmlNode *root = parser.getRoot();
     if (!root) {
         std::cerr << "Failed to parse file: " << fileInfo.name << std::endl;
@@ -209,7 +156,7 @@ void parseHtmlFile(
                    &callbackData);
     if (found) {
         Sqlite::update("files",
-                       "path = '" + path +
+                       "path = '" + downloadPath +
                            "', size = " + std::to_string(fileInfo.size) +
                            ", mimetype = 'text/html', numberOfWords = " +
                            std::to_string(wordWeightAndTotalByFile.second),
@@ -217,7 +164,7 @@ void parseHtmlFile(
     } else {
         Sqlite::insert(
             "files", "name, path, size, mimetype, numberOfWords",
-            std::string("'" + fileInfo.name + "', '" + path + "', " +
+            std::string("'" + fileInfo.name + "', '" + downloadPath + "', " +
                         std::to_string(fileInfo.size) + ", 'text/html', " +
                         std::to_string(wordWeightAndTotalByFile.second))
                 .c_str());
@@ -239,110 +186,6 @@ void parseHtmlFile(
                                    "', " + std::to_string(weight))
                            .c_str());
     }
-    delete[] buffer;
 }
 
-const double damping_factor = 0.85;  // Damping factor for PageRank algorithm
-const double convergence_threshold =
-    0.0001;  // Convergence threshold for stopping iterations
-const int max_iterations =
-    100;  // Maximum number of iterations for PageRank algorithm
-void runPageRank() {
-    // TODO: implement
-    double N = 0;
-    Sqlite::exec(
-        "SELECT COUNT(id) FROM files",
-        [](void *data, int argc, char **argv, char **azColName) -> int {
-            auto &N = *(double *)data;
-            N = std::stod(argv[0]);
-            return 0;
-        },
-        &N);
-    std::vector<double> scores(N, 1.0 / N);
-    std::vector<double> newScores(N, 0);
-    std::vector<int> nbOuts(N, -1);
-    std::vector<std::vector<int>> ins(N);
-    for (int it = 0; it < max_iterations; ++it) {
-        for (int j = 0; j < N; ++j) {
-            // p = page[j]
-            if (ins[j].empty()) {
-                Sqlite::select(
-                    "CSRPageRankMatrix", "fr", "t = " + std::to_string(j + 1),
-                    [](void *data, int argc, char **argv,
-                       char **azColName) -> int {
-                        auto &ins = *(std::vector<int> *)data;
-                        ins.push_back(atoi(argv[0]));
-                        return 0;
-                    },
-                    &ins[j]);
-            }
-            double sum = 0;
-            for (int k = 0; k < ins[j].size(); ++k) {
-                if (nbOuts[ins[j][k] - 1] == -1)
-                    Sqlite::select(
-                        "CSRPageRankMatrix", "COUNT(t)",
-                        "fr = " + std::to_string(ins[j][k]),
-                        [](void *data, int argc, char **argv,
-                           char **azColName) -> int {
-                            auto &nbOuts = *(int *)data;
-                            nbOuts = atoi(argv[0]);
-                            return 0;
-                        },
-                        &nbOuts[ins[j][k] - 1]);
-                sum += scores[ins[j][k] - 1] /
-                       nbOuts[ins[j][k] - 1];  // -1 because id start at 1
-            }
-            double pr = (1 - damping_factor) / N + damping_factor * sum;
-            newScores[j] = pr;
-        }
-        double diff = 0;
-        for (int j = 0; j < N; ++j) diff += std::abs(newScores[j] - scores[j]);
-        std::cout << "Iteration " << it << " diff: " << diff << std::endl;
-        scores = newScores;
-        if (diff < convergence_threshold) break;
-    }
-    for (int i = 0; i < N; ++i) {
-        Sqlite::update(
-            "files", "pageRank = " + std::to_string(scores[i]),
-            "id = " + std::to_string(i + 1));  // +1 because id start at 1
-    }
-}
-
-void post(Request &req, Response &res) {
-    std::cout << "# files:" << req.files.size() << std::endl;
-
-    try {
-        Sqlite::beginTransaction();
-        std::unordered_map<Word, Frequency> numberOfFilesContainWord;
-        size_t idx = 0;
-        for (auto &[_, fileInfo] : req.files) {
-            std::cout << "File " << idx++ << ": " << fileInfo.name << "\n";
-            fileInfo.open();
-            if (("./app/dist/download/" + fileInfo.name).find_last_of("/") !=
-                std::string::npos)
-                fs::create_directories(
-                    "./app/dist/download/" +
-                    fileInfo.name.substr(0, fileInfo.name.find_last_of("/")) +
-                    "/");
-            std::string path = "./download/" + fileInfo.name;
-            std::ofstream file("./app/dist/" + path, std::ios::binary);
-            if (utils::endsWith(fileInfo.name, ".xml") ||
-                utils::endsWith(fileInfo.name, ".html") ||
-                utils::endsWith(fileInfo.name, ".xhtml")) {
-                parseHtmlFile(fileInfo, numberOfFilesContainWord, path);
-            }
-            file.close();
-            fileInfo.moveFile("./app/dist/" + path);
-            fileInfo.close();
-        }
-        for (auto &[word, freq] : numberOfFilesContainWord)
-            updateWordsFileContain(word, freq);
-        runPageRank();
-        Sqlite::commitTransaction();
-    } catch (std::exception &e) {
-        std::cerr << e.what() << std::endl;
-        Sqlite::rollbackTransaction();
-    }
-    // Redirect to upload
-    res.redirect("/upload");
-}
+#endif  // PARSE_HTML_FILES_H

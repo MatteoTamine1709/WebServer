@@ -62,7 +62,8 @@ bool Sqlite::beginTransaction() {
     if (m_db == nullptr) return false;
 
     char* errMsg = nullptr;
-    int rc = sqlite3_exec(m_db, "BEGIN TRANSACTION", nullptr, nullptr, &errMsg);
+    int rc =
+        sqlite3_exec(m_db, "BEGIN TRANSACTION;", nullptr, nullptr, &errMsg);
     if (rc != SQLITE_OK) {
         sqlite3_free(errMsg);
         return false;
@@ -75,8 +76,7 @@ bool Sqlite::commitTransaction() {
     if (m_db == nullptr) return false;
 
     char* errMsg = nullptr;
-    int rc =
-        sqlite3_exec(m_db, "COMMIT TRANSACTION", nullptr, nullptr, &errMsg);
+    int rc = sqlite3_exec(m_db, "END TRANSACTION;", nullptr, nullptr, &errMsg);
     if (rc != SQLITE_OK) {
         sqlite3_free(errMsg);
         return false;
