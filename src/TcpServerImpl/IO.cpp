@@ -105,6 +105,11 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
     if (hasBeenFullyFollowed && fs::is_directory(newPath) && pathPart.empty() &&
         fs::is_regular_file(newPath / "index.so"))
         return (newPath / "index.so").string();
+
+    if (hasBeenFullyFollowed && fs::is_directory(newPath) && pathPart.empty() &&
+        fs::is_regular_file(newPath / "[[...index]].so"))
+        return (newPath / "[[...index]].so").string();
+
     if (fs::exists(newPath) && fs::is_regular_file(newPath))
         return newPath.string();
     if (!fallback.empty()) return fallback.string();

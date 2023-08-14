@@ -13,7 +13,6 @@
 
 extern "C" {
 void get(Request &req, Response &res);
-void post(Request &req, Response &res);
 }
 
 double tf(double wordWeight, size_t numberOfWords) {
@@ -139,9 +138,7 @@ void get(Request &req, Response &res) {
     html.ul();
     for (const auto &[path, score] : top50Scores)
         html.li()
-            .a({
-                {"href", path},
-            })
+            .a({{"href", path}})
             .text(path)
             .a_()
             .text(" --- " + std::to_string(score))

@@ -29,6 +29,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-gnu-unique")
 target_link_libraries(WebServer PRIVATE Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json ${SQLite3_LIBRARIES} PkgConfig::LIBXMLXX ${CURL_LIBRARIES})
 target_include_directories(WebServer PUBLIC ./)
 
+# add warning flags
+target_compile_options(WebServer PRIVATE -Wall -Wextra -Wpedantic)
+
 # add optimization flags
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_options(WebServer PRIVATE -O3)
