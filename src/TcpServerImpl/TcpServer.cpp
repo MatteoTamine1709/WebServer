@@ -109,6 +109,8 @@ std::string TcpServer::getIp() {
     return std::string(myIP);
 }
 
+fs::path TcpServer::getApiPath() const { return m_apiFolder; }
+
 void TcpServer::accept() {
     fd_set readFds;
     FD_ZERO(&readFds);
@@ -134,8 +136,8 @@ void TcpServer::accept() {
     m_numberOfConnection++;
     m_connectionMutex.unlock();
     std::thread([clientSocket, this]() {
-        TcpConnection connection(clientSocket);
         spdlog::debug("New task for client {}", clientSocket);
+        TcpConnection connection(clientSocket);
         while (connection.isOpen()) {
             auto requestHeader = this->readHeader(connection);
             if (!requestHeader) continue;

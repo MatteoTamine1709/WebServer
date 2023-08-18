@@ -1,0 +1,129 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/posts/2020-9-18-htmx-0-1-0-is-released/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:23 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ htmx 0.1.2 has been released!</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  <h1>htmx 0.1.2 has been released!</h1>
+  <h2 id="htmx-0-1-2-release">htmx 0.1.2 Release</h2>
+<p>I’m pleased to announce the <a rel="noopener" target="_blank" href="https://unpkg.com/browse/htmx.org@0.1.2/">0.1.2 release</a> of htmx as well as the first non-alpha hyperscript
+release <a rel="noopener" target="_blank" href="https://unpkg.com/hyperscript.org@0.0.2">0.0.2 hyperscript</a>.</p>
+<h3 id="changes">Changes</h3>
+<h4 id="breaking-changes">Breaking Changes</h4>
+<ul>
+<li>The SSE attribute <a href="../../attributes/hx-sse/index.html"><code>hx-sse</code></a> and the Web Sockets attribute <a href="../../attributes/hx-ws/index.html"><code>hx-ws</code></a> have changed syntax to now use colon separators: <code>hx-sse='connect:/chat swap:message'</code></li>
+<li>Hyperscript no longer requires a <code>_hyperscript.start()</code> call to initialize.</li>
+</ul>
+<h4 id="new-features">New Features</h4>
+<ul>
+<li>The SSE attribute <a href="../../attributes/hx-sse/index.html"><code>hx-sse</code></a> allows for swapping content directly on an event, in addition to triggering an htmx element,
+with the new <code>swap:&lt;event name&gt;</code> syntax.</li>
+<li><a href="../../attributes/hx-target/index.html"><code>hx-target</code></a> now supports a <code>find</code> syntax to find elements below the element by a CSS selector</li>
+<li>htmx plays better with deferred loading and many package managers</li>
+<li>All htmx events are dispatched in both camelCase as well as kebab-case, for better compatibility with AlpineJS and other frameworks.  (e.g. <code>htmx:afterOnLoad</code> will also be triggered as
+<code>htmx:after-on-load</code>)</li>
+</ul>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>The synthetic <code>revealed</code> trigger event is much less of a CPU hog</li>
+<li>Multi-select elements now send all values</li>
+<li>Exotic element IDs do not break DOM processing</li>
+<li>Exotic attribute values do not break the settling phase</li>
+<li>Hyperscript now supports <code>$</code> and <code>_</code> in function calls</li>
+<li>Hyperscript now supports empty parameter lists</li>
+</ul>
+<p>Enjoy!</p>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/posts/2020-9-18-htmx-0-1-0-is-released/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:23 GMT -->
+</html>

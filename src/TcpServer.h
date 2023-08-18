@@ -35,6 +35,7 @@ class TcpServer {
 
     void run();
     std::string getIp();
+    fs::path getApiPath() const;
 
    private:
     typedef std::string Endpoint;

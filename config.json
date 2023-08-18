@@ -5,12 +5,12 @@
   "public": "./app/dist",
   "middleware": "./api/__middleware__",
   "log": {
-    "level": "info",
+    "level": "debug",
     "format": "dev",
     "file": "server.log",
     "no-stdout": false,
     "timestamp": true
   },
   "numberOfThread": 15,
-  "watch": false
+  "watch": true
 }

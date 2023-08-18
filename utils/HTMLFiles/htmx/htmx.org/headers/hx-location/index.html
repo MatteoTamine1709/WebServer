@@ -1,0 +1,119 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/headers/hx-location/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:47 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ HX-Location Response Header</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  <h1>HX-Location Response Header</h1>
+  <p>This response header can be used to trigger a client side redirection without reloading the whole page. Instead of changing the page’s location it will act like following a <a href="../../attributes/hx-boost/index.html"><code>hx-boost</code> link</a>, creating a new history entry, issuing an ajax request to the value of the header and pushing the path into history.</p>
+<p>A sample response would be:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>HX-Location: /test
+</span></code></pre>
+<p>Which would push the client to test as if the user had clicked on <code>&lt;a href=&quot;/test&quot; hx-boost=&quot;true&quot;&gt;</code></p>
+<p>If you want to redirect to a specific target on the page rather than the default of document.body, you can pass more details along with the event, by using JSON for the value of the header:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>HX-Location: {&quot;path&quot;:&quot;/test2&quot;, &quot;target&quot;:&quot;#testdiv&quot;}
+</span></code></pre>
+<p>Path is required and is url to load the response from. The rest of the data mirrors the <a href="../../api/index.html#ajax"><code>ajax</code> api</a> context, which is:</p>
+<ul>
+<li><code>source</code> - the source element of the request</li>
+<li><code>event</code> - an event that “triggered” the request</li>
+<li><code>handler</code> - a callback that will handle the response HTML</li>
+<li><code>target</code> - the target to swap the response into</li>
+<li><code>swap</code> - how the response will be swapped in relative to the target</li>
+<li><code>values</code> - values to submit with the request</li>
+<li><code>headers</code> - headers to submit with the request</li>
+</ul>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/headers/hx-location/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:47 GMT -->
+</html>

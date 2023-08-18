@@ -1,0 +1,183 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/essays/locality-of-behaviour/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:46 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ Locality of Behaviour (LoB)</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+
+  <h1>Locality of Behaviour (LoB)</h1>
+  
+    <address>Carson Gross</address>
+    <time>May 29, 2020</time>
+  
+
+  <blockquote>
+<p>“The primary feature for easy maintenance is locality: Locality is that characteristic of source code that enables a 
+programmer to understand that source by looking at only a small portion of it.” – <a rel="noopener" target="_blank" href="https://www.dreamsongs.com/Files/PatternsOfSoftware.pdf">Richard Gabriel</a></p>
+</blockquote>
+<h2 id="the-lob-principle"><a class="zola-anchor" href="#the-lob-principle" aria-label="Anchor link for: the-lob-principle">🔗</a>The LoB Principle</h2>
+<p>Locality of Behaviour is the principle that: </p>
+<blockquote>
+<p>The behaviour of a unit of code should be as obvious as possible by looking only at that unit of code</p>
+</blockquote>
+<h2 id="discussion"><a class="zola-anchor" href="#discussion" aria-label="Anchor link for: discussion">🔗</a>Discussion</h2>
+<p>The LoB principle is a simple prescriptive formulation of the quoted statement from <a rel="noopener" target="_blank" href="https://www.dreamsongs.com/">Richard Gabriel</a>.
+In as much as it is possible, and in balance with other concerns, developers should strive to make the behaviour of
+a code element obvious on inspection.</p>
+<p>Consider two different implementations of an AJAX request in HTML, the first in <a href="../../index.html">htmx</a>:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">hx-get</span><span>=</span><span style="color:#98c379;">&quot;/clicked&quot;</span><span>&gt;Click Me&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span></code></pre>
+<p>and the second in <a rel="noopener" target="_blank" href="https://jquery.com/">jQuery</a>:</p>
+<pre data-lang="javascript" style="background-color:#282c34;color:#abb2bf;" class="language-javascript "><code class="language-javascript" data-lang="javascript"><span>  </span><span style="color:#61afef;">$</span><span>(</span><span style="color:#98c379;">&quot;#d1&quot;</span><span>).</span><span style="color:#61afef;">on</span><span>(</span><span style="color:#98c379;">&quot;click&quot;</span><span>, </span><span style="color:#c678dd;">function</span><span>(){
+</span><span>    </span><span style="color:#e06c75;">$</span><span>.</span><span style="color:#61afef;">ajax</span><span>({
+</span><span>         </span><span style="font-style:italic;color:#5c6370;">/* AJAX options... */
+</span><span>    });
+</span><span>  });
+</span></code></pre>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;d1&quot;</span><span>&gt;Click Me&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span></code></pre>
+<p>In the former, the behaviour of the <code>button</code> element is obvious on inspection, satisfying the LoB principle.</p>
+<p>In the latter, the behaviour of the <code>button</code> element is spread out amongst multiple files.  It is difficult to know
+exactly what the button does without a total knowledge of the code base.  This “spooky action at a distance” is a source
+of maintenance issues and stands in the way of developers understanding of the code base.</p>
+<p>The htmx example demonstrates good Locality of Behaviour, while the jQuery example has poor Locality of Behaviour.</p>
+<h3 id="surfacing-behaviour-vs-inlining-implementation"><a class="zola-anchor" href="#surfacing-behaviour-vs-inlining-implementation" aria-label="Anchor link for: surfacing-behaviour-vs-inlining-implementation">🔗</a>Surfacing Behaviour vs. Inlining Implementation</h3>
+<p>A common objection to Locality of Behaviour is that it is inlining implementation details within a code unit, making the
+code unit less abstract and more brittle.  However, it is important to make the distinction between inlining the
+<em>implementation</em> of some behaviour and inlining the invocation (or declaration) of some behaviour.</p>
+<p>Consider functions in most programming languages: there is a distinction between the declaration of function and its 
+use at call sites.  A good function abstracts away its implementation details, but is also invoked in an obvious manner, 
+without any spooky action at a distance.</p>
+<p>Increasing the obviousness of the behaviour of an element is, ceteris paribus, a good thing, but it falls to both end-developers
+and especially framework developers to make LoB both as easy and as conceptually clean as possible.</p>
+<h3 id="conflict-with-other-development-principles"><a class="zola-anchor" href="#conflict-with-other-development-principles" aria-label="Anchor link for: conflict-with-other-development-principles">🔗</a>Conflict With Other Development Principles</h3>
+<p>The LoB will often conflict with other software development principles.  Two important ones
+are:</p>
+<ul>
+<li>
+<p><a rel="noopener" target="_blank" href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY - Don’t Repeat Yourself</a></p>
+<p>Software developers typically strive to avoid redundancy in their code or data.  This has come to be called “Staying DRY”,
+i.e. Don’t Repeat Yourself.  Like other software design principles this, on its own, is a good thing.  htmx, for example, 
+allows you to place many attributes on parent elements in a DOM and avoid repeating these attributes on children.  This is a 
+violation of LoB, in favor of DRY, and such tradeoffs need to be made judiciously by developers.</p>
+<p>Note that the further behaviour gets from the code unit it effects, the more severe the violation of LoB.  If it is
+within a few lines of the code unit, this is less serious than if it is a page away, which is less serious than if
+it is in a separate file entirely.</p>
+<p>There is no hard and fast rule, but rather subjective tradeoffs that must be made as software developers.</p>
+</li>
+<li>
+<p><a rel="noopener" target="_blank" href="https://en.wikipedia.org/wiki/Separation_of_concerns">SoC - Separation Of Concerns</a></p>
+<p>Separation of concerns a design principle for separating a computer program into distinct sections such that each 
+section addresses a separate concern.  A canonical example of this is splitting HTML, CSS, and Javascript.  Again, on its own and
+in isolation this may, indeed, be a good thing.  Inlining styles <a rel="noopener" target="_blank" href="https://tailwindcss.com/">has become more prevalent lately</a>, 
+but there are still strong arguments in favor of SoC in this regard.</p>
+<p>Note that SoC is, however, in conflict with LoB.  By tweaking a CSS file the look and, to an extent, behaviour of an
+element can change dramatically, and it is not obvious where this dramatic change came from.  Tools can help to an extent
+here, but there is still “spooky action at a distance” going on.</p>
+<p>Again, this isn’t to condemn SoC wholesale, just to say that there are subjective tradeoffs that must be made when
+considering how to structure your code.  The fact that inline styles have become more prevalent as of late is an
+indication that SoC is losing some support amongst developers.</p>
+</li>
+</ul>
+<h2 id="conclusion"><a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">🔗</a>Conclusion</h2>
+<p>LoB is a subjective software design principle that can help make a code base more humane and maintainable.  It must be traded
+off against other design principles and be considered in terms of the limitations of the system a code unit is
+written in, but, as much as is it is practical, adherence to this principle will increase your software maintainability,
+quality and sustainability.</p>
+
+  <div style="padding-top: 120px;padding-bottom:40px;text-align: center">
+    &lt;/&gt;
+  </div>
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/essays/locality-of-behaviour/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:46 GMT -->
+</html>

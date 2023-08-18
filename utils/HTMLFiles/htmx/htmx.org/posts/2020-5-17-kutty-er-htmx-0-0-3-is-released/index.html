@@ -1,0 +1,127 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/posts/2020-5-17-kutty-er-htmx-0-0-3-is-released/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:23 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ kutty, er, htmx 0.0.3 has been released!</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  <h1>kutty, er, htmx 0.0.3 has been released!</h1>
+  <h2 id="htmx-0-0-3-release">htmx 0.0.3 Release</h2>
+<p>I’m pleased to announce the <a rel="noopener" target="_blank" href="https://unpkg.com/browse/htmx.org@0.0.3/">0.0.3 release</a> of kutty, er, htmx, the successor
+to <a rel="noopener" target="_blank" href="http://intercoolerjs.org/">intercooler.js</a>!</p>
+<h4 id="why-not-kutty-0-0-2">Why not kutty 0.0.2?</h4>
+<p>One of the reasons you put a <code>0.0.1</code> release out there is to see what happens.  And one of the things that 
+happened was that multiple people made comments on how the word “kutty” meant different things in different languages, including
+“small”, “child” and a very unfortunate meaning in dutch slang.  I had originally 
+<a rel="noopener" target="_blank" href="https://github.com/bigskysoftware/kutty/commit/b003ccadf855fe49a40ca0b86ca3c9e16448d33c#diff-b9cfc7f2cdf78a7f4b91a753d10865a2">called the project <code>htmx</code></a> 
+(html extensions) and went back and forth between the two names for a bit.</p>
+<p>It seems like, upon contact with reality, <code>htmx</code> is a better long term name for the project.  It’s also
+a lot easier to search twitter &amp; reddit for that term.</p>
+<p>It’s a simple fix for anyone who actually used <code>0.0.1</code>:</p>
+<ul>
+<li>attributes go from <code>kt-</code> to <code>hx-</code> (their original prefix)</li>
+<li>request headers go from  <code>X-KT-</code> to <code>X-HX-</code></li>
+<li><code>kutty</code> goes to <code>htmx</code> for event names, etc.</li>
+</ul>
+<h4 id="changes">Changes</h4>
+<p>OK, so besides the big re-rename, what changed?</p>
+<ul>
+<li>A bug fix for the <code>hx-prompt</code> attribute</li>
+<li>A bug fix for multiple <code>hx-swap-oob</code> attributes</li>
+<li>Moved the default CSS indicator injection into its own sheet to avoid breaking</li>
+<li>Added the <code>htmx.config.includeIndicatorStyles</code> configuration option so people can opt out of injecting the indicator CSS</li>
+</ul>
+<p>Cheers!</p>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/posts/2020-5-17-kutty-er-htmx-0-0-3-is-released/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:23 GMT -->
+</html>

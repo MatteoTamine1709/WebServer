@@ -12,7 +12,7 @@ extern "C" void jsonParserMiddleware(Request &req, Response &res, Next_t next) {
     if (req.header("Content-Type").value_or("").find("application/json") ==
         std::string::npos)
         return next();
-    std::string body = req.body["blob"];
+    std::string body = req.readWholeBody();
     if (body.empty()) return next();
     try {
         req.body = nlohmann::json::parse(body);

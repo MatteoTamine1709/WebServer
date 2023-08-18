@@ -17,6 +17,13 @@
 std::optional<Request> TcpServer::readHeader(TcpConnection &connection) {
     Request request(connection, *this);
     if (!request.readHeader()) return std::nullopt;
+    if (request["Content-Length"]) {
+        size_t contentLength = std::stoul(request["Content-Length"].value());
+        if (contentLength > 4UL * ONE_GIGABYTE) {
+            SPDLOG_WARN("Content-Length is too large: {}", contentLength);
+            return std::nullopt;
+        }
+    }
 
     return request;
 }
@@ -115,17 +122,17 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
 
 Response TcpServer::handleRequest(Request &request) {
     if (request.method == "get" && !utils::getExtension(request.path).empty()) {
-        request.fileSystemPath = m_publicFolder / request.path;
+        request.fileSystemPath =
+            m_publicFolder / fs::path(request.path).relative_path();
         if (!fs::exists(request.fileSystemPath)) {
             auto resp = Response(request);
             resp.status(404).set("Content-Type", "text/html").send("Not Found");
             return resp;
         }
         return handleFile(request);
-        // response.complete(request);
-        // return response;
     }
-    auto correctPath = getCorrectPath(m_apiFolder / request.path);
+    auto correctPath =
+        getCorrectPath(m_apiFolder / fs::path(request.path).relative_path());
     if (!correctPath.has_value()) {
         auto resp = Response(request);
         resp.status(404).set("Content-Type", "text/html").send("Not Found");
@@ -133,7 +140,7 @@ Response TcpServer::handleRequest(Request &request) {
     }
     spdlog::debug("Found correct path {}", correctPath.value());
     request.fileSystemPath = correctPath.value();
-    // request.setParameters(m_apiFolder); // TODO: fix this
+    request.setParameters();
     return handleEndpoint(request);
 }
 

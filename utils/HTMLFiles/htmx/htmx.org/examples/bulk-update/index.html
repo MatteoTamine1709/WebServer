@@ -1,0 +1,314 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/examples/bulk-update/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:47 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  
+<title>&lt;/&gt; htmx ~ Examples ~ Bulk Update</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation"> <!-- don't boost on demo pages, sinon hijacks everything :/ -->
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  
+    
+  
+  <h1>Bulk Update</h1>
+  <script src="../../../unpkg.com/sinon%409.0.2/pkg/sinon.js"></script>
+  <script src="../../js/demo.js"></script>
+  <p>This demo shows how to implement a common pattern where rows are selected and then bulk updated.  This is
+accomplished by putting a form around a table, with checkboxes in the table, and then including the checked
+values in <code>PUT</code>’s to two different endpoints: <code>activate</code> and <code>deactivate</code>:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">hx-include</span><span>=</span><span style="color:#98c379;">&quot;#checked-contacts&quot; </span><span style="color:#d19a66;">hx-target</span><span>=</span><span style="color:#98c379;">&quot;#tbody&quot;</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;btn&quot; </span><span style="color:#d19a66;">hx-put</span><span>=</span><span style="color:#98c379;">&quot;/activate&quot;</span><span>&gt;Activate&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;btn&quot; </span><span style="color:#d19a66;">hx-put</span><span>=</span><span style="color:#98c379;">&quot;/deactivate&quot;</span><span>&gt;Deactivate&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>
+</span><span>&lt;</span><span style="color:#e06c75;">form </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;checked-contacts&quot;</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">table</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#e06c75;">thead</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#e06c75;">tr</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#e06c75;">th</span><span>&gt;&lt;/</span><span style="color:#e06c75;">th</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#e06c75;">th</span><span>&gt;Name&lt;/</span><span style="color:#e06c75;">th</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#e06c75;">th</span><span>&gt;Email&lt;/</span><span style="color:#e06c75;">th</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#e06c75;">th</span><span>&gt;Status&lt;/</span><span style="color:#e06c75;">th</span><span>&gt;
+</span><span>      &lt;/</span><span style="color:#e06c75;">tr</span><span>&gt;
+</span><span>      &lt;/</span><span style="color:#e06c75;">thead</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#e06c75;">tbody </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;tbody&quot;</span><span>&gt;
+</span><span>        &lt;</span><span style="color:#e06c75;">tr </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;&quot;</span><span>&gt;
+</span><span>          &lt;</span><span style="color:#e06c75;">td</span><span>&gt;&lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&#39;checkbox&#39; </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&#39;ids&#39; </span><span style="color:#d19a66;">value</span><span>=</span><span style="color:#98c379;">&#39;0&#39;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">td</span><span>&gt;
+</span><span>          &lt;</span><span style="color:#e06c75;">td</span><span>&gt;Joe Smith&lt;/</span><span style="color:#e06c75;">td</span><span>&gt;
+</span><span>          &lt;</span><span style="color:#e06c75;">td</span><span>&gt;joe@smith.org&lt;/</span><span style="color:#e06c75;">td</span><span>&gt;
+</span><span>          &lt;</span><span style="color:#e06c75;">td</span><span>&gt;Active&lt;/</span><span style="color:#e06c75;">td</span><span>&gt;
+</span><span>        &lt;/</span><span style="color:#e06c75;">tr</span><span>&gt;
+</span><span>        ...
+</span><span>      &lt;/</span><span style="color:#e06c75;">tbody</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#e06c75;">table</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">form</span><span>&gt;
+</span></code></pre>
+<p>The server will either activate or deactivate the checked users and then rerender the <code>tbody</code> tag with
+updated rows.  It will apply the class <code>activate</code> or <code>deactivate</code> to rows that have been mutated.  This allows
+us to use a bit of CSS to flash a color helping the user see what happened:</p>
+<pre data-lang="css" style="background-color:#282c34;color:#abb2bf;" class="language-css "><code class="language-css" data-lang="css"><span>  </span><span style="color:#d19a66;">.htmx-settling </span><span style="color:#e06c75;">tr</span><span style="color:#d19a66;">.deactivate </span><span style="color:#e06c75;">td </span><span>{
+</span><span>    background: lightcoral;
+</span><span>  }
+</span><span>  </span><span style="color:#d19a66;">.htmx-settling </span><span style="color:#e06c75;">tr</span><span style="color:#d19a66;">.activate </span><span style="color:#e06c75;">td </span><span>{
+</span><span>    background: darkseagreen;
+</span><span>  }
+</span><span>  </span><span style="color:#e06c75;">tr td </span><span>{
+</span><span>    transition: all </span><span style="color:#d19a66;">1.2s</span><span>;
+</span><span>  }
+</span></code></pre>
+<p>You can see a working example of this code below.</p>
+<style scoped="">
+  .htmx-settling tr.deactivate td {
+    background: lightcoral;
+  }
+  .htmx-settling tr.activate td {
+    background: darkseagreen;
+  }
+  tr td {
+    transition: all 1.2s;
+  }
+</style>
+<style>
+  #demo-server-info {
+      padding: 8px;
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      height: 64px;
+      width: 100vw;
+      background-color: whitesmoke;
+      border-top: 2px solid gray;
+      overflow: hide;
+      margin: 0px;
+  }
+  #demo-server-info.show {
+      max-height: 45vh;
+      height: 500px;
+      overflow: scroll;
+  }
+  #demo-activity {
+      height:300px
+  }
+
+  #demo-activity div {
+      vertical-align: top
+  }
+
+  #demo-canvas {
+      margin-bottom: 500px;
+      padding-top: 12px;
+  }
+
+</style>
+<script>
+  function toggleRequestInfo() {
+      var classList = document.getElementById("demo-server-info").classList;
+      classList.toggle("show");
+      if (classList.contains('show')) {
+          document.getElementById("request-info-toggler").innerHTML = "&downarrow; Hide"
+      } else {
+          document.getElementById("request-info-toggler").innerHTML = "&uparrow; Show"
+      }
+  }
+</script>
+<div id="demo-server-info">
+  <div>Server Requests<span id="request-count"></span> <a id="request-info-toggler" onclick="toggleRequestInfo()" style="cursor: pointer">&uparrow; Show</a></div>
+  <div id="demo-activity" class="row">
+      <div class="3 col" >
+          <ol id="demo-timeline" reversed>
+          </ol>
+      </div>
+      <div id="demo-current-request" class="9 col">
+      </div>
+  </div>
+</div>
+
+<h2><a class="zola-anchor" href="#demo" aria-label="Anchor link for: demo">🔗</a>Demo</h2>
+<div id="demo-canvas">
+</div>
+<script>
+    //=========================================================================
+    // Fake Server Side Code
+    //=========================================================================
+
+    // data
+    var dataStore = function(){
+      var data = [
+        { name: "Joe Smith", email: "joe@smith.org", status: "Active" },
+        { name: "Angie MacDowell", email: "angie@macdowell.org", status: "Active" },
+        { name: "Fuqua Tarkenton", email: "fuqua@tarkenton.org", status: "Active" },
+        { name: "Kim Yee", email: "kim@yee.org", status: "Inactive" }
+      ];
+      return {
+        findContactById : function(id) {
+          return data[id];
+        },
+        allContacts : function() {
+          return data;
+        }
+      }
+    }()
+
+    function getIds(params) {
+      if(params['ids']) {
+        if(Array.isArray(params['ids'])) {
+          return params['ids'].map(x => parseInt(x))
+        } else {
+          return [parseInt(params['ids'])];
+        }
+      } else {
+        return [];
+      }
+    }
+
+    // routes
+    init("/demo", function(request){
+        return displayUI(dataStore.allContacts());
+    });
+
+    onPut("/activate", function(request, params){
+        var ids = getIds(params);
+        for (var i = 0; i < ids.length; i++) {
+          dataStore.findContactById(ids[i])['status'] = 'Active';
+        }
+        return displayTable(ids, dataStore.allContacts(), 'activate');
+    });
+
+    onPut("/deactivate", function (req, params) {
+        var ids = getIds(params);
+        for (var i = 0; i < ids.length; i++) {
+          dataStore.findContactById(ids[i])['status'] = 'Inactive';
+        }
+        return displayTable(ids, dataStore.allContacts(), 'deactivate');
+    });
+
+    // templates
+    function displayUI(contacts) {
+      return `<h3>Select Rows And Activate Or Deactivate Below</h3>
+               <form id="checked-contacts">
+                <table>
+                  <thead>
+                  <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                  </tr>
+                  </thead>
+                  <tbody id="tbody">
+                    ${displayTable([], contacts, "")}
+                  </tbody>
+                </table>
+              </form>
+              <br/>
+              <br/>
+              <div hx-include="#checked-contacts" hx-target="#tbody">
+                <button class="btn" hx-put="/activate">Activate</button>
+                <button class="btn" hx-put="/deactivate">Deactivate</button>
+              </div>`
+    }
+
+    function displayTable(ids, contacts, action) {
+      var txt = "";
+      for (var i = 0; i < contacts.length; i++) {
+        var c = contacts[i];
+        txt += `\n<tr class="${ids.includes(i) ? action : ""}">
+                  <td><input type='checkbox' name='ids' value='${i}'></td><td>${c.name}</td><td>${c.email}</td><td>${c.status}</td>
+                </tr>`
+      }
+      return txt;
+    }
+</script>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/examples/bulk-update/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:47 GMT -->
+</html>

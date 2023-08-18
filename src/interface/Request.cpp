@@ -17,7 +17,6 @@ Request::Request(TcpConnection &connection, const TcpServer &server)
     //     }
     //     m_headers[header.first] = header.second;
     // }
-    // baseUrl = header.get Route();
     // // fresh = true;
     // host = m_headers["Host"];
     // hostname = m_headers["Host"];
@@ -46,8 +45,132 @@ Request::Request(TcpConnection &connection, const TcpServer &server)
 }
 
 bool Request::readHeader() {
-    connection.readHeader();
+    std::string header = connection.readHeader();
+    if (header.empty()) return false;
+    std::vector<std::string> lines = utils::split(header, {"\r\n"});
+    std::vector<std::string> firstLine = utils::split(lines[0], {" "});
+    if (firstLine.size() != 3) return false;
+    method = utils::toLower(firstLine[0]);
+    originalUrl = firstLine[1];
+    protocol = firstLine[2];
+    std::vector<std::string> urlParts = utils::split(originalUrl, {"?"});
+    path = urlParts[0];
+    if (urlParts.size() == 2) {
+        std::vector<std::string> queries = utils::split(urlParts[1], {"&"});
+        for (const auto &query : queries) {
+            std::vector<std::string> queryParts = utils::split(query, {"="});
+            if (queryParts.size() == 2)
+                this->query[queryParts[0]] = queryParts[1];
+        }
+    }
+    for (size_t i = 1; i < lines.size(); i++) {
+        std::vector<std::string> headerParts = utils::split(lines[i], {": "});
+        if (headerParts.size() == 2) {
+            m_headers[headerParts[0]] = headerParts[1];
+            if (headerParts[0] == "Cookie" || headerParts[0] == "cookie") {
+                std::vector<std::string> l_cookies =
+                    utils::split(headerParts[1], {"; "});
+                for (const auto &cookie : l_cookies) {
+                    std::vector<std::string> cookieParts =
+                        utils::split(cookie, {"="});
+                    if (cookieParts.size() == 2)
+                        cookies[cookieParts[0]] = cookieParts[1];
+                }
+            }
+        }
+    }
+    host = m_headers["Host"];
+    hostname = m_headers["Host"];
+    if (hostname.find(":") != std::string::npos)
+        hostname = hostname.substr(0, hostname.find(":"));
+    ip = app.getIp();
+    ips = {ip};
+    secure = utils::toLower(protocol) == "https";
+    for (const auto &domain : utils::split(host, {"."}))
+        subdomains.push_back(domain);
+    xhr = m_headers.find("X-Requested-With") != m_headers.end() &&
+          m_headers["X-Requested-With"] == "XMLHttpRequest";
     return true;
+}
+
+std::string Request::readWholeBody() {
+    std::string body;
+    if (m_headers.find("Content-Length") == m_headers.end()) return body;
+    size_t contentLength = std::stoul(m_headers["Content-Length"]);
+    body.reserve(contentLength);
+    while (body.size() < contentLength) {
+        std::string tmp = connection.read();
+        body += tmp;
+        if (tmp.empty()) break;
+    }
+    return body;
+}
+
+std::string Request::readLine() { return connection.readLine(); }
+
+std::string Request::readBody(size_t contentLength) {
+    std::string body;
+    body.reserve(contentLength);
+    while (body.size() < contentLength) {
+        std::string tmp = connection.read();
+        body += tmp;
+        if (tmp.empty()) break;
+    }
+    return body;
+}
+
+void Request::setParameters() {
+    // Extract url parameters
+
+    // routeParts: entity, aaa
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI,
+    // entity, [id], index.so
+    // id: "aaa"
+
+    // routeParts: entity, aaa, image
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI,
+    // entity, [id], image.so
+    // id: "aaa"
+
+    // routeParts: blog
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI, blog,
+    // [[id]], index.so
+    // id: ""
+
+    // routeParts: blog, ppp
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI, blog,
+    // [[id]], index.so
+    // id: "ppp"
+
+    // routeParts: blog, ppp, mmm
+    // pathParts: home, mat, dev, C++, MyYoutube, WebServer, interfaceAPI, blog,
+    // [[id]], [plop].so
+    // id: "ppp" plop: "mmm"
+    fs::path apiPath = app.getApiPath();
+    // get the path AFTER the api folder using fileSystemPath
+    std::string pathStr =
+        fileSystemPath.string().substr(apiPath.string().size());
+    std::vector<std::string> pathParts = utils::split(pathStr, {"/"});
+    std::vector<std::string> routeParts = utils::split(path, {"/"});
+    for (int i = 0; i < pathParts.size(); ++i)
+        if (utils::startsWith(pathParts[i], "[")) {
+            std::string parameterName = pathParts[i];
+            while (utils::startsWith(parameterName, "["))
+                parameterName = parameterName.substr(1);
+            if (utils::startsWith(parameterName, "..."))
+                parameterName = parameterName.substr(3);
+            if (utils::endsWith(parameterName, ".so"))
+                parameterName =
+                    parameterName.substr(0, parameterName.size() - 3);
+            while (utils::endsWith(parameterName, "]"))
+                parameterName =
+                    parameterName.substr(0, parameterName.size() - 1);
+            if (i < routeParts.size()) {
+                params[parameterName] = routeParts[i];
+            } else {
+                params[parameterName] = "";
+            }
+        }
 }
 
 std::optional<std::string> Request::accepts(

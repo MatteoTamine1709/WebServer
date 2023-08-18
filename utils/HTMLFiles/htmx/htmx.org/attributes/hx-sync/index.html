@@ -1,0 +1,153 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/attributes/hx-sync/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:22 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ hx-sync Attribute</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  <h1><code>hx-sync</code></h1>
+  <p>The <code>hx-sync</code> attribute allows you to synchronize AJAX requests between multiple elements.</p>
+<p>The <code>hx-sync</code> attribute consists of a CSS selector to indicate the element to synchronize on, followed optionally
+by a colon and then by an optional syncing strategy.  The available strategies are:</p>
+<ul>
+<li><code>drop</code> - drop (ignore) this request if an existing request is in flight (the default)</li>
+<li><code>abort</code> - drop (ignore) this request if an existing request is in flight, and, if that is not the case, 
+<em>abort</em> this request if another request occurs while it is still in flight</li>
+<li><code>replace</code> - abort the current request, if any, and replace it with this request</li>
+<li><code>queue</code> - place this request in the request queue associated with the given element</li>
+</ul>
+<p>The <code>queue</code> modifier can take an additional argument indicating exactly how to queue:</p>
+<ul>
+<li><code>queue first</code> - queue the first request to show up while a request is in flight</li>
+<li><code>queue last</code> - queue the last request to show up while a request is in flight</li>
+<li><code>queue all</code> - queue all requests that show up while a request is in flight</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<ul>
+<li><code>hx-sync</code> is inherited and can be placed on a parent element</li>
+</ul>
+<p>This example resolves a race condition between a form’s submit request and an individual input’s validation request. Normally, without using <code>hx-sync</code>, filling out the input and immediately submitting the form triggers two parallel requests to <code>/validate</code> and <code>/store</code>. Using <code>hx-sync=&quot;closest form:abort&quot;</code> on the input will watch for requests on the form and abort the input’s request if a form request is present or starts while the input request is in flight.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">form </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/store&quot;</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;title&quot; </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&quot;title&quot; </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;text&quot; 
+</span><span>        </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/validate&quot; 
+</span><span>        </span><span style="color:#d19a66;">hx-trigger</span><span>=</span><span style="color:#98c379;">&quot;change&quot;
+</span><span>        </span><span style="color:#d19a66;">hx-sync</span><span>=</span><span style="color:#98c379;">&quot;closest form:abort&quot;</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;submit&quot;</span><span>&gt;Submit&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">form</span><span>&gt;
+</span></code></pre>
+<p>If you’d rather prioritize the validation request over the submit request, you can use the <code>drop</code> strategy. This example will prioritize the validation request over the submit request so that if a validation request is in flight, the form cannot be submitted.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">form </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/store&quot;</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;title&quot; </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&quot;title&quot; </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;text&quot; 
+</span><span>        </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/validate&quot; 
+</span><span>        </span><span style="color:#d19a66;">hx-trigger</span><span>=</span><span style="color:#98c379;">&quot;change&quot;
+</span><span>        </span><span style="color:#d19a66;">hx-sync</span><span>=</span><span style="color:#98c379;">&quot;closest form:drop&quot;
+</span><span>    &gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;submit&quot;</span><span>&gt;Submit&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">form</span><span>&gt;
+</span></code></pre>
+<p>When dealing with forms that contain many inputs, you can prioritize the submit request over all input validation requests using the hx-sync <code>replace</code> strategy on the form tag. This will cancel any in-flight validation requests and issue only the <code>hx-post=&quot;/store&quot;</code> request. If you’d rather abort the submit request and prioritize any existing validation requests you can use the <code>hx-sync=&quot;this:abort&quot;</code> strategy on the form tag.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">form </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/store&quot; </span><span style="color:#d19a66;">hx-sync</span><span>=</span><span style="color:#98c379;">&quot;this:replace&quot;</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;title&quot; </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&quot;title&quot; </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;text&quot; </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/validate&quot; </span><span style="color:#d19a66;">hx-trigger</span><span>=</span><span style="color:#98c379;">&quot;change&quot; </span><span>/&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;submit&quot;</span><span>&gt;Submit&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">form</span><span>&gt;
+</span></code></pre>
+<p>When implementing active search functionality the hx-trigger attribute’s <code>delay</code> modifier can be used to debounce the user’s input and avoid making multiple requests while the user types. However, once a request is made, if the user begins typing again a new request will begin even if the previous one has not finished processing. This example will cancel any in-flight requests and use only the last request. In cases where the search input is contained within the target, then using <code>hx-sync</code> like this also helps reduce the chances that the input will be replaced while the user is still typing.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;search&quot; 
+</span><span>    </span><span style="color:#d19a66;">hx-get</span><span>=</span><span style="color:#98c379;">&quot;/search&quot; 
+</span><span>    </span><span style="color:#d19a66;">hx-trigger</span><span>=</span><span style="color:#98c379;">&quot;keyup changed delay:500ms, search&quot; 
+</span><span>    </span><span style="color:#d19a66;">hx-target</span><span>=</span><span style="color:#98c379;">&quot;#search-results&quot;
+</span><span>    </span><span style="color:#d19a66;">hx-sync</span><span>=</span><span style="color:#98c379;">&quot;this:replace&quot;</span><span>&gt;
+</span></code></pre>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/attributes/hx-sync/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:22 GMT -->
+</html>

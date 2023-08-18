@@ -1,0 +1,300 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/essays/view-transitions/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:27 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  
+<title>&lt;/&gt; htmx ~ Examples ~ View Transitions</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  
+    
+  
+  <h1>View Transitions</h1>
+  <script src="../../../unpkg.com/sinon%409.0.2/pkg/sinon.js"></script>
+  <script src="../../js/demo.js"></script>
+  <p>We have asserted, for a while now, that a major reason that many people have adopted the SPA architecture for web applications
+is due to aesthetic considerations. </p>
+<p>As we mention in our book <a rel="noopener" target="_blank" href="https://hypermedia.systems/">Hypermedia Systems</a>, when
+discussing the Web 1.0-style contact management application we begin with, there are serious <em>aesthetic</em> issues with
+the application, even if it has feature-parity with an SPA version:</p>
+<blockquote>
+<p>From a user experience perspective: there is a noticeable refresh when you move between pages of the application, or when you create, update or
+delete a contact. This is because every user interaction (link click or form submission) requires a full page
+refresh, with a whole new HTML document to process after each action.</p>
+<p><em>–Hypermedia Systems - <a rel="noopener" target="_blank" href="https://hypermedia.systems/book/extending-html-as-hypermedia/">Chapter 5</a></em></p>
+</blockquote>
+<p>This jarring “ka-chunk” between webpages, often with a <a rel="noopener" target="_blank" href="https://webkit.org/blog/66/the-fouc-problem/">Flash of Unstyled Content</a>
+has been with us forever and, while modern browsers have improved the situation somewhat (while, unfortunately, also making
+it less obvious that a request is in flight) the situation is still bad, particularly when compared with what a well-crafted
+SPA can achieve.</p>
+<p>Now, early on in the life of the web, this wasn’t such a big deal. We had stars flying around dinosaurs <em>in the browser’s toolbar</em>,
+flaming text, table-based layouts, dancing babies and so forth, and we were largely comparing the web with things like
+ftp clients.</p>
+<p>The bar was <em>low</em> and the times were <em>good</em>.</p>
+<p>Alas, the web has since put away such childish things, and now we are expected to present polished, attractive interfaces
+to our users, <em>including</em> smooth transitions from one view state to another.</p>
+<p>Again, we feel this is why many teams default to the SPA approach: the old way just seems… clunky.</p>
+<h2 id="css-transitions"><a class="zola-anchor" href="#css-transitions" aria-label="Anchor link for: css-transitions">🔗</a>CSS Transitions</h2>
+<p>The early web engineers realized that web developers would like to provide smooth transitions between different view states
+and have offered various technologies for achieving this. A major one is <a rel="noopener" target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/CSS/transition">CSS Transitions</a>,
+which allow you to specify a mathematical <em>transition</em> from one state to another.</p>
+<p>Unfortunately for HTML, CSS transitions are only available if you use JavaScript: you have to change elements dynamically
+in order to trigger the transitions, which “vanilla” HTML can’t do. In practice, this meant that only the cool kids
+using JavaScript to build SPAs got to use these tools, further cementing the <em>aesthetic superiority</em> of SPAs.</p>
+<p>htmx, as you probably know, makes CSS Transitions <a rel="noopener" target="_blank" href="../../examples/animations/index.html">available in plain HTML</a> via
+a somewhat elaborate <a rel="noopener" target="_blank" href="../../docs/index.html#request-operations">swapping model</a> where we take elements that are in both
+the old and new content and “settle” attributes on them. It’s a neat trick and can be used to make hypermedia-driven
+application feel as buttery-smooth as well done SPA.</p>
+<p>However, there is a new kid on the block: <a rel="noopener" target="_blank" href="https://developer.chrome.com/docs/web-platform/view-transitions/">The View Transition API</a></p>
+<h2 id="the-view-transition-api"><a class="zola-anchor" href="#the-view-transition-api" aria-label="Anchor link for: the-view-transition-api">🔗</a>The View Transition API</h2>
+<p>The View Transition API is much more ambitious than CSS transitions in that it is attempting to provide a simple, intuitive
+API for transitioning an <em>entire DOM</em> from one state to another in a way that mere mortals can take advantage of. </p>
+<p>Furthermore, this API is supposed to be available not only in JavaScript, but also for plain old links and forms in HTML as well, 
+making it possible to build <em>much nicer</em> user interfaces using the Web 1.0 approach.</p>
+<p>It will be fun to revisit the Contact application in “Hypermedia Systems” when this functionality is available!</p>
+<p>As of this writing, however, the API is, like CSS Transitions, only available in JavaScript, and its only been just
+released in Chrome 111+.</p>
+<p>In JavaScript, The API could not be more simple:</p>
+<pre data-lang="js" style="background-color:#282c34;color:#abb2bf;" class="language-js "><code class="language-js" data-lang="js"><span>
+</span><span>  </span><span style="font-style:italic;color:#5c6370;">// this is all it takes to get a smooth transition from one 
+</span><span>  </span><span style="font-style:italic;color:#5c6370;">// state to another!
+</span><span>  document.</span><span style="color:#61afef;">startViewTransition</span><span>(() </span><span style="color:#c678dd;">=&gt; </span><span style="color:#61afef;">updateTheDOMSomehow</span><span>(</span><span style="color:#e06c75;">data</span><span>));
+</span><span>
+</span></code></pre>
+<p>Now, that’s my kind of API.</p>
+<p>As luck would have it, it’s trivial to wrap this API around the regular htmx swapping model, which allows us to
+start exploring View Transitions in htmx, even before it’s generally available in HTML! </p>
+<p>And, as of <a rel="noopener" target="_blank" href="https://unpkg.com/htmx.org@1.9.0">htmx 1.9.0</a>, you can start experimenting with the API by adding the 
+<code>transition:true</code> attribute to an <a href="../../attributes/hx-swap/index.html"><code>hx-swap</code></a> attribute.</p>
+<h2 id="a-practical-example"><a class="zola-anchor" href="#a-practical-example" aria-label="Anchor link for: a-practical-example">🔗</a>A Practical Example</h2>
+<p>So let’s look at a simple example of this new shiny toy coupled with htmx.</p>
+<p>Doing so will involve two parts: </p>
+<ul>
+<li>Defining our View Transition animation via CSS</li>
+<li>Adding a small annotation to an htmx-powered button</li>
+</ul>
+<h3 id="the-css"><a class="zola-anchor" href="#the-css" aria-label="Anchor link for: the-css">🔗</a>The CSS</h3>
+<p>The first thing that we need to do is define the View Transition animation that we want.</p>
+<ul>
+<li>Define some animations using @keyframes to slide and fade content</li>
+<li>Define a view transition with the name <code>slide-it</code> using the <code>:view-transition-old()</code> and <code>:view-transition-new()</code> pseudo-selectors</li>
+<li>Tie the <code>.sample-transition</code> class to the <code>slide-it</code> view transition that we just defined, so we can bind it to elements via a that CSS class name</li>
+</ul>
+<p>(Fuller details on the View Transition API can be found on the <a rel="noopener" target="_blank" href="https://developer.chrome.com/docs/web-platform/view-transitions/">Chrome Developer Page</a>
+documenting them.)</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>
+</span><span>    &lt;</span><span style="color:#e06c75;">style</span><span>&gt;
+</span><span>       </span><span style="color:#c678dd;">@keyframes </span><span>fade-in {
+</span><span>         </span><span style="color:#c678dd;">from </span><span>{ opacity: </span><span style="color:#d19a66;">0</span><span>; }
+</span><span>       }
+</span><span>    
+</span><span>       </span><span style="color:#c678dd;">@keyframes </span><span>fade-out {
+</span><span>         </span><span style="color:#c678dd;">to </span><span>{ opacity: </span><span style="color:#d19a66;">0</span><span>; }
+</span><span>       }
+</span><span>    
+</span><span>       </span><span style="color:#c678dd;">@keyframes </span><span>slide-from-right {
+</span><span>         </span><span style="color:#c678dd;">from </span><span>{ transform: </span><span style="color:#56b6c2;">translateX</span><span>(</span><span style="color:#d19a66;">90px</span><span>); }
+</span><span>       }
+</span><span>    
+</span><span>       </span><span style="color:#c678dd;">@keyframes </span><span>slide-to-left {
+</span><span>         </span><span style="color:#c678dd;">to </span><span>{ transform: </span><span style="color:#56b6c2;">translateX</span><span>(</span><span style="color:#d19a66;">-90px</span><span>); }
+</span><span>       }
+</span><span>    
+</span><span>       </span><span style="font-style:italic;color:#5c6370;">/* define animations for the old and new content */
+</span><span>       </span><span style="color:#d19a66;">::</span><span style="color:#c678dd;">view-transition-old(</span><span style="color:#e06c75;">slide-it</span><span>) {
+</span><span>         animation: </span><span style="color:#d19a66;">180ms </span><span style="color:#56b6c2;">cubic-bezier</span><span>(</span><span style="color:#d19a66;">0.4</span><span>, </span><span style="color:#d19a66;">0</span><span>, </span><span style="color:#d19a66;">1</span><span>, </span><span style="color:#d19a66;">1</span><span>) both fade-out,
+</span><span>         </span><span style="color:#d19a66;">600ms </span><span style="color:#56b6c2;">cubic-bezier</span><span>(</span><span style="color:#d19a66;">0.4</span><span>, </span><span style="color:#d19a66;">0</span><span>, </span><span style="color:#d19a66;">0.2</span><span>, </span><span style="color:#d19a66;">1</span><span>) both slide-to-left;
+</span><span>       }
+</span><span>       </span><span style="color:#d19a66;">::</span><span style="color:#c678dd;">view-transition-new(</span><span style="color:#e06c75;">slide-it</span><span>) {
+</span><span>         animation: </span><span style="color:#d19a66;">420ms </span><span style="color:#56b6c2;">cubic-bezier</span><span>(</span><span style="color:#d19a66;">0</span><span>, </span><span style="color:#d19a66;">0</span><span>, </span><span style="color:#d19a66;">0.2</span><span>, </span><span style="color:#d19a66;">1</span><span>) </span><span style="color:#d19a66;">90ms </span><span>both fade-in,
+</span><span>         </span><span style="color:#d19a66;">600ms </span><span style="color:#56b6c2;">cubic-bezier</span><span>(</span><span style="color:#d19a66;">0.4</span><span>, </span><span style="color:#d19a66;">0</span><span>, </span><span style="color:#d19a66;">0.2</span><span>, </span><span style="color:#d19a66;">1</span><span>) both slide-from-right;
+</span><span>       }
+</span><span>    
+</span><span>       </span><span style="font-style:italic;color:#5c6370;">/* tie the view transition to a given CSS class */
+</span><span>       </span><span style="color:#d19a66;">.sample-transition </span><span>{
+</span><span>           view-transition-name: slide-it;
+</span><span>       }
+</span><span>        
+</span><span>    &lt;/</span><span style="color:#e06c75;">style</span><span>&gt;
+</span><span>
+</span></code></pre>
+<p>This CSS sets it up such that content with the <code>.sample-transition</code> class on it will fade out and slide to the left when 
+it is removed, and new content will fade in and slide in from the right.</p>
+<h3 id="the-html"><a class="zola-anchor" href="#the-html" aria-label="Anchor link for: the-html">🔗</a>The HTML</h3>
+<p>With our View Transition defined via CSS, the next thing to do is to tie this View Transition to an actual element that
+htmx will mutate, and to specify that htmx should take advantage of the View Transition API:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>
+</span><span>    &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;sample-transition&quot;</span><span>&gt;
+</span><span>       &lt;</span><span style="color:#e06c75;">h1</span><span>&gt;Initial Content&lt;/</span><span style="color:#e06c75;">h1</span><span>&gt;
+</span><span>       &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">hx-get</span><span>=</span><span style="color:#98c379;">&quot;/new-content&quot; 
+</span><span>               </span><span style="color:#d19a66;">hx-swap</span><span>=</span><span style="color:#98c379;">&quot;innerHTML transition:true&quot; 
+</span><span>               </span><span style="color:#d19a66;">hx-target</span><span>=</span><span style="color:#98c379;">&quot;closest div&quot;</span><span>&gt;
+</span><span>         Swap It!
+</span><span>       &lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>
+</span></code></pre>
+<p>Here we have a button that issues an <code>GET</code> to get some new content, and that replaces the closest div’s inner HTML
+with the response. </p>
+<p>That div has the <code>sample-transition</code> class on it, so the View Transition defined above will apply to it. </p>
+<p>Finally, the <code>hx-swap</code> attribute includes the option, <code>transition:true</code>, which is what tells htmx to use the
+internal View Transition JavaScript API when swapping.</p>
+<h2 id="demo"><a class="zola-anchor" href="#demo" aria-label="Anchor link for: demo">🔗</a>Demo</h2>
+<p>With all that tied together, we are ready to start using the View Transition API with htmx. Here’s a demo, which
+should work in Chrome 111+ (other browsers will work fine, but won’t get the nice animation):</p>
+<style>
+   @keyframes fade-in {
+     from { opacity: 0; }
+   }
+
+   @keyframes fade-out {
+     to { opacity: 0; }
+   }
+
+   @keyframes slide-from-right {
+     from { transform: translateX(90px); }
+   }
+
+   @keyframes slide-to-left {
+     to { transform: translateX(-90px); }
+   }
+
+   /* define animations for the old and new content */
+   ::view-transition-old(slide-it) {
+     animation: 180ms cubic-bezier(0.4, 0, 1, 1) both fade-out,
+     600ms cubic-bezier(0.4, 0, 0.2, 1) both slide-to-left;
+   }
+   ::view-transition-new(slide-it) {
+     animation: 420ms cubic-bezier(0, 0, 0.2, 1) 90ms both fade-in,
+     600ms cubic-bezier(0.4, 0, 0.2, 1) both slide-from-right;
+   }
+
+   /* tie the view transition to a given CSS class */
+   .sample-transition {
+       view-transition-name: slide-it;
+   }
+    
+</style>
+<div class="sample-transition" style="padding: 24px">
+   <h1>Initial Content</h1>
+   <button hx-get="/new-content" hx-swap="innerHTML transition:true" hx-target="closest div">
+     Swap It!
+   </button>
+</div>
+<script>
+    var originalContent = htmx.find(".sample-transition").innerHTML;
+
+    this.server.respondWith("GET", "/new-content", function(xhr){
+        xhr.respond(200,  {}, "<h1>New Content</h1> <button hx-get='/original-content' hx-swap='innerHTML transition:true' hx-target='closest div'>Restore It! </button>")
+    });
+
+    this.server.respondWith("GET", "/original-content", function(xhr){
+        xhr.respond(200,  {}, originalContent)
+    });
+</script>
+<p>Assuming you are looking at this page in Chrome 111+, you should see the content above slide gracefully out to the
+left and be replaced by new content sliding in from the right. Nice!</p>
+<h2 id="conclusion"><a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">🔗</a>Conclusion</h2>
+<p>Hey now, that’s pretty neat, and, once you get your head around the concept, not all that much work! This new API
+shows a lot of promise.</p>
+<p>View Transitions are an exciting new technology that we feel can dramatically level the playing field between
+<a rel="noopener" target="_blank" href="../hypermedia-driven-applications/index.html">Hypermedia Driven Applications</a> and the more prevalent SPA
+architecture used today.</p>
+<p>By doing away with the ugly “ka-chunk” of Web 1.0 applications, the aesthetic advantages of the
+SPA approach will be diminished, and we can make decisions less around “sizzle” and focus more on the actual <a rel="noopener" target="_blank" href="../when-to-use-hypermedia/index.html">technical
+tradeoffs</a> associated with various architectures.</p>
+<p>We are looking forward to when View Transitions are available in vanilla HTML, but, until then, you can start playing
+with them in htmx, today!</p>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/essays/view-transitions/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:27 GMT -->
+</html>

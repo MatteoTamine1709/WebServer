@@ -1,0 +1,181 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/extensions/client-side-templates/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:46 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ The client-side-templates Extension</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  <h1>The <code>client-side-templates</code> Extension</h1>
+  <p>This extension supports transforming a JSON request response into HTML via a client-side template before it is
+swapped into the DOM.  Currently three client-side templating engines are supported:</p>
+<ul>
+<li><a rel="noopener" target="_blank" href="https://github.com/janl/mustache.js">mustache</a></li>
+<li><a rel="noopener" target="_blank" href="https://handlebarsjs.com/">handlebars</a></li>
+<li><a rel="noopener" target="_blank" href="https://mozilla.github.io/nunjucks/">nunjucks</a></li>
+</ul>
+<p>When you add this extension on an element, any element below it in the DOM can use one of three attributes named
+<code>&lt;template-engine&gt;-template</code> (e.g. <code>mustache-template</code>) with a template ID, and the extension will resolve and render
+the template the standard way for that template engine:</p>
+<ul>
+<li><code>mustache</code> - looks a mustache &lt;script&gt; tag up by ID for the template content</li>
+<li><code>handlebars</code> - looks in the <code>Handlebars.partials</code> collection for a template with that name</li>
+<li><code>nunjucks</code> - resolves the template by name via `nunjucks.render(<template-name>)</li>
+</ul>
+<p>The AJAX response body will be parsed as JSON and passed into the template rendering.</p>
+<h2 id="install"><a class="zola-anchor" href="#install" aria-label="Anchor link for: install">🔗</a>Install</h2>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">script </span><span style="color:#d19a66;">src</span><span>=</span><span style="color:#98c379;">&quot;https://unpkg.com/htmx.org/dist/ext/client-side-templates.js&quot;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">script</span><span>&gt;
+</span></code></pre>
+<h2 id="usage"><a class="zola-anchor" href="#usage" aria-label="Anchor link for: usage">🔗</a>Usage</h2>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">hx-ext</span><span>=</span><span style="color:#98c379;">&quot;client-side-templates&quot;</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">hx-get</span><span>=</span><span style="color:#98c379;">&quot;/some_json&quot;
+</span><span>          </span><span style="color:#d19a66;">mustache-template</span><span>=</span><span style="color:#98c379;">&quot;my-mustache-template&quot;</span><span>&gt;
+</span><span>     Handle with mustache
+</span><span>  &lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">hx-get</span><span>=</span><span style="color:#98c379;">&quot;/some_json&quot;
+</span><span>          </span><span style="color:#d19a66;">handlebars-template</span><span>=</span><span style="color:#98c379;">&quot;my-handlebars-template&quot;</span><span>&gt;
+</span><span>     Handle with handlebars
+</span><span>  &lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">hx-get</span><span>=</span><span style="color:#98c379;">&quot;/some_json&quot;
+</span><span>          </span><span style="color:#d19a66;">nunjucks-template</span><span>=</span><span style="color:#98c379;">&quot;my-nunjucks-template&quot;</span><span>&gt;
+</span><span>     Handle with nunjucks
+</span><span>  &lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span></code></pre>
+<h2 id="full-html-example"><a class="zola-anchor" href="#full-html-example" aria-label="Anchor link for: full-html-example">🔗</a>Full HTML Example</h2>
+<p>To use the client side template, you will need to include htmx, the extension, and the rendering engine.
+Here is an example of this setup for Mustache using
+a <a rel="noopener" target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template"><code>&lt;template&gt;</code> tag</a>.</p>
+<p>If you wish to put a template into another file, you can use a directive such as
+<code>&lt;script src=&quot;my-template&quot; id=&quot;template-id&quot; type=&quot;text/mustache&quot;&gt;</code></p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;!</span><span style="color:#c678dd;">DOCTYPE </span><span style="color:#d19a66;">html</span><span>&gt;
+</span><span>&lt;</span><span style="color:#e06c75;">html</span><span>&gt;
+</span><span>&lt;</span><span style="color:#e06c75;">head</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">meta </span><span style="color:#d19a66;">charset</span><span>=</span><span style="color:#98c379;">&quot;utf-8&quot;</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">meta </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&quot;viewport&quot; </span><span style="color:#d19a66;">content</span><span>=</span><span style="color:#98c379;">&quot;width=device-width&quot;</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">title</span><span>&gt;JS Bin&lt;/</span><span style="color:#e06c75;">title</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">script </span><span style="color:#d19a66;">src</span><span>=</span><span style="color:#98c379;">&quot;https://unpkg.com/htmx.org&quot;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">script</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">script </span><span style="color:#d19a66;">src</span><span>=</span><span style="color:#98c379;">&quot;https://unpkg.com/htmx.org/dist/ext/client-side-templates.js&quot;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">script</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">script </span><span style="color:#d19a66;">src</span><span>=</span><span style="color:#98c379;">&quot;https://unpkg.com/mustache@latest&quot;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">script</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">head</span><span>&gt;
+</span><span>&lt;</span><span style="color:#e06c75;">body</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">hx-ext</span><span>=</span><span style="color:#98c379;">&quot;client-side-templates&quot;</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">hx-get</span><span>=</span><span style="color:#98c379;">&quot;https://jsonplaceholder.typicode.com/todos/1&quot;
+</span><span>            </span><span style="color:#d19a66;">hx-swap</span><span>=</span><span style="color:#98c379;">&quot;innerHTML&quot;
+</span><span>            </span><span style="color:#d19a66;">hx-target</span><span>=</span><span style="color:#98c379;">&quot;#content&quot;
+</span><span>            </span><span style="color:#d19a66;">mustache-template</span><span>=</span><span style="color:#98c379;">&quot;foo&quot;</span><span>&gt;
+</span><span>      Click Me
+</span><span>    &lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>
+</span><span>    &lt;</span><span style="color:#e06c75;">p </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;content&quot;</span><span>&gt;Start&lt;/</span><span style="color:#e06c75;">p</span><span>&gt;
+</span><span>
+</span><span>    &lt;</span><span style="color:#e06c75;">template </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;foo&quot;</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#e06c75;">p</span><span>&gt; {% raw %}{{userID}}{% endraw %} and {% raw %}{{id}}{% endraw %} and {% raw %}{{title}}{% endraw %} and {% raw %}{{completed}}{% endraw %}&lt;/</span><span style="color:#e06c75;">p</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#e06c75;">template</span><span>&gt;
+</span><span>  &lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">body</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">html</span><span>&gt;
+</span></code></pre>
+<p>Here is a <a rel="noopener" target="_blank" href="https://jsbin.com/qonutovico/edit?html,output">jsbin</a> playground to try this out.</p>
+<h2 id="cors-and-rest-json"><a class="zola-anchor" href="#cors-and-rest-json" aria-label="Anchor link for: cors-and-rest-json">🔗</a>CORS and REST/JSON</h2>
+<p>As a warning, many web services use CORS protection and/or other protection schemes to reject a
+REST/JSON request from a web browser - for example, GitHub will issue a CORS error if you try to
+use the above snippet to access public APIs. This can be frustrating, as a dedicated REST development
+client may work fine, but the CORS error will appear when running JavaScript. This doesn’t really
+have anything to do with HTMX (as you’d have the same issues with any JavaScript code), but can be
+a frustrating surprise.</p>
+<p>Unfortunately, the solution will vary depending on the provider of the web service. Depending on
+what you are trying to do, you may find it easier to rely on your server-side framework to manage/proxy
+these requests to 3rd parties services.</p>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/extensions/client-side-templates/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:46 GMT -->
+</html>

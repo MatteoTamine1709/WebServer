@@ -13,5 +13,5 @@ build/
 *.so
 logs/
 download/
-utils/HTMLFiles
+utils/HTMLFiles/W3Schools-2022-09-06
 db.sqlite3

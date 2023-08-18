@@ -1,0 +1,267 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/essays/hypermedia-friendly-scripting/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:46 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ Hypermedia-Friendly Scripting</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+
+  <h1>Hypermedia-Friendly Scripting</h1>
+  
+    <address>Carson Gross</address>
+    <time>November 17, 2022</time>
+  
+
+  <blockquote>
+<p>The final addition to our constraint set for REST comes from the code-on-demand style of Section 3.5.3 (Figure 5-8). 
+REST allows client functionality to be extended by downloading and executing code in the form of applets or scripts. 
+This simplifies clients by reducing the number of features required to be pre-implemented. Allowing features to be 
+downloaded after deployment improves system extensibility. However, it also reduces visibility, and thus is only an
+optional constraint within REST.</p>
+<p>--<a rel="noopener" target="_blank" href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_1_7">Roy Fielding - Representational State Transfer (REST)</a></p>
+</blockquote>
+<h2 id="scripting_and_the_web"><a class="zola-anchor" href="#scripting_and_the_web" aria-label="Anchor link for: scripting_and_the_web">🔗</a>Scripting &amp; The Web</h2>
+<p>In <a href="../hypermedia-driven-applications/index.html">Hypermedia-Driven Applications</a> we discuss how to build
+web applications in such a manner that they are <em>hypermedia</em>-driven, in contrast with the popular SPA approach, in which
+they are <em>JavaScript</em> and, at the network-level, <a href="../how-did-rest-come-to-mean-the-opposite-of-rest/index.html">RPC-driven</a>.</p>
+<p>In the HDA article we mention scripting briefly:</p>
+<blockquote>
+<p>In an HDA, hypermedia (HTML) is the primary medium for building the application, which means that:</p>
+<ul>
+<li>All communication with the server is still managed via HTTP requests with hypermedia (HTML) responses</li>
+<li>Scripting is used mainly to enhance the front-end experience of the application</li>
+</ul>
+<p>Scripting augments the existing hypermedia (HTML) but does not supersede it or subvert the fundamental REST-ful 
+architecture of the HDA.</p>
+</blockquote>
+<p>In this article we would like to expand on this last comment and describe what scripting that does not “supersede” or
+“subvert” a REST-ful, Hypermedia-Driven Application looks like.  These rules of thumb apply to scripting written
+directly to support a web application, as well as to general purpose JavaScript libraries.</p>
+<p>The basic rules for hypermedia-friendly scripting are:</p>
+<ul>
+<li><a href="index.html#prime_directive">Respect HATEOAS</a></li>
+<li><a href="index.html#state">Client-side only state is OK</a></li>
+<li><a href="index.html#events">Use events to communicate between components</a></li>
+<li><a href="index.html#islands">Use islands to isolate non-hypermedia components from the rest of your application</a></li>
+<li><a href="index.html#inline">Optionally, consider inline scripting</a></li>
+</ul>
+<p>Each of these rules will be elaborated on below.</p>
+<h2 id="prime_directive"><a class="zola-anchor" href="#prime_directive" aria-label="Anchor link for: prime_directive">🔗</a>The Prime Directive</h2>
+<p>The prime directive of an HDA is to use <a href="../hateoas/index.html">Hypermedia As The Engine of Application State</a>.
+A hypermedia-friendly scripting approach will follow this directive.</p>
+<p><strong>Practically, this means that scripting should avoid making non-hypermedia exchanges over the network with a server.</strong></p>
+<p>So, in general, hypermedia-friendly scripting should avoid the use of <code>fetch()</code> and <code>XMLHttpRequest</code> <em>unless</em> the responses
+from the server use a hypermedia of some sort (e.g. HTML), rather than a data API format (e.g. plain JSON).</p>
+<p>Respecting HATEOAS also means that, in general, complicated state stored in JavaScript (rather than in the DOM) should 
+be avoided.</p>
+<p>However, this last statement needs to be qualified: state may be stored client-side in JavaScript so long as it is 
+directly supporting a more sophisticated front-end experience (e.g. widget) than pure HTML allows.</p>
+<p>To reiterate what Fielding says regarding the purpose of scripting in REST:</p>
+<blockquote>
+<p>Allowing features to be downloaded after deployment improves system extensibility.</p>
+</blockquote>
+<p>So scripting is a legitimate part a REST-ful system, in order to allow the creation of additional features not directly implemented
+within the underlying hypermedia, thus making a hypermedia (e.g. HTML) more extensible.</p>
+<p>A good example of this sort of feature is a rich-text editor: it might have an extremely sophisticated JavaScript model
+of the editor’s document, including selection information, highlighting information, code completion and so forth.
+However, this model should be isolated from the rest of the DOM and the rich text editor should expose its information
+to the DOM using standard hypermedia features.  For example, it should use a hidden input to communicate the contents of the
+editor to the surrounding DOM, rather than requiring a JavaScript API call to get the content.</p>
+<p>The idea is to use scripting to improve the hypermedia experience by providing features and functionality that are
+not part of the standard hypermedia (HTML) tool set, but do so in a way that plays well with HTML, rather than relegating
+HTML to a mere UI description language within a larger JavaScript application, as many SPA frameworks do.</p>
+<h2 id="state"><a class="zola-anchor" href="#state" aria-label="Anchor link for: state">🔗</a>State</h2>
+<p>Note that using Hypermedia As The Engine Of Application State does not mean that you cannot have <em>any</em> client-side state.
+Obviously, the rich-text editor example cited above may have a significant amount of client-side state.  But
+there are simpler cases where client-side state are warranted and perfectly consistent with a Hypermedia-Driven Application.</p>
+<p>Consider a simple visibility toggle, where clicking a button or anchor adds a class to another element, making it visible.</p>
+<p>This ephemeral client-side state is fine in a Hypermedia-Driven Application, because the state is purely front-end.  No
+system state is being updated with this sort of scripting.  If system state were to be mutated (that is, if showing or
+hiding the element had an effect on the data stored on the server), then it would be necessary to use a hypermedia
+exchange. </p>
+<p>The crucial aspect to consider is whether any state updated on the client side needs to be synchronized with the server.<br />
+If yes, then a hypermedia exchange should be used.  If no, then it is fine to keep the state client-side only.</p>
+<h2 id="events"><a class="zola-anchor" href="#events" aria-label="Anchor link for: events">🔗</a>Events</h2>
+<p>One excellent way for a JavaScript library to enable hypermedia-friendly scripting is for it to have 
+<a rel="noopener" target="_blank" href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events">a rich custom event model</a>.</p>
+<p>A JavaScript-based component that triggers events allows for hypermedia-oriented JavaScript libraries, such as htmx,
+to listen for those events and trigger hypermedia exchanges.  This, in turn, makes any JavaScript library a potential
+<em>hypermedia control</em>, able to drive the Hypermedia-Driven Application via user-selected actions.</p>
+<p>A good example of this is the <a href="../../examples/sortable/index.html">Sortable.js</a> example, in which htmx listens for
+the <code>end</code> event triggered by Sortable.js:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">form </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;sortable&quot; </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/items&quot; </span><span style="color:#d19a66;">hx-trigger</span><span>=</span><span style="color:#98c379;">&quot;end&quot;</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;htmx-indicator&quot;</span><span>&gt;Updating...&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div</span><span>&gt;&lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&#39;hidden&#39; </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&#39;item&#39; </span><span style="color:#d19a66;">value</span><span>=</span><span style="color:#98c379;">&#39;1&#39;</span><span>/&gt;Item 1&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div</span><span>&gt;&lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&#39;hidden&#39; </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&#39;item&#39; </span><span style="color:#d19a66;">value</span><span>=</span><span style="color:#98c379;">&#39;2&#39;</span><span>/&gt;Item 2&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div</span><span>&gt;&lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&#39;hidden&#39; </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&#39;item&#39; </span><span style="color:#d19a66;">value</span><span>=</span><span style="color:#98c379;">&#39;3&#39;</span><span>/&gt;Item 3&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div</span><span>&gt;&lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&#39;hidden&#39; </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&#39;item&#39; </span><span style="color:#d19a66;">value</span><span>=</span><span style="color:#98c379;">&#39;4&#39;</span><span>/&gt;Item 4&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div</span><span>&gt;&lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&#39;hidden&#39; </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&#39;item&#39; </span><span style="color:#d19a66;">value</span><span>=</span><span style="color:#98c379;">&#39;5&#39;</span><span>/&gt;Item 5&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">form</span><span>&gt;
+</span></code></pre>
+<p>The <code>end</code> event is triggered by Sortable.js when a drag-and-drop completes.  htmx listens for this event via the 
+<a href="../../attributes/hx-trigger/index.html"><code>hx-trigger</code></a> attribute and then issues an HTTP request, exchanging hypermedia with the 
+server.  This turns this Sortable.js drag-and-drop powered widget into a new, powerful hypermedia control.</p>
+<h2 id="islands"><a class="zola-anchor" href="#islands" aria-label="Anchor link for: islands">🔗</a>Islands</h2>
+<p>A recent trend in web development is the notion of <a rel="noopener" target="_blank" href="https://www.patterns.dev/posts/islands-architecture/">“islands”</a>:</p>
+<blockquote>
+<p>The islands architecture encourages small, focused chunks of interactivity within server-rendered web pages.</p>
+</blockquote>
+<p>In cases where a more sophisticated scripting approach is required and where communication with a server
+outside of the normal hypermedia-exchange mechanism is necessary, the most hypermedia-friendly approach is to use the island
+architecture.  This isolates non-hypermedia components from the rest of the Hypermedia-Driven Application.</p>
+<p>Events are a clean way to integrate your non-hypermedia-driven islands within a broader Hypermedia-Driven Application, 
+allowing you to convert an “inner” island into an “outer” hypermedia control, just as in the case of the Sortable.js example
+above.</p>
+<p>Deniz Akşimşek has made the observation that it is typically easier to embed non-hypermedia islands within a larger
+Hypermedia-Driven Application, rather than vice-versa.</p>
+<h2 id="inline"><a class="zola-anchor" href="#inline" aria-label="Anchor link for: inline">🔗</a>Inline Scripts</h2>
+<p>A final rule for hypermedia-friendly scripting is inline scripting: writing your scripts directly within a hypermedia, 
+rather than locating your scripts in an external file.  This is a controversial concept compared with the others
+listed here, and we consider it an “optional” rule for hypermedia-friendly scripting: worth considering but not required.</p>
+<p>This approach to scripting, while idiosyncratic, has been adopted by some HTML scripting libraries, notably
+<a rel="noopener" target="_blank" href="https://alpinejs.dev/">Alpine.js</a> and <a rel="noopener" target="_blank" href="https://hyperscript.org/">hyperscript</a>.</p>
+<p>Here is some example hyperscript, showing an inline script:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">_</span><span>=</span><span style="color:#98c379;">&quot;on click toggle .visible on the next &lt;section/&gt;&quot;</span><span>&gt;
+</span><span>    Show Next Section
+</span><span>&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>&lt;</span><span style="color:#e06c75;">section</span><span>&gt;
+</span><span>    ....
+</span><span>&lt;/</span><span style="color:#e06c75;">section</span><span>&gt;
+</span></code></pre>
+<p>This button, as it says, toggles the <code>.visible</code> class on the <code>section</code> element when it is clicked.</p>
+<p>A primary advantage of this inline approach to hypermedia scripting is that, conceptually, the hypermedia itself is 
+emphasized, rather than the scripting of the hypermedia.</p>
+<p>Contrast this code with <a rel="noopener" target="_blank" href="https://reactjs.org/docs/components-and-props.html">JSX Components</a>, where the
+scripting language (JavaScript) is the core concept, with hypermedia/HTML embedded within it:</p>
+<pre data-lang="js" style="background-color:#282c34;color:#abb2bf;" class="language-js "><code class="language-js" data-lang="js"><span style="color:#c678dd;">class </span><span style="color:#e5c07b;">Button </span><span style="color:#c678dd;">extends </span><span>React.</span><span style="color:#98c379;">Component </span><span>{
+</span><span>    </span><span style="color:#c678dd;">constructor</span><span>(</span><span style="color:#e06c75;">props</span><span>) {
+</span><span>        </span><span style="font-style:italic;color:#5c6370;">// ...
+</span><span>    }
+</span><span>    </span><span style="color:#61afef;">toggleVisibilityOnNextSection</span><span>() {
+</span><span>        </span><span style="font-style:italic;color:#5c6370;">// ...
+</span><span>    }
+</span><span>    </span><span style="color:#61afef;">render</span><span>() {
+</span><span>        </span><span style="color:#c678dd;">return </span><span>&lt;button onClick={this.</span><span style="color:#e06c75;">toggleVisibilityOnNextSection</span><span>}&gt;{this.props.</span><span style="color:#e06c75;">text</span><span>}&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Here, you can see that the JavaScript is the primary technology in use, with the hypermedia/HTML being used as a UI
+description mechanism.  The fact that the HTML is a hypermedia is almost immaterial in this case.</p>
+<p>That being said, the inline scripting and the JSX approach do share an advantage in common: both satisfy the <a href="../locality-of-behaviour/index.html">Locality of Behavior(LoB)</a>,
+design principle.  They both <em>localize</em> behavior to the elements or components in question, which makes it easier to see
+what these elements and components do.</p>
+<p>Of course, with inline scripts, there should be a soft limit to the amount of scripting done directly within the 
+hypermedia.  You don’t want to overwhelm your hypermedia with scripting, so that it becomes difficult to understand “the shape”
+of the hypermedia document.</p>
+<p>Using techniques like invoking library functions or using <a rel="noopener" target="_blank" href="https://hyperscript.org/features/behavior/">hyperscript behaviors</a> 
+allow you to use inline scripting while pulling implementations out to a separate file or location.</p>
+<p>Inline scripting isn’t required for scripting to be hypermedia-friendly, but it is worth considering as an alternative to a 
+more traditional scripting/hypermedia split.</p>
+<h2 id="pragmatism"><a class="zola-anchor" href="#pragmatism" aria-label="Anchor link for: pragmatism">🔗</a>Pragmatism</h2>
+<p>Of course, here in the real world, there are many useful JavaScript libraries that violate HATEOAS and that do not trigger 
+events.  This often makes them difficult fits for a Hypermedia-Driven Application.  Nonetheless, these libraries may 
+provide crucial bits of functionality that are difficult to find elsewhere.</p>
+<p>In cases like this, we advocate pragmatism: if it is easy enough to alter the library to be hypermedia-friendly or to
+wrap it in a hypermedia-friendly way, that may be a good option.  You never know, the upstream author might 
+<a rel="noopener" target="_blank" href="https://github.com/dropzone/dropzone/commit/64771e35baf032ee0910d1e56e6f44457efe138e">consider a pull request</a> 
+to help improve their library.</p>
+<p>But, if not, and if there are no good alternatives, then just use the JavaScript library as it is designed.</p>
+<p>Try to isolate a hypermedia-unfriendly library from the rest of your application, but, in general, do not
+spend too much of your <a rel="noopener" target="_blank" href="https://hyperscript.org/docs/#debugging">complexity budget</a> on maintaining conceptual purity:
+sufficient unto the day is the evil thereof.</p>
+
+  <div style="padding-top: 120px;padding-bottom:40px;text-align: center">
+    &lt;/&gt;
+  </div>
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/essays/hypermedia-friendly-scripting/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:46 GMT -->
+</html>

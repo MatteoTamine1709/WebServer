@@ -1,0 +1,160 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/essays/a-real-world-react-to-htmx-port/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:43:49 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ A Real World React -> htmx Port</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+
+  <h1>A Real World React -> htmx Port</h1>
+  
+    <address>Carson Gross</address>
+    <time>September 29, 2022</time>
+  
+
+  <p>It is all well and good talking about <a href="../hateoas/index.html">REST &amp; HATEOAS</a> in theory or describing the
+<a href="../hypermedia-driven-applications/index.html">Hypermedia-Driven Application</a> architecture, but, at the end of the day, what 
+matters in software is practical: Does it work?  Does it improve things?</p>
+<p>We can say for sure that htmx <em>works</em>, since we use it in our own software.  But it is hard to say that it would be
+an <em>improvement</em> over other approaches, since we haven’t had an apples-to-apples comparison of how htmx might compare with,
+say, <a rel="noopener" target="_blank" href="https://reactjs.org/">react</a>.</p>
+<p>Until now.</p>
+<p><a rel="noopener" target="_blank" href="https://github.com/David-Guillot">David Guillot</a> at <a rel="noopener" target="_blank" href="https://www.contexte.com/">Contexte</a> has given what we are calling 
+<a rel="noopener" target="_blank" href="https://en.wikipedia.org/wiki/The_Mother_of_All_Demos">“The Mother of All htmx Demos”</a> at
+<a rel="noopener" target="_blank" href="https://pretalx.evolutio.pt/djangocon-europe-2022/talk/MZWJEA/">DjangoCon 2022</a>:</p>
+<blockquote>
+<p><strong>From React to htmx on a real-world SaaS product: we did it, and it’s awesome!</strong></p>
+<p>We took the plunge and replaced the 2-year-of-work React UI of our SaaS product with simple Django templates and htmx 
+in a couple of months. We’d like to share our experience with you, with concrete indicators on various aspects, and 
+convince your CTO!</p>
+</blockquote>
+<h2 id="video"><a class="zola-anchor" href="#video" aria-label="Anchor link for: video">🔗</a>Video</h2>
+<p>You can (should!) watch the entire presentation here:</p>
+<iframe style="max-width: 100%" width="618" height="352" src="https://www.youtube.com/embed/3GObi93tjZI" title="DjangoCon 2022 | From React to htmx on a real-world SaaS product: we did it, and it's awesome!" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<h2 id="executive-summary"><a class="zola-anchor" href="#executive-summary" aria-label="Anchor link for: executive-summary">🔗</a>Executive Summary</h2>
+<ul>
+<li>The effort took about <strong>2 months</strong> (with a 21K LOC code base, mostly JavaScript)</li>
+<li><strong>No reduction</strong> in the application’s user experience (UX)</li>
+<li>They reduced the <strong>code base size</strong> by <strong>67%</strong> (21,500 LOC to 7200 LOC)</li>
+<li>They <em>increased</em> <strong>python code</strong> by <strong>140%</strong> (500 LOC to 1200 LOC), a good thing if you prefer python to JS</li>
+<li>They reduced their total <strong>JS dependencies</strong> by <strong>96%</strong> (255 to 9)</li>
+<li>They reduced their <strong>web build time</strong> by <strong>88%</strong> (40 seconds to 5)</li>
+<li><strong>First load time-to-interactive</strong> was reduced by <strong>50-60%</strong> (from 2 to 6 seconds to 1 to 2 seconds)</li>
+<li><strong>Much larger data sets were possible</strong> when using htmx, because react simply couldn’t handle the data</li>
+<li>Web application <strong>memory usage</strong> was reduced by <strong>46%</strong> (75MB to 45MB)</li>
+</ul>
+<h2 id="analysis"><a class="zola-anchor" href="#analysis" aria-label="Anchor link for: analysis">🔗</a>Analysis</h2>
+<p>These are eye-popping numbers, and they reflect the fact that the Contexte application is extremely amenable to 
+hypermedia: it is a content-focused application that shows lots of text and images.  We would not expect every 
+web application to see these sorts of numbers.</p>
+<p>However, we <em>would</em> expect <em>many</em> applications to see dramatic improvements by adopting the hypermedia/htmx approach, at
+least for part of their system.</p>
+<h3 id="dev-team-makeup"><a class="zola-anchor" href="#dev-team-makeup" aria-label="Anchor link for: dev-team-makeup">🔗</a>Dev Team Makeup</h3>
+<p>One easy-to-overlook aspect of the port is the effect it had on the team’s structure.  When Contexte was using react,
+there was a hard split between back-end and front-end, with two developers being entirely back-end, one developer being
+entirely front-end, and one developer being “full stack”.</p>
+<p>(“Full stack” here means they are comfortable doing work on both the front-end and back-end, and, thus are able to 
+develop features entirely independently across the whole “stack”.)</p>
+<p>After the port to htmx, <em>the entire team</em> became “full stack” developers.  This means that each team member is more 
+effective and able to contribute more value.  It also makes development more fun, since developers can own an entire
+feature.  Finally, it can lead to better optimized software, since the developer can make optimizations anywhere in
+the stack without needing to coordinate with other developers.</p>
+<h2 id="slides"><a class="zola-anchor" href="#slides" aria-label="Anchor link for: slides">🔗</a>Slides</h2>
+<p>The slides for the presentation can be found here (be sure to check the excellent speakers notes!)</p>
+<p><a rel="noopener" target="_blank" href="https://docs.google.com/presentation/d/1jW7vTiHFzA71m2EoCywjNXch-RPQJuAkTiLpleYFQjI/edit?usp=sharing">https://docs.google.com/presentation/d/1jW7vTiHFzA71m2EoCywjNXch-RPQJuAkTiLpleYFQjI/edit?usp=sharing</a></p>
+
+  <div style="padding-top: 120px;padding-bottom:40px;text-align: center">
+    &lt;/&gt;
+  </div>
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/essays/a-real-world-react-to-htmx-port/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:43:49 GMT -->
+</html>

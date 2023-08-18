@@ -29,39 +29,55 @@ std::string TcpConnection::read() {
     return std::string(m_buffer.data(), bytes);
 }
 
-// StreamFile TcpConnection::readTmp(size_t size) {
-//     if (size == 0) return StreamFile();
-//     StreamFile tmpFile;
-//     tmpFile.create();
-//     size_t count = 0;
-//     do {
-//         int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
-//         if (bytes == 0 || bytes == -1) {
-//             close(m_socket);
-//             spdlog::debug("connection closed {}", m_socket);
-//             return tmpFile;
-//         }
-//         tmpFile.write(m_buffer.data(), bytes);
-//         count += bytes;
-//     } while (count < size);
-//     return tmpFile;
-// }
-
-std::string TcpConnection::readHeader() {
-    std::string header;
-    // Read until we find the end of the header (two consecutive CRLF)
-    while (header.find("\r\n\r\n") == std::string::npos) {
+std::string TcpConnection::readLine() {
+    std::string line;
+    // Read until we find a CRLF
+    if (m_bodySizeReadWhenReadingHeader) {
+        line = std::string(m_buffer.data(), m_bodySizeReadWhenReadingHeader);
+        m_bodySizeReadWhenReadingHeader = 0;
+    }
+    while (line.find("\r\n") == std::string::npos) {
         int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
         if (bytes == 0 || bytes == -1) {
             close(m_socket);
             spdlog::debug("connection closed {}", m_socket);
             return "";
         }
-        header += std::string(m_buffer.data(), bytes);
+        line += std::string(m_buffer.data(), bytes);
     }
+    // If there was data read after the CRLF, put it back in the buffer
+    size_t end = line.find("\r\n");
+    if (end == std::string::npos) return "";
+    if (end != line.size() - 2) {
+        std::string data = line.substr(end + 2);
+        if (data.size()) m_bodySizeReadWhenReadingHeader = data.size();
+        std::copy(data.begin(), data.end(), m_buffer.begin());
+    }
+
+    // Remove the data after the CRLF
+    line = line.substr(0, end);
+    // Add the CRLF
+    line += "\r\n";
+
+    return line;
+}
+
+std::string TcpConnection::readHeader() {
+    std::string header;
+    // Read until we find the end of the header (two consecutive CRLF)
+    int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
+    if (bytes == 0 || bytes == -1) {
+        close(m_socket);
+        spdlog::debug("connection closed {}", m_socket);
+        return "";
+    }
+    header += std::string(m_buffer.data(), bytes);
 
     // If there was data read after the header, put it back in the buffer
     size_t end = header.find("\r\n\r\n");
+
+    // This would mean that the header is > 16KB
+    if (end == std::string::npos) return "";
     if (end != header.size() - 4) {
         std::string data = header.substr(end + 4);
         if (data.size()) m_bodySizeReadWhenReadingHeader = data.size();

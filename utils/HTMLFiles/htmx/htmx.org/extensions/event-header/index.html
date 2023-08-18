@@ -1,0 +1,115 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/extensions/event-header/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:27 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ The event-header Extension</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  <h1>The <code>event-header</code> Extension</h1>
+  <p>This extension adds the <code>Triggering-Event</code> header to requests.  The value of
+the header is a JSON serialized version of the event that triggered the
+request.</p>
+<h2 id="install"><a class="zola-anchor" href="#install" aria-label="Anchor link for: install">🔗</a>Install</h2>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">script </span><span style="color:#d19a66;">src</span><span>=</span><span style="color:#98c379;">&quot;https://unpkg.com/htmx.org/dist/ext/event-header.js&quot;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">script</span><span>&gt;
+</span></code></pre>
+<h2 id="usage"><a class="zola-anchor" href="#usage" aria-label="Anchor link for: usage">🔗</a>Usage</h2>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">hx-ext</span><span>=</span><span style="color:#98c379;">&quot;event-header&quot;</span><span>&gt;
+</span><span>   Click Me!
+</span><span>&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span></code></pre>
+<p>Sends something like this:</p>
+<pre data-lang="txt" style="background-color:#282c34;color:#abb2bf;" class="language-txt "><code class="language-txt" data-lang="txt"><span>Triggering-Event: &#39;{ &quot;isTrusted&quot;: false, &quot;htmx-internal-data&quot;: { &quot;handled&quot;: true }, &quot;screenX&quot;: 0, &quot;screenY&quot;: 0, &quot;clientX&quot;: 0, &quot;clientY&quot;: 0, &quot;ctrlKey&quot;: false, &quot;shiftKey&quot;: false, &quot;altKey&quot;: false, &quot;metaKey&quot;: false, &quot;button&quot;: 0, &quot;buttons&quot;: 0, &quot;relatedTarget&quot;: null, &quot;pageX&quot;: 0, &quot;pageY&quot;: 0, &quot;x&quot;: 0, &quot;y&quot;: 0, &quot;offsetX&quot;: 0, &quot;offsetY&quot;: 0, &quot;movementX&quot;: 0, &quot;movementY&quot;: 0, &quot;fromElement&quot;: null, &quot;toElement&quot;: &quot;button&quot;, &quot;layerX&quot;: 0, &quot;layerY&quot;: 0, &quot;view&quot;: &quot;Window&quot;, &quot;detail&quot;: 0, &quot;sourceCapabilities&quot;: null, &quot;which&quot;: 1, &quot;NONE&quot;: 0, &quot;CAPTURING_PHASE&quot;: 1, &quot;AT_TARGET&quot;: 2, &quot;BUBBLING_PHASE&quot;: 3, &quot;type&quot;: &quot;click&quot;, &quot;target&quot;: &quot;button&quot;, &quot;currentTarget&quot;: &quot;button&quot;, &quot;eventPhase&quot;: 2, &quot;bubbles&quot;: true, &quot;cancelable&quot;: true, &quot;defaultPrevented&quot;: true, &quot;composed&quot;: true, &quot;timeStamp&quot;: 188.86999995447695, &quot;srcElement&quot;: &quot;button&quot;, &quot;returnValue&quot;: false, &quot;cancelBubble&quot;: false, &quot;path&quot;: [ &quot;button&quot;, &quot;div#work-area&quot;, &quot;body&quot;, &quot;html&quot;, &quot;Node&quot;, &quot;Window&quot; ] }&#39;
+</span></code></pre>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/extensions/event-header/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:27 GMT -->
+</html>

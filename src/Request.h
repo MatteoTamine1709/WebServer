@@ -64,7 +64,6 @@ class Request {
 
     TcpServer &app;
     TcpConnection &connection;
-    std::string baseUrl;
     nlohmann::json body;
     std::unordered_map<std::string, std::string> cookies;
     bool fresh;
@@ -86,7 +85,6 @@ class Request {
     std::vector<std::string> subdomains;
     bool xhr;
     std::unordered_map<std::string, StreamFile> files;
-    StreamFile tmpFile;
 
     std::optional<std::string> accepts(
         const std::vector<std::string> &types) const;
@@ -103,6 +101,10 @@ class Request {
     std::optional<Range> range(size_t size) const;
 
     bool readHeader();
+    std::string readWholeBody();
+    std::string readLine();
+    std::string readBody(size_t size = 4 * ONE_KILOBYTE);
+    void setParameters();
 
     // operator []
     std::optional<std::string> operator[](const std::string &field) const {
@@ -117,7 +119,6 @@ class Request {
     };
     std::unordered_map<std::string, std::string, custom_header_hash> m_headers =
         {};
-    int m_socket = -1;
 };
 
 #endif

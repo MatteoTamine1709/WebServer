@@ -16,17 +16,22 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
     if (contentType.find("multipart/form-data") == std::string::npos)
         return next();
     if (contentType.find("boundary=") == std::string::npos) return next();
-    if (req.tmpFile.getSize() == 0) return next();
+    if (!req["Content-Length"] ||
+        std::stoul(req["Content-Length"].value()) == 0)
+        return next();
+
+    std::cout << "multipartFormDataParserMiddleware" << std::endl;
 
     try {
         std::string boundary =
             "--" + contentType.substr(contentType.find("boundary=") + 9);
         // Read whole stream of tmpFile and parse it and store it in
+        std::cout << "boundary: " << boundary << std::endl;
         std::string filename;
-        req.tmpFile.resetCursor();
         size_t size = 0;
         do {
-            std::string s = req.tmpFile.readLine();
+            std::string s = req.readLine();
+            std::cout << s << std::endl;
             if (s.find(boundary + "--") != std::string::npos) {
                 // End of multipart/form-data
                 if (!filename.empty()) {
@@ -46,7 +51,7 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
                     req.files[filename].close();
                     filename = "";
                 }
-                std::string contentDisposition = req.tmpFile.readLine();
+                std::string contentDisposition = req.readLine();
                 if (contentDisposition.find("filename=\"") ==
                     std::string::npos) {
                     // This is a variable parsing
@@ -55,10 +60,12 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
                         contentDisposition.find(
                             "\"", contentDisposition.find("name=\"") + 6) -
                             contentDisposition.find("name=\"") - 6);
-                    req.tmpFile.readLine();  // Empty line after headers
-                    std::string value = req.tmpFile.readLine();
-                    value = value.substr(0, value.size() - 2);
+                    req.readLine();  // Empty line after headers
+                    std::string value = req.readLine();
+                    value = value.substr(0, value.size());
                     req.body[name] = value;
+                    std::cout << "name: " << name << std::endl;
+                    std::cout << "value: " << value << std::endl;
                     continue;
                 }
                 filename = contentDisposition.substr(
@@ -66,7 +73,7 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
                     contentDisposition.find(
                         "\"", contentDisposition.find("filename=\"") + 10) -
                         contentDisposition.find("filename=\"") - 10);
-                std::string contentType(req.tmpFile.readLine());
+                std::string contentType(req.readLine());
                 std::string mimetype = contentType.substr(
                     contentType.find("Content-Type: ") + 14,
                     contentType.find("\n",
@@ -78,16 +85,20 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
                 req.files[filename].mimetype = mimetype;
                 req.files[filename].name = filename;
                 req.files[filename].size = 0;
-
-                req.tmpFile.readLine();
             } else {
                 // Append to file
                 size_t bytes = req.files[filename].write(s);
                 size += bytes;
             }
-        } while (!req.tmpFile.isEnd());
+        } while (true);
     } catch (const std::exception &e) {
         return res.status(400).json({{"error", e.what()}});
+    }
+    std::cout << "Files: " << req.files.size() << std::endl;
+    for (auto &file : req.files) {
+        std::cout << "File: " << file.first << std::endl;
+        std::cout << "Size: " << file.second.size << std::endl;
+        std::cout << "Mimetype: " << file.second.mimetype << std::endl;
     }
     next();
 }

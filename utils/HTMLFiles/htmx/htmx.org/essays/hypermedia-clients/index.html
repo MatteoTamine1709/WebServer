@@ -1,0 +1,276 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/essays/hypermedia-clients/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:24 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ Hypermedia Clients</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+
+  <h1>Hypermedia Clients</h1>
+  
+    <address>Carson Gross</address>
+    <time>January 28, 2023</time>
+  
+
+  <p>Often, when we are being insufferably pedantic in <a rel="noopener" target="_blank" href="https://news.ycombinator.com/item?id=32141027">online discussions</a> 
+about <a href="../how-did-rest-come-to-mean-the-opposite-of-rest/index.html">REST</a> &amp; <a href="../hateoas/index.html">HATEOAS</a>, we will
+say something along the lines of this:</p>
+<blockquote>
+<p>JSON isn’t a hypermedia because it doesn’t have hypermedia controls.</p>
+<p>Look at this JSON:</p>
+</blockquote>
+<pre data-lang="json" style="background-color:#282c34;color:#abb2bf;" class="language-json "><code class="language-json" data-lang="json"><span>{
+</span><span> </span><span style="color:#98c379;">&quot;account&quot;</span><span>: {
+</span><span>   </span><span style="color:#98c379;">&quot;account_number&quot;</span><span>: </span><span style="color:#d19a66;">12345</span><span>,
+</span><span>   </span><span style="color:#98c379;">&quot;balance&quot;</span><span>: {
+</span><span>     </span><span style="color:#98c379;">&quot;currency&quot;</span><span>: </span><span style="color:#98c379;">&quot;usd&quot;</span><span>,
+</span><span>     </span><span style="color:#98c379;">&quot;value&quot;</span><span>: </span><span style="color:#d19a66;">50.00
+</span><span>   },
+</span><span>   </span><span style="color:#98c379;">&quot;status&quot;</span><span>: </span><span style="color:#98c379;">&quot;open&quot;
+</span><span> }
+</span><span>}
+</span></code></pre>
+<blockquote>
+<p>See?  No hypermedia controls.</p>
+<p>So this JSON isn’t a hypermedia, and, therefore, the API returning this JSON isn’t RESTful.</p>
+</blockquote>
+<p>To this, occasionally, a smart and experienced web developer will reply with something along these lines:</p>
+<blockquote>
+<p>OK, mr. REST-y pants, how about this JSON?</p>
+</blockquote>
+<pre data-lang="json" style="background-color:#282c34;color:#abb2bf;" class="language-json "><code class="language-json" data-lang="json"><span>{
+</span><span>  </span><span style="color:#98c379;">&quot;account&quot;</span><span>: {
+</span><span>    </span><span style="color:#98c379;">&quot;account_number&quot;</span><span>: </span><span style="color:#d19a66;">12345</span><span>,
+</span><span>    </span><span style="color:#98c379;">&quot;balance&quot;</span><span>: {
+</span><span>      </span><span style="color:#98c379;">&quot;currency&quot;</span><span>: </span><span style="color:#98c379;">&quot;usd&quot;</span><span>,
+</span><span>      </span><span style="color:#98c379;">&quot;value&quot;</span><span>: </span><span style="color:#d19a66;">50.00
+</span><span>    },
+</span><span>    </span><span style="color:#98c379;">&quot;status&quot;</span><span>: </span><span style="color:#98c379;">&quot;open&quot;</span><span>,
+</span><span>    </span><span style="color:#98c379;">&quot;links&quot;</span><span>: {
+</span><span>      </span><span style="color:#98c379;">&quot;deposits&quot;</span><span>: </span><span style="color:#98c379;">&quot;/accounts/12345/deposits&quot;</span><span>,
+</span><span>      </span><span style="color:#98c379;">&quot;withdrawals&quot;</span><span>: </span><span style="color:#98c379;">&quot;/accounts/12345/withdrawals&quot;</span><span>,
+</span><span>      </span><span style="color:#98c379;">&quot;transfers&quot;</span><span>: </span><span style="color:#98c379;">&quot;/accounts/12345/transfers&quot;</span><span>,
+</span><span>      </span><span style="color:#98c379;">&quot;close-requests&quot;</span><span>: </span><span style="color:#98c379;">&quot;/accounts/12345/close-requests&quot;
+</span><span>    }
+</span><span>  }
+</span><span>}
+</span></code></pre>
+<blockquote>
+<p>There, now there are hypermedia controls in this response (normal humans call them links, btw) so this JSON is a 
+hypermedia.</p>
+<p>So this JSON API is now RESTful.  Feel better?</p>
+</blockquote>
+<p>😑</p>
+<p>One must concede that, at least at a high-level, our online adversary has something of a talking point here: these
+do appear to be hypermedia controls, and they are, in fact, in a JSON response.  So, couldn’t you call this JSON response
+RESTful?</p>
+<p>Being obstinate by nature, we still wouldn’t be willing to concede the immediate point without a good 
+<a rel="noopener" target="_blank" href="../../../i.imgur.com/DpQ9YJl.png">ackchyually</a> or two:</p>
+<ul>
+<li>First, these links hold no information about what HTTP method to use to access them</li>
+<li>Secondly, these links aren’t a <em>native</em> part of JSON the way that, for example, anchor and form tags are with HTML</li>
+<li>Third, there is a lot of missing information about the hypermedia interactions at each end point (e.g. what data needs to
+go up with the request.)</li>
+</ul>
+<p>And so on: the sorts of pedantic nit-picking that makes technical flame wars about REST on the internet such a <em>special</em> joy.</p>
+<p>However, there is a deeper <a rel="noopener" target="_blank" href="../../../i.imgur.com/DpQ9YJl.png">ackchyually</a> here, and one that doesn’t involve the <em>JSON API</em> 
+itself, but rather the other side of the wire: the <em>client</em> that receives the JSON.</p>
+<h2 id="hypermedia-clients-presentation-information"><a class="zola-anchor" href="#hypermedia-clients-presentation-information" aria-label="Anchor link for: hypermedia-clients-presentation-information">🔗</a>Hypermedia Clients &amp; Presentation Information</h2>
+<p>The deeper problem with this proposed fix for non-RESTful JSON APIs is that, for this JSON response to participate 
+properly in a <a rel="noopener" target="_blank" href="https://hypermedia.systems/">hypermedia system</a>, the <em>client</em> that consumes the JSON needs to <em>also</em> 
+satisfy the <a rel="noopener" target="_blank" href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm">constraints</a> that the 
+RESTful architectural style places on the entire system.</p>
+<p>In particular, the client needs to satisfy the <a rel="noopener" target="_blank" href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_1_5">uniform interface</a>,
+in which the client code knows nothing about the “shape” or details of the response beyond the ability to display
+the given hypermedia to a user.  In a properly functioning RESTful system, the client isn’t allowed to have any 
+“out of band” knowledge about the domain that a particular hypermedia representation, er, represents.</p>
+<p>Let’s look at the proposed JSON-as-hypermedia again: </p>
+<pre data-lang="json" style="background-color:#282c34;color:#abb2bf;" class="language-json "><code class="language-json" data-lang="json"><span>{
+</span><span>  </span><span style="color:#98c379;">&quot;account&quot;</span><span>: {
+</span><span>    </span><span style="color:#98c379;">&quot;account_number&quot;</span><span>: </span><span style="color:#d19a66;">12345</span><span>,
+</span><span>    </span><span style="color:#98c379;">&quot;balance&quot;</span><span>: {
+</span><span>      </span><span style="color:#98c379;">&quot;currency&quot;</span><span>: </span><span style="color:#98c379;">&quot;usd&quot;</span><span>,
+</span><span>      </span><span style="color:#98c379;">&quot;value&quot;</span><span>: </span><span style="color:#d19a66;">50.00
+</span><span>    },
+</span><span>    </span><span style="color:#98c379;">&quot;status&quot;</span><span>: </span><span style="color:#98c379;">&quot;open&quot;</span><span>,
+</span><span>    </span><span style="color:#98c379;">&quot;links&quot;</span><span>: {
+</span><span>      </span><span style="color:#98c379;">&quot;deposits&quot;</span><span>: </span><span style="color:#98c379;">&quot;/accounts/12345/deposits&quot;</span><span>,
+</span><span>      </span><span style="color:#98c379;">&quot;withdrawals&quot;</span><span>: </span><span style="color:#98c379;">&quot;/accounts/12345/withdrawals&quot;</span><span>,
+</span><span>      </span><span style="color:#98c379;">&quot;transfers&quot;</span><span>: </span><span style="color:#98c379;">&quot;/accounts/12345/transfers&quot;</span><span>,
+</span><span>      </span><span style="color:#98c379;">&quot;close-requests&quot;</span><span>: </span><span style="color:#98c379;">&quot;/accounts/12345/close-requests&quot;
+</span><span>    }
+</span><span>  }
+</span><span>}
+</span></code></pre>
+<p>Now, a client of this API <em>could</em> use a generic algorithm to transform this JSON into, for example, some HTML.  It could
+do so via a client-side templating language that, for example, iterated over all the properties of the JSON object. </p>
+<p>But there’s a hitch: note that there isn’t a lot of <em>presentation information</em> in the JSON response.  It is a fairly raw 
+data representation of the account in question, with a few additional URLs.</p>
+<p>A client that wanted to satisfy the uniform interface constraint of REST doesn’t have much information on how to present 
+this data to a user.  The client would, therefore, need to adopt a very basic approach to displaying this account to an 
+end user.</p>
+<p>It would probably end up being roughly a set of name/value pairs and a set generic of buttons or links for actions, right?</p>
+<p>There simply isn’t much more it could do while remaining agnostic about the form of the JSON response.</p>
+<h3 id="pushing-our-json-api-further"><a class="zola-anchor" href="#pushing-our-json-api-further" aria-label="Anchor link for: pushing-our-json-api-further">🔗</a>Pushing Our JSON API Further</h3>
+<p>We could fix this by making our JSON API more elaborate and start including more information on how to lay out the
+information: perhaps indications that some fields should be emphasized, or hidden, etc.</p>
+<p>But that would only be part of the story.</p>
+<p>We would also need to update the client side to interpret these new elements of our JSON API properly.  So we are no 
+longer just API designers: we are getting in to the hypermedia <em>client</em> creation business as well.  Or, more likely, we
+are asking our <em>API clients</em> to get into the hypermedia client business as well.</p>
+<p>Now, Mike Amundsen has written an <a rel="noopener" target="_blank" href="https://www.oreilly.com/library/view/restful-web-clients/9781491921890/">excellent book</a> on
+how to build a proper, generic hypermedia client.  But what you will see in that book is that creating a good hypermedia 
+client isn’t trivial, and, further, it is certainly not what <em>most</em> engineers would build to consume a JSON API, even if 
+the JSON API had increasingly elaborate hypermedia controls and presentation information in their responses.</p>
+<h3 id="inefficient-representations"><a class="zola-anchor" href="#inefficient-representations" aria-label="Anchor link for: inefficient-representations">🔗</a>“Inefficient” Representations</h3>
+<p>As we begin to consider adding more information to our JSON response, a quote from Roy Fielding’s dissertation jumps
+to mind:</p>
+<blockquote>
+<p>The trade-off, though, is that a uniform interface degrades efficiency, since information is transferred in a
+standardized form rather than one which is specific to an application’s needs.</p>
+</blockquote>
+<p><em>-Roy Fielding, <a rel="noopener" target="_blank" href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_1_5">https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_1_5</a></em></p>
+<p>A criticism of HTML is that it mixes “presentation” information with “semantic” information.  This is often contrasted
+unfavorably with the brevity of typical JSON API responses.</p>
+<p>It turns out, however, that it is exactly that presentation information, and the ability of a web browser (i.e. a hypermedia client) to 
+turn it into a UI that a human can interact with, that makes HTML work so well as a component of the larger hypermedia 
+system that is the web.</p>
+<p>And that exactly what we find ourselves adding to our own JSON API to support a proper hypermedia client.</p>
+<h2 id="building-hypermedia-clients"><a class="zola-anchor" href="#building-hypermedia-clients" aria-label="Anchor link for: building-hypermedia-clients">🔗</a>Building Hypermedia Clients</h2>
+<p>So, you can see, just offering hypermedia controls in a JSON API response isn’t enough.  It is <em>part</em> of the REST story, 
+but not the entire story.  And, I have come to understand, it is not really the <em>hard</em> part of the story.  In fact, creating the 
+hypermedia <em>client</em> is the hard part, and creating a <em>good</em> hypermedia client is <em>the really hard part</em>.</p>
+<p>Now, we are all used to web browsers just being there, but think for a moment about all the technology that goes in to simply
+parsing and rendering HTML to an end user in a normal, every day web request.  It’s <em>extremely</em> complicated.</p>
+<p>That’s why, if we want to build web-based <a href="../hypermedia-driven-applications/index.html">hypermedia-driven applications</a>,
+it’s probably a good idea to use the standard, web-based hypermedia client: the browser.</p>
+<p>It is already an extremely powerful, well tested hypermedia client.  And, <a href="../../docs/index.html">with a bit of help</a>,
+it can be an even better hypermedia client.</p>
+<p>In general, building a good hypermedia client that satisfies all the constraints of REST is hard, and we should lean
+towards using (and extending) existing clients rather than building our own new ones.</p>
+<h3 id="hyperview"><a class="zola-anchor" href="#hyperview" aria-label="Anchor link for: hyperview">🔗</a>Hyperview</h3>
+<p>That being said, there are times when building a new hypermedia client is appropriate.  For example, this is what makes 
+a technology like <a rel="noopener" target="_blank" href="https://hyperview.org/">Hyperview</a> so impressive and special.  Hyperview
+doesn’t just provide a specification for a new, mobile-friendly hypermedia, <a rel="noopener" target="_blank" href="https://hyperview.org/docs/guide_html">HXML</a>.</p>
+<p>It also provides developers with a hypermedia <em>client</em> that understands how to render HXML.</p>
+<p>Without that hypermedia client, Hyperview would be just another hypermedia-in-theory, like the JSON above, rather
+than a compelling, practical and <em>complete</em> RESTful hypermedia solution.</p>
+<p>A hypermedia without a hypermedia client is like a fish without a bicycle, except where the fish is really only good at
+bicycling.</p>
+<h2 id="conclusion"><a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">🔗</a>Conclusion</h2>
+<p>It took me a long time to appreciate how important the <em>client</em> is to a proper, RESTful hypermedia system.  This is understandable,
+since most of the early discussion around REST was around <a rel="noopener" target="_blank" href="https://www.martinfowler.com/articles/richardsonMaturityModel.html">API Design</a>,
+and the client simply didn’t come up much.</p>
+<p>What I see now is that a lot of these discussions were putting the cart before the horse: the only way a RESTful hypermedia
+API can be useful is if it is consumed by a proper hypermedia client.  Otherwise, your hypermedia controls are wasted
+on what is, at the end of the day, a domain-specific thick client that just wants to get things done.</p>
+<p>Further, your hypermedia API is almost certainly going to have to carry a fair amount of presentation-layer information 
+in it to make the whole thing usable.  It turns out that “Level 3” of the 
+<a rel="noopener" target="_blank" href="https://martinfowler.com/articles/richardsonMaturityModel.html">Richard Maturity Model</a>, Hypermedia Controls, <em>isn’t</em> 
+enough to reach “The Glory of REST”.</p>
+<p>In practice, you are going to need to add in a bunch of practical presentation-level technology to make 
+your hypermedia API really work, <em>and</em> you are going to need a properly built hypermedia client to consume it.</p>
+<p>I had a nascent sense of this when I wrote <a rel="noopener" target="_blank" href="https://intercoolerjs.org/2016/05/08/hatoeas-is-for-humans.html">HATEOAS Is For Humans</a>,
+but I didn’t, at that time, appreciate just how special the client/web browser was.</p>
+<p>REST isn’t solely about APIs: as Roy Fielding makes clear in his dissertation, it is a <em>system</em> architecture. </p>
+<p>Except for a few people like <a rel="noopener" target="_blank" href="https://training.amundsen.com/">Mike</a>, we’ve been largely ignoring a larger (really, 
+<em>much</em> larger) part of the REST story:</p>
+<div style="text-align:center;padding-top: 24px">
+<img src="../../img/creating-client.png" alt="Creating A Hypermedia Client Is Hard Joke" style="max-width: 95%">
+</div>
+
+  <div style="padding-top: 120px;padding-bottom:40px;text-align: center">
+    &lt;/&gt;
+  </div>
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/essays/hypermedia-clients/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:24 GMT -->
+</html>

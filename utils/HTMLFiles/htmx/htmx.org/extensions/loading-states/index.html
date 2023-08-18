@@ -1,0 +1,205 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/extensions/loading-states/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:27 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ The loading-states Extension</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  <h1>The <code>loading-states</code> Extension</h1>
+  <p>This extension allows you to easily manage loading states while a request is in flight, including disabling elements, and adding and removing CSS classes.</p>
+<h2 id="install"><a class="zola-anchor" href="#install" aria-label="Anchor link for: install">🔗</a>Install</h2>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">script </span><span style="color:#d19a66;">src</span><span>=</span><span style="color:#98c379;">&quot;https://unpkg.com/htmx.org/dist/ext/loading-states.js&quot;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">script</span><span>&gt;
+</span></code></pre>
+<h2 id="usage"><a class="zola-anchor" href="#usage" aria-label="Anchor link for: usage">🔗</a>Usage</h2>
+<p>Add the <code>hx-ext=&quot;loading-states&quot;</code> attribute to the body tag or to any parent element containing your htmx attributes.</p>
+<p>Add the following class to your stylesheet to make sure elements are hidden by default:</p>
+<pre data-lang="css" style="background-color:#282c34;color:#abb2bf;" class="language-css "><code class="language-css" data-lang="css"><span style="color:#d19a66;">[data-loading] </span><span>{
+</span><span>  display: none;
+</span><span>}
+</span></code></pre>
+<h2 id="supported-attributes"><a class="zola-anchor" href="#supported-attributes" aria-label="Anchor link for: supported-attributes">🔗</a>Supported attributes</h2>
+<ul>
+<li>
+<p><code>data-loading</code></p>
+<p>Shows the element. The default style is <code>inline-block</code>, but it’s possible to use any display style by specifying it in the attribute value.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">data-loading</span><span>&gt;loading&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>
+</span><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">data-loading</span><span>=</span><span style="color:#98c379;">&quot;block&quot;</span><span>&gt;loading&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>
+</span><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">data-loading</span><span>=</span><span style="color:#98c379;">&quot;flex&quot;</span><span>&gt;loading&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span></code></pre>
+</li>
+<li>
+<p><code>data-loading-class</code></p>
+<p>Adds, then removes, CSS classes to the element:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;transition-all ease-in-out duration-600&quot; </span><span style="color:#d19a66;">data-loading-class</span><span>=</span><span style="color:#98c379;">&quot;bg-gray-100 opacity-80&quot;</span><span>&gt;
+</span><span>...
+</span><span>&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span></code></pre>
+</li>
+<li>
+<p><code>data-loading-class-remove</code></p>
+<p>Removes, then adds back, CSS classes from the element.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;p-8 bg-gray-100 transition-all ease-in-out duration-600&quot; </span><span style="color:#d19a66;">data-loading-class-remove</span><span>=</span><span style="color:#98c379;">&quot;bg-gray-100&quot;</span><span>&gt;
+</span><span>...
+</span><span>&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span></code></pre>
+</li>
+<li>
+<p><code>data-loading-disable</code></p>
+<p>Disables an element for the duration of the request.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">data-loading-disable</span><span>&gt;Submit&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span></code></pre>
+</li>
+<li>
+<p><code>data-loading-aria-busy</code></p>
+<p>Add <a rel="noopener" target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-busy"><code>aria-busy=&quot;true&quot;</code></a> attribute to the element for the duration of the request</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">data-loading-aria-busy</span><span>&gt;Submit&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span></code></pre>
+</li>
+<li>
+<p><code>data-loading-delay</code></p>
+<p>Some actions may update quickly and showing a loading state in these cases may be more of a distraction. This attribute ensures that the loading state changes are applied only after 200ms if the request is not finished. The default delay can be modified through the attribute value and expressed in milliseconds:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;submit&quot; </span><span style="color:#d19a66;">data-loading-disable data-loading-delay</span><span>=</span><span style="color:#98c379;">&quot;1000&quot;</span><span>&gt;Submit&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span></code></pre>
+<p>You can place the <code>data-loading-delay</code> attribute directly on the element you want to disable, or in any parent element.</p>
+</li>
+<li>
+<p><code>data-loading-target</code></p>
+<p>Allows setting a different target to apply the loading states. The attribute value can be any valid CSS selector. The example below disables the submit button and shows the loading state when the form is submitted.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">form </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/save&quot;
+</span><span>  </span><span style="color:#d19a66;">data-loading-target</span><span>=</span><span style="color:#98c379;">&quot;#loading&quot;
+</span><span>  </span><span style="color:#d19a66;">data-loading-class-remove</span><span>=</span><span style="color:#98c379;">&quot;hidden&quot;</span><span>&gt;
+</span><span>
+</span><span>  &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;submit&quot; </span><span style="color:#d19a66;">data-loading-disable</span><span>&gt;Submit&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>
+</span><span>&lt;/</span><span style="color:#e06c75;">form</span><span>&gt;
+</span><span>
+</span><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;loading&quot; </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;hidden&quot;</span><span>&gt;Loading ...&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span></code></pre>
+</li>
+<li>
+<p><code>data-loading-path</code></p>
+<p>Allows filtering the processing of loading states only for specific requests based on the request path.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">form </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/save&quot;</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;submit&quot; </span><span style="color:#d19a66;">data-loading-disable data-loading-path</span><span>=</span><span style="color:#98c379;">&quot;/save&quot;</span><span>&gt;Submit&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">form</span><span>&gt;
+</span></code></pre>
+<p>You can place the <code>data-loading-path</code> attribute directly on the loading state element, or in any parent element.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">form </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/save&quot; </span><span style="color:#d19a66;">data-loading-path</span><span>=</span><span style="color:#98c379;">&quot;/save&quot;</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;submit&quot; </span><span style="color:#d19a66;">data-loading-disable</span><span>&gt;Submit&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">form</span><span>&gt;
+</span></code></pre>
+</li>
+<li>
+<p><code>data-loading-states</code></p>
+<p>This attribute is optional and it allows defining a scope for the loading states so only elements within that scope are processed.</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">data-loading-states</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">hx-get</span><span>=</span><span style="color:#98c379;">&quot;&quot;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">data-loading</span><span>&gt;loading&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>
+</span><span>&lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">data-loading-states</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">hx-get</span><span>=</span><span style="color:#98c379;">&quot;&quot;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">data-loading</span><span>&gt;loading&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>
+</span><span>&lt;</span><span style="color:#e06c75;">form </span><span style="color:#d19a66;">data-loading-states hx-post</span><span>=</span><span style="color:#98c379;">&quot;&quot;</span><span>&gt;
+</span><span>  &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">data-loading</span><span>&gt;loading&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">form</span><span>&gt;
+</span></code></pre>
+</li>
+</ul>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/extensions/loading-states/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:27 GMT -->
+</html>

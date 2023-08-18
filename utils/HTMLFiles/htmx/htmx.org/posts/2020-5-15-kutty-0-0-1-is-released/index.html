@@ -1,0 +1,147 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/posts/2020-5-15-kutty-0-0-1-is-released/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:23 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ kutty 0.0.1 has been released!</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  <h1>kutty 0.0.1 has been released!</h1>
+  <h2 id="kutty-0-0-1-release">Kutty 0.0.1 Release</h2>
+<p>I’m pleased to announce the <a rel="noopener" target="_blank" href="https://unpkg.com/browse/kutty.org@0.0.1/">0.0.1 release</a> of kutty, the successor
+to <a rel="noopener" target="_blank" href="http://intercoolerjs.org/">intercooler.js</a>!</p>
+<p>Like intercooler, kutty brings features of modern browsers that normally require javascript (AJAX, CSS transitions, etc.) 
+directly into HTML.</p>
+<h4 id="why-the-rename">Why the rename?</h4>
+<p>I chose to rename the project for a few reasons:</p>
+<ul>
+<li>I wanted the freedom to clean up mistakes and remove ideas that hadn’t worked out as cleanly as I wanted</li>
+<li>The JS in <code>intercooler.js</code> implied a javascript-orientation.  The more I developed intercooler the more I realized
+that it was really about enhancing (completing?) HTML, not javascript.  This project doesn’t really compete with tools 
+like angular, vue or react, it’s something different, so I wanted a different name.</li>
+<li><code>kutty</code> is short and memorable, <code>kutty.org</code> was available, and it has consonance with “cuttlefish” which is the
+official cephalopod of kutty development.</li>
+</ul>
+<h4 id="so-what-s-new-different-about-kutty-vs-intercooler">So what’s new &amp; different about kutty vs. intercooler?</h4>
+<ul>
+<li>First and foremost, kutty has <a rel="noopener" target="_blank" href="https://github.com/bigskysoftware/kutty/blob/master/package.json"><em>no external dependencies</em></a> !
+No more dragging in jQuery just to do HTML-oriented web development.  It has been tested with IE11.</li>
+<li>It follows conventional naming and behavior standards more closely than intercooler does (e.g. <a href="../../attributes/hx-swap/index.html"><code>innerHTML</code></a> and <a href="../../attributes/hx-swap/index.html"><code>outerHTML</code></a>)</li>
+<li>Kutty isn’t the kitchen-sink-of-features that intercooler is.  Kutty is more focused on the features that are amenable 
+to a declarative approache and less on replacing javascript entirely.</li>
+<li>Kutty has a better swapping mechanism which introduces a settling step, which allows for nice CSS transitions
+with minimal complexity.  Check out the <a href="../../examples/progress-bar/index.html">progress bar</a> to see how this works: by returning
+HTML in the old web 1.0 style, you can get nice, smooth CSS-based transitions.  Fun!</li>
+</ul>
+<p>Beyond that, basic kutty and intercooler code will look a lot a like:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>  &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">kt-post</span><span>=</span><span style="color:#98c379;">&quot;/clicked&quot;</span><span>&gt;Click Me!&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span></code></pre>
+<p>This will issue an AJAX post to <code>/clicked</code>, in a manner familiar to anyone who has used intercooler.</p>
+<h4 id="what-will-happen-to-intercooler">What will happen to intercooler?</h4>
+<p>I’m planning on maintaining both projects.  Intercooler is a slow moving project anyway, and the code is stable and
+works fine for people who want to go the jQuery route.  I have a large application written with it and I’m not planning
+on moving that to kutty any time soon.</p>
+<h4 id="how-hard-will-a-port-to-kutty-from-intercooler-be">How hard will a port to kutty from intercooler be?</h4>
+<p>Depends a lot on how into the weeds you got with intercooler.  The core attributes are pretty close to one another
+but if you were using <code>ic-action</code> or event handlers extensively it will be a project.</p>
+<h4 id="ok-so-what-should-i-do">OK, so what should I do?</h4>
+<p>The usual:</p>
+<ul>
+<li>read the <a href="../../docs/index.html">docs</a></li>
+<li>star the <a rel="noopener" target="_blank" href="https://github.com/bigskysoftware/kutty">repo</a></li>
+<li>tell your friends</li>
+<li>enjoy fully functional HTML, the way <a rel="noopener" target="_blank" href="https://en.wikipedia.org/wiki/Representational_State_Transfer">Roy Fielding</a> intended it</li>
+</ul>
+<p>Cheers!</p>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/posts/2020-5-15-kutty-0-0-1-is-released/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:23 GMT -->
+</html>

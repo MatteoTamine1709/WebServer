@@ -1,0 +1,131 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/attributes/hx-target/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:17 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ hx-target Attribute</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../../essays/index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+  <h1><code>hx-target</code></h1>
+  <p>The <code>hx-target</code> attribute allows you to target a different element for swapping than the one issuing the AJAX
+request.  The value of this attribute can be:</p>
+<ul>
+<li>A CSS query selector of the element to target.</li>
+<li><code>this</code> which indicates that the element that the <code>hx-target</code> attribute is on is the target.</li>
+<li><code>closest &lt;CSS selector&gt;</code> which will find the <a rel="noopener" target="_blank" href="https://developer.mozilla.org/docs/Web/API/Element/closest">closest</a>
+ancestor element or itself, that matches the given CSS selector
+(e.g. <code>closest tr</code> will target the closest table row to the element).</li>
+<li><code>find &lt;CSS selector&gt;</code> which will find the first child descendant element that matches the given CSS selector.</li>
+<li><code>next &lt;CSS selector&gt;</code> which will scan the DOM forward for the first element that matches the given CSS selector.
+(e.g. <code>next .error</code> will target the closest following sibling element with <code>error</code> class)</li>
+<li><code>previous &lt;CSS selector&gt;</code> which will scan the DOM backwards for the first element that matches the given CSS selector.
+(e.g <code>previous .error</code> will target the closest previous sibling with <code>error</code> class)</li>
+</ul>
+<p>Here is an example that targets a div:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">div </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;response-div&quot;</span><span>&gt;&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/register&quot; </span><span style="color:#d19a66;">hx-target</span><span>=</span><span style="color:#98c379;">&quot;#response-div&quot; </span><span style="color:#d19a66;">hx-swap</span><span>=</span><span style="color:#98c379;">&quot;beforeend&quot;</span><span>&gt;
+</span><span>        Register!
+</span><span>    &lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">div</span><span>&gt;
+</span></code></pre>
+<p>The response from the <code>/register</code> url will be appended to the <code>div</code> with the id <code>response-div</code>.</p>
+<p>This example uses <code>hx-target=&quot;this&quot;</code> to make a link that updates itself when clicked:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">a </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/new-link&quot; </span><span style="color:#d19a66;">hx-target</span><span>=</span><span style="color:#98c379;">&quot;this&quot; </span><span style="color:#d19a66;">hx-swap</span><span>=</span><span style="color:#98c379;">&quot;outerHTML&quot;</span><span>&gt;New link&lt;/</span><span style="color:#e06c75;">a</span><span>&gt;
+</span></code></pre>
+<h2 id="notes">Notes</h2>
+<ul>
+<li><code>hx-target</code> is inherited and can be placed on a parent element</li>
+</ul>
+
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../../essays/index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/attributes/hx-target/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:44:17 GMT -->
+</html>

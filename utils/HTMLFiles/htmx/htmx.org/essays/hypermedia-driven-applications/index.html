@@ -1,0 +1,238 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/essays/hypermedia-driven-applications/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:43:54 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ Hypermedia-Driven Applications</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+
+  <h1>Hypermedia-Driven Applications</h1>
+  
+    <address>Carson Gross</address>
+    <time>February 06, 2022</time>
+  
+
+  <h2 id="genesis"><a class="zola-anchor" href="#genesis" aria-label="Anchor link for: genesis">🔗</a>Genesis</h2>
+<blockquote>
+<p>thesis: MPA - multi-page application</p>
+<p>antithesis: SPA -  single-page application</p>
+<p>synthesis: HDA - hypermedia-driven application</p>
+<p>--<a rel="noopener" target="_blank" href="https://twitter.com/htmx_org/status/1490318550170357760">@htmx_org</a></p>
+</blockquote>
+<h2 id="the-hypermedia-driven-application-architecture"><a class="zola-anchor" href="#the-hypermedia-driven-application-architecture" aria-label="Anchor link for: the-hypermedia-driven-application-architecture">🔗</a>The Hypermedia-Driven Application Architecture</h2>
+<p>The <strong>Hypermedia Driven Application (HDA)</strong> architecture is a new/old approach to building web applications.  It combines
+the simplicity &amp; flexibility of traditional Multi-Page Applications (MPAs) with the better user experience of 
+<a rel="noopener" target="_blank" href="https://en.wikipedia.org/wiki/Single-page_application">Single-Page Applications</a> (SPAs).</p>
+<p>The HDA architecture achieves this goal by extending the existing HTML infrastructure of the web to allow hypermedia
+developers to create more powerful hypermedia-driven interactions.</p>
+<p>Following the REST notion of architectural <a rel="noopener" target="_blank" href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm">constraints</a>,
+two such constraints characterize the HDA architecture: </p>
+<ul>
+<li>
+<p>An HDA uses <em>declarative, HTML-embedded syntax</em> rather than imperative scripting to achieve better front-end interactivity</p>
+</li>
+<li>
+<p>An HDA interacts with the server <strong>in terms of hypermedia</strong> (i.e. HTML) rather than a non-hypermedia format (e.g. JSON)</p>
+</li>
+</ul>
+<p>By adopting these two constraints, the HDA architecture stays within the original 
+<a rel="noopener" target="_blank" href="https://developer.mozilla.org/en-US/docs/Glossary/REST">REST-ful</a> architecture of the web in a way that the SPA architecture
+does not.</p>
+<p>In particular, HDAs continue to use <a href="../hateoas/index.html">Hypermedia As The Engine of Application State (HATEOAS)</a>, whereas
+most SPAs abandon HATEOAS in favor of a client-side model and data (rather than hypermedia) APIs.</p>
+<h2 id="an-example-hda-fragment"><a class="zola-anchor" href="#an-example-hda-fragment" aria-label="Anchor link for: an-example-hda-fragment">🔗</a>An Example HDA fragment</h2>
+<p>Consider the htmx <a href="../../examples/active-search/index.html">Active Search</a> example:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span>&lt;</span><span style="color:#e06c75;">h3</span><span>&gt; 
+</span><span>  Search Contacts 
+</span><span>  &lt;</span><span style="color:#e06c75;">span </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;htmx-indicator&quot;</span><span>&gt; 
+</span><span>    &lt;</span><span style="color:#e06c75;">img </span><span style="color:#d19a66;">src</span><span>=</span><span style="color:#98c379;">&quot;/img/bars.svg&quot;</span><span>/&gt; Searching... 
+</span><span>   &lt;/</span><span style="color:#e06c75;">span</span><span>&gt; 
+</span><span>&lt;/</span><span style="color:#e06c75;">h3</span><span>&gt;
+</span><span>&lt;</span><span style="color:#e06c75;">input </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;form-control&quot; </span><span style="color:#d19a66;">type</span><span>=</span><span style="color:#98c379;">&quot;search&quot; 
+</span><span>       </span><span style="color:#d19a66;">name</span><span>=</span><span style="color:#98c379;">&quot;search&quot; </span><span style="color:#d19a66;">placeholder</span><span>=</span><span style="color:#98c379;">&quot;Begin Typing To Search Users...&quot; 
+</span><span>       </span><span style="color:#d19a66;">hx-post</span><span>=</span><span style="color:#98c379;">&quot;/search&quot; 
+</span><span>       </span><span style="color:#d19a66;">hx-trigger</span><span>=</span><span style="color:#98c379;">&quot;keyup changed delay:500ms, search&quot; 
+</span><span>       </span><span style="color:#d19a66;">hx-target</span><span>=</span><span style="color:#98c379;">&quot;#search-results&quot; 
+</span><span>       </span><span style="color:#d19a66;">hx-indicator</span><span>=</span><span style="color:#98c379;">&quot;.htmx-indicator&quot;</span><span>&gt;
+</span><span>
+</span><span>&lt;</span><span style="color:#e06c75;">table </span><span style="color:#d19a66;">class</span><span>=</span><span style="color:#98c379;">&quot;table&quot;</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">thead</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">tr</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#e06c75;">th</span><span>&gt;First Name&lt;/</span><span style="color:#e06c75;">th</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#e06c75;">th</span><span>&gt;Last Name&lt;/</span><span style="color:#e06c75;">th</span><span>&gt;
+</span><span>      &lt;</span><span style="color:#e06c75;">th</span><span>&gt;Email&lt;/</span><span style="color:#e06c75;">th</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#e06c75;">tr</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#e06c75;">thead</span><span>&gt;
+</span><span>    &lt;</span><span style="color:#e06c75;">tbody </span><span style="color:#d19a66;">id</span><span>=</span><span style="color:#98c379;">&quot;search-results&quot;</span><span>&gt;
+</span><span>    &lt;/</span><span style="color:#e06c75;">tbody</span><span>&gt;
+</span><span>&lt;/</span><span style="color:#e06c75;">table</span><span>&gt;
+</span></code></pre>
+<p>This is a UX pattern that would typically be associated with an SPA: as the user types, after a slight pause, search 
+results will populate the result table below.  However, in this case, it is being achieved entirely within HTML,
+in a manner consonant with HTML.</p>
+<p>This example effectively demonstrates the essential characteristic of an HDA:</p>
+<ul>
+<li>
+<p>The front end of the feature is specified entirely in  declarative htmx attributes, directly in HTML</p>
+</li>
+<li>
+<p>The interaction with the server is done via HTTP and HTML: an HTTP <code>POST</code> request is sent to the server, HTML is 
+returned by the server and htmx inserts this HTML into the DOM</p>
+</li>
+</ul>
+<h2 id="scripting-in-an-hda"><a class="zola-anchor" href="#scripting-in-an-hda" aria-label="Anchor link for: scripting-in-an-hda">🔗</a>Scripting In An HDA</h2>
+<p><a rel="noopener" target="_blank" href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_1_7">Code-On-Demand</a> is an optional
+constraint of the original REST-ful architecture of the web.</p>
+<p>Similarly, the HDA architecture has a final, optional constraint:</p>
+<ul>
+<li>Code-On-Demand (i.e. scripting) should, as much as is practical, be done <em>directly in</em> the primary hypermedia</li>
+</ul>
+<p>This addresses the concern regarding Code-On-Demand that Roy Fielding mentions in his thesis:</p>
+<blockquote>
+<p>However, (Code-On-Demand) also reduces visibility, and thus is only an optional constraint within REST.</p>
+</blockquote>
+<p>By embedding Code-On-Demand (scripts) directly in HTML, visibility is enhanced, satisfying the 
+<a href="../locality-of-behaviour/index.html">Locality of Behavior</a> software design principle.</p>
+<p>Three approaches to scripting that satisfy this third constraint are <a rel="noopener" target="_blank" href="https://hyperscript.org/">hyperscript</a>, 
+<a rel="noopener" target="_blank" href="https://alpinejs.dev/">AlpineJS</a> and <a rel="noopener" target="_blank" href="http://vanilla-js.com/">VanillaJS</a> (when embedded directly on HTML elements).</p>
+<p>Here is an example of each of these approaches:</p>
+<pre data-lang="html" style="background-color:#282c34;color:#abb2bf;" class="language-html "><code class="language-html" data-lang="html"><span style="font-style:italic;color:#5c6370;">&lt;!-- hyperscript --&gt;
+</span><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">_</span><span>=</span><span style="color:#98c379;">&quot;on click toggle .red-border&quot;</span><span>&gt;
+</span><span>  Toggle Class
+</span><span>&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>
+</span><span style="font-style:italic;color:#5c6370;">&lt;!-- Alpine JS --&gt;
+</span><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">@click</span><span>=</span><span style="color:#98c379;">&quot;open = !open&quot; </span><span style="color:#d19a66;">:class</span><span>=</span><span style="color:#98c379;">&quot;{&#39;red-border&#39; : open, &#39;&#39; : !open}&quot;</span><span>&gt;
+</span><span>  Toggle Class
+</span><span>&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span><span>
+</span><span style="font-style:italic;color:#5c6370;">&lt;!-- VanillaJS --&gt;
+</span><span>&lt;</span><span style="color:#e06c75;">button </span><span style="color:#d19a66;">onclick</span><span>=</span><span style="color:#98c379;">&quot;</span><span style="color:#e06c75;">this</span><span>.classList.</span><span style="color:#e06c75;">toggle</span><span>(</span><span style="color:#98c379;">&#39;red-border&#39;</span><span>)</span><span style="color:#98c379;">&quot;</span><span>&gt;
+</span><span>  Toggle Class
+</span><span>&lt;/</span><span style="color:#e06c75;">button</span><span>&gt;
+</span></code></pre>
+<p>In an HDA, hypermedia (HTML) is the primary medium for building the application, which means that:</p>
+<ul>
+<li>All communication with the server is still managed via HTTP requests with hypermedia (HTML) responses</li>
+<li>Scripting is used mainly to enhance the <em>front-end experience</em> of the application</li>
+</ul>
+<p>Scripting augments the existing hypermedia (HTML) but does not <em>supersede</em> it or subvert the fundamental REST-ful
+architecture of the HDA.</p>
+<h2 id="hda-style-libraries"><a class="zola-anchor" href="#hda-style-libraries" aria-label="Anchor link for: hda-style-libraries">🔗</a>HDA-style libraries</h2>
+<p>The following libraries allow developers to create HDAs:</p>
+<ul>
+<li><a rel="noopener" target="_blank" href="../../index.html">https://htmx.org</a></li>
+<li><a rel="noopener" target="_blank" href="https://unpoly.com/">https://unpoly.com/</a></li>
+<li><a rel="noopener" target="_blank" href="https://piranha.github.io/twinspark-js/">https://piranha.github.io/twinspark-js/</a></li>
+<li><a rel="noopener" target="_blank" href="https://hotwire.dev/">https://hotwire.dev</a></li>
+<li><a rel="noopener" target="_blank" href="https://hyperview.org/">https://hyperview.org/</a> (a mobile hypermedia!)</li>
+</ul>
+<p>The following scripting libraries, when used appropriately, complement the HDA approach:</p>
+<ul>
+<li><a rel="noopener" target="_blank" href="https://hyperscript.org/">https://hyperscript.org</a></li>
+<li><a rel="noopener" target="_blank" href="https://alpinejs.dev/">https://alpinejs.dev/</a></li>
+<li><a rel="noopener" target="_blank" href="http://vanilla-js.com/">http://vanilla-js.com/</a> (embedded directly in HTML)</li>
+</ul>
+<h2 id="conclusion"><a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">🔗</a>Conclusion</h2>
+<p>The HDA architecture is a synthesis of two preceding architectures: the original Multi-Page Application (MPA) architecture
+and the (relatively) newer Single-Page Application architecture.</p>
+<p>It attempts to capture the advantages of both: the simplicity and reliability of MPAs, with a 
+<a rel="noopener" target="_blank" href="https://developer.mozilla.org/en-US/docs/Glossary/REST">REST-ful Architecture</a> that uses 
+<a href="../hateoas/index.html">Hypermedia As The Engine Of Application State</a>, while providing a better user experience, on par
+with SPAs in many cases.</p>
+
+  <div style="padding-top: 120px;padding-bottom:40px;text-align: center">
+    &lt;/&gt;
+  </div>
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/essays/hypermedia-driven-applications/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:43:54 GMT -->
+</html>

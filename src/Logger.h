@@ -44,7 +44,7 @@ typedef struct LoggedInfo_t {
 
         this->route = response.req.route;
         this->method = utils::toUpper(response.req.method);
-        this->url = response.req.baseUrl;
+        this->url = response.req.path;
         this->httpVersion = response.req.protocol;
         this->status = response.getStatusCode();
         if (response.req.get("Referrer") != std::nullopt)

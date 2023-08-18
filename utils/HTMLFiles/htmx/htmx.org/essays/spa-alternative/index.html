@@ -1,0 +1,198 @@
+<html lang="en">
+
+<!-- Mirrored from htmx.org/essays/spa-alternative/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:25 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  <title>&lt;/&gt; htmx ~ SPA Alternative</title>
+    <link rel="canonical" href="index.html">
+    
+    <link rel="alternate" type="application/atom+xml" title="Sitewide Atom feed" href="../../atom.xml">
+    <link rel="stylesheet" href="../../css/site.css">
+    <script src="../../js/htmx.js"></script>
+    <script src="../../js/class-tools.js"></script>
+    <script src="../../js/preload.js"></script>
+    <script src="../../js/_hyperscript.js"></script>
+    <meta name="generator" content="Zola v.TODO">
+</head>
+<body hx-ext="class-tools, preload">
+
+<div class="top-nav">
+    <div class="c">
+        <div class="menu">
+            <div class="logo-wrapper">
+                <a href="../../index.html" class="logo light">&lt;<b>/</b>&gt; htm<b>x</b></a>
+                <svg _="on click toggle .show on #nav" class="hamburger" viewBox="0 0 100 80" width="25" height="25" style="margin-bottom:-5px">
+                    <rect width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="30" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                    <rect y="60" width="100" height="20" style="fill:rgb(52, 101, 164)" rx="10"></rect>
+                </svg>
+            </div>
+            
+            <div id="nav" class="navigation" hx-boost="true">
+            
+                <div class="navigation-items" preload="mouseover">
+                    <div><a href="../../docs/index.html">docs</a></div>
+                    <div><a href="../../reference/index.html">reference</a></div>
+                    <div><a href="../../examples/index.html">examples</a></div>
+                    <div><a href="../../talk/index.html">talk</a></div>
+                    <div><a href="../index.html">essays</a></div>
+                    <div hx-disable>
+                        <form action="https://google.com/search">
+                            <input type="hidden" name="q" value="site:htmx.org">
+                            <label>
+                                <span style="display:none;">Search</span>
+                                <input type="text" name="q" placeholder="🔍️" class="search-box">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <div class="github-stars">
+                    <iframe style="margin:auto;" src="https://ghbtns.com/github-btn.html?user=bigskysoftware&amp;repo=htmx&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="150" height="20" title="Star htmx on GitHub"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="c content ">
+    
+
+  <h1>SPA Alternative</h1>
+  
+    <address>Carson Gross</address>
+    <time>October 29, 2020</time>
+  
+
+  <p>Recently <a rel="noopener" target="_blank" href="https://macwright.com/">Tom MacWright</a> has written a few posts on Single Page Applications and their discontents:</p>
+<ul>
+<li><a rel="noopener" target="_blank" href="https://macwright.com/2020/05/10/spa-fatigue.html">Second-guessing the modern web</a></li>
+<li><a rel="noopener" target="_blank" href="https://macwright.com/2020/10/28/if-not-spas.html">If not SPAs, What?</a></li>
+</ul>
+<blockquote>
+<p>The emerging norm for web development is to build a React single-page application, with server rendering. The two key 
+elements of this architecture are something like: </p>
+<ol>
+<li>The main UI is built &amp; updated in JavaScript using React or something similar.</li>
+<li>The backend is an API that that application makes requests against. </li>
+</ol>
+<p>This idea has really swept the internet. It started with a few major popular websites and has crept into corners 
+like marketing sites and blogs.</p>
+</blockquote>
+<p>In these two articles Tom lays out the problem associated with the React/SPA everywhere mindset.  If I can summarize 
+them in one sentence: SPA frameworks tend to be complex, and you don’t get a lot of benefit for all that
+complexity in many cases.</p>
+<h2 id="an-alternative"><a class="zola-anchor" href="#an-alternative" aria-label="Anchor link for: an-alternative">🔗</a>An Alternative</h2>
+<p>Tom outlines a few alternatives to the SPA approach in the second article and, I’m happy to say, mentions htmx.  However,
+he classifies htmx (as well as <a rel="noopener" target="_blank" href="https://stimulusjs.org/">Stimulus</a> and <a rel="noopener" target="_blank" href="https://github.com/alpinejs/alpine/">Alpine.js</a>)
+as “progressive-enhancement” libraries.  This is a good description, but, at least in the case of htmx, I think there 
+is a better term to help describe this style of library: <em>HTML-Centric</em> (or, perhaps, <em>Hypertext-Centric</em>)</p>
+<h3 id="html-centric-development"><a class="zola-anchor" href="#html-centric-development" aria-label="Anchor link for: html-centric-development">🔗</a>HTML-Centric Development</h3>
+<p>In HTML-Centric Development, rather than being an afterthought, HTML is embraced as the primary medium of application
+development.  This is in contrast to most SPA frameworks, where a client-side model &amp; the javascript that manipulates
+it is the central focus.</p>
+<p>HTML-Centric Development builds on the original model of the web, as outlined in 
+<a rel="noopener" target="_blank" href="https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm">Roy Fielding’s PhD dissertation</a>, describing the web
+architecture.  In particular, by embracing HTML as a hypertext, you get the benefits of 
+<a rel="noopener" target="_blank" href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm">REST and HATEOAS</a>, all without needing to
+be an expert in either of those topics.</p>
+<p>(Recall, Roy was <em>describing</em> the web architecture, so the original web was
+largely REST-ful, without any particular effort on the part of the original participants)</p>
+<p>By picking HTML-Centric Development, you accrue many benefits:</p>
+<ul>
+<li>A simpler front end allows you to save your <a href="../complexity-budget/index.html">complexity budget</a> for the back end functionality
+that differentiates your application from others.</li>
+<li>You do not face pressure to adopt javascript on the back end “since the front end is written in javascript”.  This allows
+you to use the best backend framework for your particular application.</li>
+<li>With a simpler front end, a “full stack” developer can more easily manage and optimize front-to-back optimization in 
+your application, leading to much better system tuning</li>
+<li>Your web application is going to have HTML in it anyway, so by maximizing its utility you are boosting the power of
+an existing component, rather than adding another layer of complexity between the end user and your application code.</li>
+<li>The stateless network model of the web has proven very resilient and easy to develop for.  Many mature and battle-tested
+technologies and techniques (e.g. <a rel="noopener" target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching">caching</a>) exist for 
+building HTML-based applications.</li>
+</ul>
+<h3 id="html-the-bad-parts"><a class="zola-anchor" href="#html-the-bad-parts" aria-label="Anchor link for: html-the-bad-parts">🔗</a>HTML: The Bad Parts</h3>
+<p>With all these benefits of the HTML-Centric model, one may wonder why it has been abandoned (and is often mocked) by 
+many web developers.  At a high level, the answer is: </p>
+<p><em>HTML-Centric applications have historically offered a limited 
+amount of interactivity when compared with javascript-based applications</em>.</p>
+<p>This is in large part because HTML is a limited hypertext.  In particular:</p>
+<ul>
+<li>Only <code>&lt;a&gt;</code> and <code>&lt;form&gt;</code> can make HTTP requests</li>
+<li>Only <code>click</code> &amp; <code>submit</code> events can trigger them</li>
+<li>Only GET &amp; POST <a rel="noopener" target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">HTTP Methods</a> are widely available</li>
+<li>A request must replace the entire screen, leading to a clunkly and sometimes jarring user experience</li>
+</ul>
+<p>Of course, none of the constraints are inherent in the concept of a hypertext, and the goal of <a href="../../index.html">htmx</a>
+is to remove each of them.</p>
+<p>By removing these constraints and completing HTML as a fully-functional and high-powered hypertext, HTML-Centric 
+applications can compete with SPAs in many application domains, while at the same time accruing the technical
+and complexity benefits mentioned above.</p>
+<h2 id="being-brave-technically"><a class="zola-anchor" href="#being-brave-technically" aria-label="Anchor link for: being-brave-technically">🔗</a>Being Brave, Technically</h2>
+<p>Tom closes his first article with this:</p>
+<blockquote>
+<p>What if everyone’s wrong? We’ve been wrong before.</p>
+</blockquote>
+<p>Web development has gone down blind alleys quite a few times: GWT, Java Server Faces, Angular 1, FlatUI, etc.<br />
+During the height of the hype cycle around each of these technologies, it was difficult to go against the grain.  It is 
+particularly difficult to do in the technology world , where the being left behind technically is not only a threat to 
+our ego, but also to our employment.</p>
+<blockquote>
+<p>“No One Ever Got Fired For Using React”</p>
+</blockquote>
+<p>is today’s </p>
+<blockquote>
+<p>“No One Ever Got Fired For Buying IBM”</p>
+</blockquote>
+<p>That’s a reality that we must accept, even if we feel that React/etc. aren’t appropriate for many (or even most) web
+applications being built today.</p>
+<p>However, we are starting to see a reconsideration of the SPA approach.  With a bit of technical bravery, a willingness
+to stand against the crowd, you may be able to make your application much less complex, and focus your development
+efforts on what your application does, rather than on how it does it.</p>
+<p>From the <a rel="noopener" target="_blank" href="https://twitter.com/htmx_org/status/1306234341056344065">htmx developer’s starter kit</a>:</p>
+<p><img src="../../img/what_if.png" alt="What if?" /></p>
+
+  <div style="padding-top: 120px;padding-bottom:40px;text-align: center">
+    &lt;/&gt;
+  </div>
+</div>
+
+<footer>
+    <div class="c content ">
+        <div class="row">
+            <div class="6 col footer-haiku">
+                <h2>haiku</h2>
+                <p><em>
+                    javascript fatigue:<br>
+                    longing for a hypertext<br>
+                    already in hand
+                </em></p>
+            </div>
+            <div class="6 col footer-menu">
+                <div><a href="../../docs/index.html">docs</a></div>
+                <div><a href="../../reference/index.html">reference</a></div>
+                <div><a href="../../examples/index.html">examples</a></div>
+                <div><a href="../../talk/index.html">talk</a></div>
+                <div><a href="../index.html">essays</a></div>
+                <div><a href="https://twitter.com/htmx_org">@htmx_org</a></div>
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col">
+                <img src="../../img/bss_bars.png" style="max-width: 30px; margin-top: 3em;">
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+<!-- Mirrored from htmx.org/essays/spa-alternative/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 17:45:25 GMT -->
+</html>

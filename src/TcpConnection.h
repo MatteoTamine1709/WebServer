@@ -14,7 +14,7 @@ class TcpConnection {
     ~TcpConnection();
 
     std::string read();
-    // StreamFile readTmp(size_t size);
+    std::string readLine();
     std::string readHeader();
     void write(const std::string& message);
 
