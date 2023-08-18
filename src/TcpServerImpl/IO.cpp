@@ -9,19 +9,16 @@
 #include <sstream>
 #include <stack>
 
-#include "../HttpRequestHeader.h"
 #include "../Request.h"
 #include "../Response.h"
 #include "../TcpServer.h"
 #include "../utils.h"
 
-std::optional<HttpRequestHeader> TcpServer::read(TcpConnection &connection) {
-    const std::string &data = connection.read();
-    if (data.empty()) return std::nullopt;
-    HttpRequestHeader header(data);
-    header.complete(connection);
+std::optional<Request> TcpServer::readHeader(TcpConnection &connection) {
+    Request request(connection, *this);
+    if (!request.readHeader()) return std::nullopt;
 
-    return header;
+    return request;
 }
 
 std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
@@ -116,13 +113,11 @@ std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {
     return std::nullopt;
 }
 
-Response TcpServer::handleRequest(HttpRequestHeader &request) {
-    if (request.getMethod() == "get" && !request.isEndpoint()) {
-        request.setPath(
-            (m_publicFolder / request.getPath().relative_path()).string());
-        if (!request.isPathValid()) {
-            auto resp =
-                Response(Request(request, getInstance()), getInstance());
+Response TcpServer::handleRequest(Request &request) {
+    if (request.method == "get" && !utils::getExtension(request.path).empty()) {
+        request.fileSystemPath = m_publicFolder / request.path;
+        if (!fs::exists(request.fileSystemPath)) {
+            auto resp = Response(request);
             resp.status(404).set("Content-Type", "text/html").send("Not Found");
             return resp;
         }
@@ -130,74 +125,70 @@ Response TcpServer::handleRequest(HttpRequestHeader &request) {
         // response.complete(request);
         // return response;
     }
-    auto correctPath =
-        getCorrectPath(m_apiFolder / request.getPath().relative_path());
+    auto correctPath = getCorrectPath(m_apiFolder / request.path);
     if (!correctPath.has_value()) {
-        auto resp = Response(Request(request, getInstance()), getInstance());
+        auto resp = Response(request);
         resp.status(404).set("Content-Type", "text/html").send("Not Found");
         return resp;
     }
     spdlog::debug("Found correct path {}", correctPath.value());
-    request.setPath(correctPath.value());
-    request.setParameters(m_apiFolder);
-    // response.complete(request);
+    request.fileSystemPath = correctPath.value();
+    // request.setParameters(m_apiFolder); // TODO: fix this
     return handleEndpoint(request);
 }
 
-Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
-    if (m_endpoints.find(request.getPath()) != m_endpoints.end() &&
-        m_endpoints[request.getPath()].second.find(
-            request.getMethod().data()) !=
-            m_endpoints[request.getPath()].second.end()) {
-        auto &[lib, methods] = m_endpoints[request.getPath()];
-        endpoint_t endpoint = methods[request.getMethod().data()];
-        spdlog::debug("Found endpoint {} in library {}", request.getMethod(),
-                      request.getPath().string());
-        auto req = Request(request, getInstance());
-        auto res = Response(req, getInstance());
+Response TcpServer::handleEndpoint(Request &request) {
+    if (m_endpoints.find(request.fileSystemPath) != m_endpoints.end() &&
+        m_endpoints[request.fileSystemPath].second.find(request.method) !=
+            m_endpoints[request.fileSystemPath].second.end()) {
+        auto &[lib, methods] = m_endpoints[request.fileSystemPath];
+        endpoint_t endpoint = methods[request.method];
+        spdlog::debug("Found endpoint {} in library {}", request.method,
+                      request.fileSystemPath.string());
+        auto &req = request;
+        auto res = Response(req);
         callMiddleware(req, res, endpoint);
         return res;
     }
     void *lib = nullptr;
-    if (m_endpoints.find(request.getPath()) != m_endpoints.end()) {
-        lib = m_endpoints[request.getPath()].first;
+    if (m_endpoints.find(request.fileSystemPath) != m_endpoints.end()) {
+        lib = m_endpoints[request.fileSystemPath].first;
     } else {
-        spdlog::debug("Loading library {}", request.getPath().string());
-        lib = dlopen(request.getPath().c_str(), RTLD_NOW | RTLD_LOCAL);
+        spdlog::debug("Loading library {}", request.fileSystemPath.string());
+        lib = dlopen(request.fileSystemPath.c_str(), RTLD_NOW | RTLD_LOCAL);
         if (!lib) {
             SPDLOG_ERROR("Cannot open library: {}", dlerror());
-            Response response(Request(request, getInstance()), getInstance());
+            Response response(request);
             response.status(404)
                 .set("Content-Type", "text/html")
                 .send("Not Found");
             return response;
         }
-        m_endpoints[request.getPath()] = {lib, {}};
+        m_endpoints[request.fileSystemPath] = {lib, {}};
     }
     // Load the symbols
-    endpoint_t endpoint = (endpoint_t)dlsym(lib, request.getMethod().data());
+    endpoint_t endpoint = (endpoint_t)dlsym(lib, request.method.c_str());
     const char *dlsym_error = dlerror();
     if (dlsym_error) {
-        SPDLOG_ERROR("Cannot load symbol '{}': {}", request.getMethod(),
+        SPDLOG_ERROR("Cannot load symbol '{}': {}", request.method,
                      dlsym_error);
         dlclose(lib);
-        Response response(Request(request, getInstance()), getInstance());
+        Response response(request);
         response.status(404).set("Content-Type", "text/html").send("Not Found");
         return response;
     }
 
     try {
-        auto req = Request(request, getInstance());
-        auto res = Response(req, getInstance());
+        auto req = request;
+        auto res = Response(req);
         callMiddleware(req, res, endpoint);
-        m_endpoints[request.getPath()].second[request.getMethod().data()] =
-            endpoint;
+        m_endpoints[request.fileSystemPath].second[request.method] = endpoint;
         return res;
     } catch (const std::exception &e) {
-        SPDLOG_ERROR("Error: [{} {}] {}", request.getMethod(),
-                     request.getRoute().string(), e.what());
+        SPDLOG_ERROR("Error: [{} {}] {}", request.method, request.route,
+                     e.what());
         dlclose(lib);
-        Response res(Request(request, getInstance()), getInstance());
+        Response res(request);
         res.status(500)
             .set("Content-Type", "text/html")
             .send("Internal Server Error");
@@ -205,11 +196,12 @@ Response TcpServer::handleEndpoint(HttpRequestHeader &request) {
     }
 }
 
-Response TcpServer::handleFile(HttpRequestHeader &request) {
+Response TcpServer::handleFile(Request &request) {
     const std::vector<std::string> accepted =
-        utils::split(request.getHeader("Accept").value().data(), {","});
+        utils::split(request["Accept"].value(), {","});
 
-    const std::string contentType = utils::getContentType(request.getPath());
+    const std::string contentType =
+        utils::getContentType(request.fileSystemPath);
     if (std::find(accepted.begin(), accepted.end(), contentType) ==
             accepted.end() &&
         std::find_if(accepted.begin(), accepted.end(),
@@ -217,28 +209,30 @@ Response TcpServer::handleFile(HttpRequestHeader &request) {
                          return utils::startsWith(s, "*/*");
                      }) == accepted.end()) {
         spdlog::debug("Not acceptable");
-        Response response(Request(request, getInstance()), getInstance());
+        Response response(request);
         response.sendStatus(406);
         return response;
     }
-    const std::string etag = utils::makeEtag(request.getPath());
-    if (request.getHeader("If-None-Match") == etag) {
-        Response response(Request(request, getInstance()), getInstance());
+    const std::string etag = utils::makeEtag(request.fileSystemPath);
+    if (request["If-None-Match"] == etag) {
+        Response response(request);
         response.status(304)
-            .set("Content-Type", utils::getContentType(request.getPath()))
+            .set("Content-Type", utils::getContentType(request.fileSystemPath))
             .set("Cache-Control", "max-age=0")
             .set("Content-Length", "0")
-            .set("Last-Modified", utils::getLastModified(request.getPath()))
+            .set("Last-Modified",
+                 utils::getLastModified(request.fileSystemPath))
             .set("Etag", etag);
         return response;
     }
     // file.seekg(0, std::ios::beg);
-    Response response(Request(request, getInstance()), getInstance());
+    Response response(request);
     response.set("Etag", etag);
-    response.set("Last-Modified", utils::getLastModified(request.getPath()));
+    response.set("Last-Modified",
+                 utils::getLastModified(request.fileSystemPath));
     // std::stringstream ss;
     // ss << file.rdbuf();
-    response.sendFile(request.getPath());
+    response.sendFile(request.fileSystemPath);
     // file.close();
     return response;
 }

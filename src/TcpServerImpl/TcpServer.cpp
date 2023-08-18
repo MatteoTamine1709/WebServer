@@ -17,7 +17,6 @@
 #include <string>
 #include <thread>
 
-#include "../HttpRequestHeader.h"
 #include "../Logger.h"
 #include "../Response.h"
 #include "../utils.h"
@@ -138,33 +137,32 @@ void TcpServer::accept() {
         TcpConnection connection(clientSocket);
         spdlog::debug("New task for client {}", clientSocket);
         while (connection.isOpen()) {
-            auto requestHeader = read(connection);
+            auto requestHeader = this->readHeader(connection);
             if (!requestHeader) continue;
-            m_threadpool.addTask([requestHeader, &connection, clientSocket,
-                                  this]() {
-                auto start = std::chrono::high_resolution_clock::now();
-                spdlog::debug("New task for client {}", clientSocket);
-                Response responseHeader = handleRequest(
-                    const_cast<HttpRequestHeader&>(requestHeader.value()));
-                write(connection, responseHeader);
-                auto end = std::chrono::high_resolution_clock::now();
-                auto duration =
-                    std::chrono::duration_cast<std::chrono::milliseconds>(
-                        end - start);
-                LoggedInfo info(responseHeader, duration.count());
-                std::vector<std::string> toPrint;
-                for (const auto& format : LOGGER_FORMAT)
-                    toPrint.push_back(
-                        fmt::format(format, fmt::arg(format.c_str(), info)));
-                spdlog::get("RouteLogger")->info(utils::join(toPrint, " "));
-                if (requestHeader.value().getHeader("Connection").has_value() &&
-                    requestHeader.value().getHeader("Connection").value() !=
-                        "keep-alive")
-                    close(clientSocket);
-                m_requestMutex.lock();
-                m_numberOfRequestHandled++;
-                m_requestMutex.unlock();
-            });
+            m_threadpool.addTask(
+                [requestHeader = std::move(requestHeader.value()), &connection,
+                 clientSocket, this]() mutable {
+                    auto start = std::chrono::high_resolution_clock::now();
+                    spdlog::debug("New task for client {}", clientSocket);
+                    Response responseHeader = handleRequest(requestHeader);
+                    write(connection, responseHeader);
+                    auto end = std::chrono::high_resolution_clock::now();
+                    auto duration =
+                        std::chrono::duration_cast<std::chrono::milliseconds>(
+                            end - start);
+                    LoggedInfo info(responseHeader, duration.count());
+                    std::vector<std::string> toPrint;
+                    for (const auto& format : LOGGER_FORMAT)
+                        toPrint.push_back(fmt::format(
+                            format, fmt::arg(format.c_str(), info)));
+                    spdlog::get("RouteLogger")->info(utils::join(toPrint, " "));
+                    if (requestHeader["Connection"].has_value() &&
+                        requestHeader["Connection"].value() != "keep-alive")
+                        close(clientSocket);
+                    m_requestMutex.lock();
+                    m_numberOfRequestHandled++;
+                    m_requestMutex.unlock();
+                });
         };
         close(clientSocket);
         m_connectionMutex.lock();

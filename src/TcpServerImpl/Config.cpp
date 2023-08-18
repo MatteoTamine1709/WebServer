@@ -12,7 +12,6 @@
 
 #include <string>
 
-#include "../HttpRequestHeader.h"
 #include "../Logger.h"
 #include "../TcpServer.h"
 #include "../utils.h"
@@ -29,11 +28,27 @@ void TcpServer::handlePortConfig(nlohmann::json &port) {
 }
 
 void TcpServer::handleApiConfig(nlohmann::json &api) {
-    if (api.is_string()) m_apiFolder = std::filesystem::canonical(api);
+    if (!api.is_string()) return;
+    if (api.get<std::string>().empty()) return;
+    if (!std::filesystem::exists(api))
+        return SPDLOG_ERROR("API folder {} does not exist",
+                            api.get<std::string>());
+    if (std::filesystem::exists(api) && !std::filesystem::is_directory(api))
+        return SPDLOG_ERROR("API folder {} is not a directory",
+                            api.get<std::string>());
+    m_apiFolder = std::filesystem::canonical(api);
 }
 
 void TcpServer::handlePublicConfig(nlohmann::json &p) {
-    if (p.is_string()) m_publicFolder = std::filesystem::canonical(p);
+    if (!p.is_string()) return;
+    if (p.get<std::string>().empty()) return;
+    if (!std::filesystem::exists(p))
+        return SPDLOG_ERROR("Public folder {} does not exist",
+                            p.get<std::string>());
+    if (std::filesystem::exists(p) && !std::filesystem::is_directory(p))
+        return SPDLOG_ERROR("Public folder {} is not a directory",
+                            p.get<std::string>());
+    m_publicFolder = std::filesystem::canonical(p);
 }
 
 void TcpServer::handleMiddlewareConfig(nlohmann::json &middleware) {

@@ -14,14 +14,16 @@ class TcpConnection {
     ~TcpConnection();
 
     std::string read();
-    StreamFile readTmp(size_t size);
+    // StreamFile readTmp(size_t size);
+    std::string readHeader();
     void write(const std::string& message);
 
     bool isOpen() const;
 
    private:
     int m_socket;
-    std::array<char, 4 * ONE_MEGABYTE> m_buffer;
+    std::array<char, 16 * ONE_KILOBYTE> m_buffer;
+    size_t m_bodySizeReadWhenReadingHeader = 0;
 };
 
 #endif

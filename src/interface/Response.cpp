@@ -5,11 +5,8 @@
 #include "../Request.h"
 #include "../TcpServer.h"
 
-Response::Response(const Request &header, const TcpServer &server)
-    : app(&server.getInstance()),
-      headersSent(false),
-      req(header),
-      m_statusCode(200) {}
+Response::Response(const Request &header)
+    : app(&header.app), headersSent(false), req(header), m_statusCode(200) {}
 
 Response &Response::append(const std::string &field, const std::string &value) {
     if (headersSent) {

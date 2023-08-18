@@ -10,8 +10,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "HttpRequestHeader.h"
-
 namespace utils {
 std::unordered_map<std::string, std::string> mimeMap = {};
 std::vector<std::string> split(const std::string& str,

@@ -1,5 +1,6 @@
 {
   "files.associations": {
+    "*.cpp": "cpp",
     "vector": "cpp",
     "*.tcc": "cpp",
     "iosfwd": "cpp",
@@ -72,7 +73,13 @@
     "future": "cpp",
     "variant": "cpp",
     "stack": "cpp",
-    "unordered_set": "cpp"
+    "unordered_set": "cpp",
+    "*.ipp": "cpp",
+    "any": "cpp",
+    "complex": "cpp",
+    "coroutine": "cpp",
+    "source_location": "cpp",
+    "typeindex": "cpp"
   },
   "files.exclude": {
     "**/.svn": true,

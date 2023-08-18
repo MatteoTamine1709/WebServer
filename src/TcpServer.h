@@ -15,7 +15,6 @@
 #include <string>
 #include <vector>
 
-#include "HttpRequestHeader.h"
 #include "Middleware.h"
 #include "Request.h"
 #include "Response.h"
@@ -46,12 +45,12 @@ class TcpServer {
     TcpServer();
     void accept();
     // HttpRequestHeader &completeRequest(HttpRequestHeader &requesst);
-    std::optional<HttpRequestHeader> read(TcpConnection &connection);
-    Response handleRequest(HttpRequestHeader &request);
+    std::optional<Request> readHeader(TcpConnection &connection);
+    Response handleRequest(Request &request);
     std::optional<std::string> getCorrectPath(
         const std::filesystem::path &path);
-    Response handleEndpoint(HttpRequestHeader &request);
-    Response handleFile(HttpRequestHeader &request);
+    Response handleEndpoint(Request &request);
+    Response handleFile(Request &request);
     void write(TcpConnection &connection, Response &response);
 
     void registerSignals(std::vector<int> signals);

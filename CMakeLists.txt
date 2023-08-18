@@ -9,7 +9,7 @@ file(GLOB ThreadpoolImpl src/ThreadpoolImpl/*.cpp)
 file(GLOB Interface src/interface/*.cpp)
 
 # add_library(projectLib )
-add_executable(WebServer main.cpp ${TcpServerImpl} ${ThreadpoolImpl} ${Interface} src/TcpConnection.cpp src/HttpRequestHeader.cpp src/utils.cpp)
+add_executable(WebServer main.cpp ${TcpServerImpl} ${ThreadpoolImpl} ${Interface} src/TcpConnection.cpp src/utils.cpp)
 # target_link_libraries(WebServer PUBLIC projectLib)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -29,11 +29,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-gnu-unique")
 target_link_libraries(WebServer PRIVATE Threads::Threads spdlog::spdlog nlohmann_json::nlohmann_json ${SQLite3_LIBRARIES} PkgConfig::LIBXMLXX ${CURL_LIBRARIES})
 target_include_directories(WebServer PUBLIC ./)
 
-# add warning flags
-target_compile_options(WebServer PRIVATE -Wall -Wextra -Wpedantic)
 
 # add optimization flags
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    # add warning flags
+    target_compile_options(WebServer PRIVATE -Wall -Wextra -Wpedantic)
     target_compile_options(WebServer PRIVATE -O3)
 endif()
 

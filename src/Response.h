@@ -2,34 +2,41 @@
 #ifndef HTTP_RESPONSE_HEADER_INTERFACE_H
 #define HTTP_RESPONSE_HEADER_INTERFACE_H
 
+#include <iostream>
+#include <nlohmann/json.hpp>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
-#include <optional>
-#include <nlohmann/json.hpp>
 
-#include "utils.h"
 #include "Request.h"
+#include "utils.h"
 
 class TcpServer;
 
 class Response {
-public:
+   public:
     Response() = delete;
-    Response(const Request &header, const TcpServer &server);
+    Response(const Request &header);
     ~Response() = default;
 
     TcpServer *app;
     bool headersSent = false;
     Request req;
 
-    Response& append(const std::string &field, const std::string &value);
-    Response& attachment(const std::string &filename);
-    Response& cookie(const std::string &name, const std::string &value, const std::unordered_map<std::string, std::string> &options = {});
-    Response& cookie(const std::string &name, const nlohmann::json &value, const std::unordered_map<std::string, std::string> &options = {});
-    Response& clearCookie(const std::string &name, const std::unordered_map<std::string, std::string> &options);
-    void download(const std::string &path, const std::string &filename, std::unordered_map<std::string, std::string> options = {});
+    Response &append(const std::string &field, const std::string &value);
+    Response &attachment(const std::string &filename);
+    Response &cookie(
+        const std::string &name, const std::string &value,
+        const std::unordered_map<std::string, std::string> &options = {});
+    Response &cookie(
+        const std::string &name, const nlohmann::json &value,
+        const std::unordered_map<std::string, std::string> &options = {});
+    Response &clearCookie(
+        const std::string &name,
+        const std::unordered_map<std::string, std::string> &options);
+    void download(const std::string &path, const std::string &filename,
+                  std::unordered_map<std::string, std::string> options = {});
     void end();
     void format(const std::unordered_map<std::string, void (*)()> &obj);
     std::optional<std::string> get(const std::string &field);
@@ -43,20 +50,20 @@ public:
     void send(const char *data);
     void send(const std::string &data);
     void send(const nlohmann::json &data);
-    void sendFile(const std::string &path, const std::unordered_map<std::string, std::string> &options = {});
+    void sendFile(
+        const std::string &path,
+        const std::unordered_map<std::string, std::string> &options = {});
     void sendStatus(int statusCode);
-    Response& set(const std::string &field, const std::string &value);
-    Response& set(const std::unordered_map<std::string, std::string> &obj);
-    Response& status(int code);
-    Response& type(const std::string &type);
-    Response& vary(const std::string &field);
+    Response &set(const std::string &field, const std::string &value);
+    Response &set(const std::unordered_map<std::string, std::string> &obj);
+    Response &status(int code);
+    Response &type(const std::string &type);
+    Response &vary(const std::string &field);
 
     std::string toString();
     std::string toReadableString();
 
-    int getStatusCode() const {
-        return m_statusCode;
-    }
+    int getStatusCode() const { return m_statusCode; }
     std::string getStatusMessage() const {
         return m_statusMessages.at(m_statusCode);
     }
@@ -75,7 +82,8 @@ public:
         headers["Set-Cookie"] = cookies;
         return headers;
     }
-private:
+
+   private:
     std::string m_data;
     std::unordered_map<int, std::string> m_statusMessages = {
         {100, "Continue"},
@@ -140,8 +148,7 @@ private:
         {507, "Insufficient Storage"},
         {508, "Loop Detected"},
         {510, "Not Extended"},
-        {511, "Network Authentication Required"}
-    };
+        {511, "Network Authentication Required"}};
     int m_statusCode = 200;
     std::unordered_map<std::string, std::string> m_headers;
     std::unordered_map<std::string, std::string> m_cookies;

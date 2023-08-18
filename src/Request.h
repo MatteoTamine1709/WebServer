@@ -9,13 +9,15 @@
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 // #include "TcpServer.h"
-#include "HttpRequestHeader.h"
+// #include "HttpRequestHeader.h"
 #include "StreamFile.h"
+#include "TcpConnection.h"
 #include "utils.h"
 class TcpServer;
 class Request {
@@ -35,9 +37,8 @@ class Request {
         std::string toString() {
             std::stringstream ss;
             ss << type << "=";
-            for (auto &range : ranges) {
+            for (auto &range : ranges)
                 ss << range.first << "-" << range.second << ",";
-            }
             std::string s = ss.str();
             s.pop_back();
             return s;
@@ -58,10 +59,11 @@ class Request {
     } Range;
 
    public:
-    Request(const HttpRequestHeader &header, const TcpServer &server);
+    Request(TcpConnection &connection, const TcpServer &server);
     ~Request() = default;
 
     TcpServer &app;
+    TcpConnection &connection;
     std::string baseUrl;
     nlohmann::json body;
     std::unordered_map<std::string, std::string> cookies;
@@ -74,6 +76,7 @@ class Request {
     std::string originalUrl;
     std::unordered_map<std::string, std::string> params;
     std::string path;
+    fs::path fileSystemPath;
     std::string protocol;
     std::unordered_map<std::string, std::string> query;
     std::string route;
@@ -98,6 +101,13 @@ class Request {
     std::optional<std::string> is(const std::string &type) const;
 
     std::optional<Range> range(size_t size) const;
+
+    bool readHeader();
+
+    // operator []
+    std::optional<std::string> operator[](const std::string &field) const {
+        return get(field);
+    }
 
    private:
     struct custom_header_hash {

@@ -2,47 +2,52 @@
 
 #include "../TcpServer.h"
 
-Request::Request(const HttpRequestHeader &header, const TcpServer &server)
-    : app(server.getInstance()) {
-    for (const auto &header : header.getHeaders()) {
-        if (header.first == "Cookie" || header.first == "cookie") {
-            std::vector<std::string> l_cookies =
-                utils::split(header.second, {";"});
-            for (const auto &cookie : l_cookies) {
-                std::vector<std::string> cookieParts =
-                    utils::split(cookie, {"="});
-                if (cookieParts.size() == 2)
-                    cookies[cookieParts[0]] = cookieParts[1];
-            }
-        }
-        m_headers[header.first] = header.second;
-    }
-    baseUrl = header.getRoute();
-    // fresh = true;
-    host = m_headers["Host"];
-    hostname = m_headers["Host"];
-    if (hostname.find(":") != std::string::npos)
-        hostname = hostname.substr(0, hostname.find(":"));
-    ip = app.getIp();
-    ips = {ip};
-    method = header.getMethod();
-    originalUrl = header.getUrl();
-    for (const auto &q : header.getQueries()) query[q.first] = q.second;
-    for (const auto &param : header.getParameters())
-        params[param.first] = param.second;
+Request::Request(TcpConnection &connection, const TcpServer &server)
+    : app(server.getInstance()), connection(connection) {
+    // for (const auto &header : header.getHeaders()) {
+    //     if (header.first == "Cookie" || header.first == "cookie") {
+    //         std::vector<std::string> l_cookies =
+    //             utils::split(header.second, {";"});
+    //         for (const auto &cookie : l_cookies) {
+    //             std::vector<std::string> cookieParts =
+    //                 utils::split(cookie, {"="});
+    //             if (cookieParts.size() == 2)
+    //                 cookies[cookieParts[0]] = cookieParts[1];
+    //         }
+    //     }
+    //     m_headers[header.first] = header.second;
+    // }
+    // baseUrl = header.get Route();
+    // // fresh = true;
+    // host = m_headers["Host"];
+    // hostname = m_headers["Host"];
+    // if (hostname.find(":") != std::string::npos)
+    //     hostname = hostname.substr(0, hostname.find(":"));
+    // ip = app.getIp();
+    // ips = {ip};
+    // method = header.getMethod();
+    // originalUrl = header.getUrl();
+    // for (const auto &q : header.getQueries()) query[q.first] = q.second;
+    // for (const auto &param : header.getParameters())
+    //     params[param.first] = param.second;
 
-    path = header.getRoute();
-    protocol = header.getProtocol();
-    // route = header.getRoute();
-    secure = utils::toLower(protocol) == "https";
-    // signedCookies = {};
-    stale = !fresh;
-    for (const auto &domain : utils::split(host, {"."}))
-        subdomains.push_back(domain);
-    xhr = m_headers.find("X-Requested-With") != m_headers.end() &&
-          m_headers["X-Requested-With"] == "XMLHttpRequest";
-    body = {{"blob", header.getBody()}};
-    tmpFile = header.tmpFile;
+    // path = header.getRoute();
+    // protocol = header.getProtocol();
+    // // route = header.getRoute();
+    // secure = utils::toLower(protocol) == "https";
+    // // signedCookies = {};
+    // stale = !fresh;
+    // for (const auto &domain : utils::split(host, {"."}))
+    //     subdomains.push_back(domain);
+    // xhr = m_headers.find("X-Requested-With") != m_headers.end() &&
+    //       m_headers["X-Requested-With"] == "XMLHttpRequest";
+    // body = {{"blob", header.getBody()}};
+    // tmpFile = header.tmpFile;
+}
+
+bool Request::readHeader() {
+    connection.readHeader();
+    return true;
 }
 
 std::optional<std::string> Request::accepts(

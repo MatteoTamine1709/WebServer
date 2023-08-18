@@ -87,9 +87,15 @@ choice=${options[$choiceIdx]}
 flags="-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=$choice -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/gcc -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/g++ -S./ -B./build -G Ninja"
 echo $flags
 GREEN='\033[0;32m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 echo -e "${GREEN}Building WebServer${NC}"
 /usr/bin/cmake $flags
 /usr/bin/cmake --build ./build --config $choice --target all --
+# If build fails, exit
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Build failed${NC}"
+    exit 1
+fi
 echo -e "${GREEN}Running WebServer${NC}"
 ./build/WebServer
