@@ -3,46 +3,7 @@
 #include "../TcpServer.h"
 
 Request::Request(TcpConnection &connection, const TcpServer &server)
-    : app(server.getInstance()), connection(connection) {
-    // for (const auto &header : header.getHeaders()) {
-    //     if (header.first == "Cookie" || header.first == "cookie") {
-    //         std::vector<std::string> l_cookies =
-    //             utils::split(header.second, {";"});
-    //         for (const auto &cookie : l_cookies) {
-    //             std::vector<std::string> cookieParts =
-    //                 utils::split(cookie, {"="});
-    //             if (cookieParts.size() == 2)
-    //                 cookies[cookieParts[0]] = cookieParts[1];
-    //         }
-    //     }
-    //     m_headers[header.first] = header.second;
-    // }
-    // // fresh = true;
-    // host = m_headers["Host"];
-    // hostname = m_headers["Host"];
-    // if (hostname.find(":") != std::string::npos)
-    //     hostname = hostname.substr(0, hostname.find(":"));
-    // ip = app.getIp();
-    // ips = {ip};
-    // method = header.getMethod();
-    // originalUrl = header.getUrl();
-    // for (const auto &q : header.getQueries()) query[q.first] = q.second;
-    // for (const auto &param : header.getParameters())
-    //     params[param.first] = param.second;
-
-    // path = header.getRoute();
-    // protocol = header.getProtocol();
-    // // route = header.getRoute();
-    // secure = utils::toLower(protocol) == "https";
-    // // signedCookies = {};
-    // stale = !fresh;
-    // for (const auto &domain : utils::split(host, {"."}))
-    //     subdomains.push_back(domain);
-    // xhr = m_headers.find("X-Requested-With") != m_headers.end() &&
-    //       m_headers["X-Requested-With"] == "XMLHttpRequest";
-    // body = {{"blob", header.getBody()}};
-    // tmpFile = header.tmpFile;
-}
+    : app(server.getInstance()), connection(connection) {}
 
 bool Request::readHeader() {
     std::string header = connection.readHeader();
@@ -94,29 +55,9 @@ bool Request::readHeader() {
 }
 
 std::string Request::readWholeBody() {
-    std::string body;
-    if (m_headers.find("Content-Length") == m_headers.end()) return body;
-    size_t contentLength = std::stoul(m_headers["Content-Length"]);
-    body.reserve(contentLength);
-    while (body.size() < contentLength) {
-        std::string tmp = connection.read();
-        body += tmp;
-        if (tmp.empty()) break;
-    }
-    return body;
-}
-
-std::string Request::readLine() { return connection.readLine(); }
-
-std::string Request::readBody(size_t contentLength) {
-    std::string body;
-    body.reserve(contentLength);
-    while (body.size() < contentLength) {
-        std::string tmp = connection.read();
-        body += tmp;
-        if (tmp.empty()) break;
-    }
-    return body;
+    if (m_headers.find("Content-Length") == m_headers.end()) return "";
+    size_t size = std::stoul(m_headers["Content-Length"]);
+    return connection.readWholeBody(size);
 }
 
 void Request::setParameters() {

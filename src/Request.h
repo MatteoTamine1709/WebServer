@@ -102,8 +102,6 @@ class Request {
 
     bool readHeader();
     std::string readWholeBody();
-    std::string readLine();
-    std::string readBody(size_t size = 4 * ONE_KILOBYTE);
     void setParameters();
 
     // operator []

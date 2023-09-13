@@ -29,39 +29,6 @@ std::string TcpConnection::read() {
     return std::string(m_buffer.data(), bytes);
 }
 
-std::string TcpConnection::readLine() {
-    std::string line;
-    // Read until we find a CRLF
-    if (m_bodySizeReadWhenReadingHeader) {
-        line = std::string(m_buffer.data(), m_bodySizeReadWhenReadingHeader);
-        m_bodySizeReadWhenReadingHeader = 0;
-    }
-    while (line.find("\r\n") == std::string::npos) {
-        int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
-        if (bytes == 0 || bytes == -1) {
-            close(m_socket);
-            spdlog::debug("connection closed {}", m_socket);
-            return "";
-        }
-        line += std::string(m_buffer.data(), bytes);
-    }
-    // If there was data read after the CRLF, put it back in the buffer
-    size_t end = line.find("\r\n");
-    if (end == std::string::npos) return "";
-    if (end != line.size() - 2) {
-        std::string data = line.substr(end + 2);
-        if (data.size()) m_bodySizeReadWhenReadingHeader = data.size();
-        std::copy(data.begin(), data.end(), m_buffer.begin());
-    }
-
-    // Remove the data after the CRLF
-    line = line.substr(0, end);
-    // Add the CRLF
-    line += "\r\n";
-
-    return line;
-}
-
 std::string TcpConnection::readHeader() {
     std::string header;
     // Read until we find the end of the header (two consecutive CRLF)
@@ -88,6 +55,26 @@ std::string TcpConnection::readHeader() {
     header = header.substr(0, end);
 
     return header;
+}
+
+std::string TcpConnection::readWholeBody(size_t size) {
+    std::string body;
+    if (m_bodySizeReadWhenReadingHeader) {
+        body += std::string(m_buffer.data(), m_bodySizeReadWhenReadingHeader);
+        m_bodySizeReadWhenReadingHeader = 0;
+    }
+    size_t bytes_read = body.size();
+    while (bytes_read < size) {
+        int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
+        if (bytes == 0 || bytes == -1) {
+            close(m_socket);
+            spdlog::debug("connection closed {}", m_socket);
+            return "";
+        }
+        body += std::string(m_buffer.data(), bytes);
+        bytes_read += bytes;
+    }
+    return body;
 }
 
 void TcpConnection::write(const std::string& message) {

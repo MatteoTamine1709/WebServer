@@ -6,7 +6,6 @@
 #include <string>
 
 #include "Constants.h"
-#include "StreamFile.h"
 
 class TcpConnection {
    public:
@@ -14,8 +13,8 @@ class TcpConnection {
     ~TcpConnection();
 
     std::string read();
-    std::string readLine();
     std::string readHeader();
+    std::string readWholeBody(size_t size);
     void write(const std::string& message);
 
     bool isOpen() const;

@@ -24,81 +24,60 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
 
     try {
         std::string boundary =
-            "--" + contentType.substr(contentType.find("boundary=") + 9);
+            "--" + contentType.substr(contentType.find("boundary=") + 9) +
+            "\r\n";
         // Read whole stream of tmpFile and parse it and store it in
-        std::cout << "boundary: " << boundary << std::endl;
         std::string filename;
         size_t size = 0;
-        do {
-            std::string s = req.readLine();
-            std::cout << s << std::endl;
-            if (s.find(boundary + "--") != std::string::npos) {
-                // End of multipart/form-data
-                if (!filename.empty()) {
-                    req.files[filename].size = size;
-                    req.files[filename].resetCursor();
-                    size = 0;
-                    req.files[filename].close();
-                    filename = "";
-                }
-                break;
-            } else if (s.find(boundary) != std::string::npos) {
-                // Read headers
-                if (!filename.empty()) {
-                    req.files[filename].size = size;
-                    req.files[filename].resetCursor();
-                    size = 0;
-                    req.files[filename].close();
-                    filename = "";
-                }
-                std::string contentDisposition = req.readLine();
-                if (contentDisposition.find("filename=\"") ==
-                    std::string::npos) {
-                    // This is a variable parsing
-                    std::string name = contentDisposition.substr(
-                        contentDisposition.find("name=\"") + 6,
-                        contentDisposition.find(
-                            "\"", contentDisposition.find("name=\"") + 6) -
-                            contentDisposition.find("name=\"") - 6);
-                    req.readLine();  // Empty line after headers
-                    std::string value = req.readLine();
-                    value = value.substr(0, value.size());
-                    req.body[name] = value;
-                    std::cout << "name: " << name << std::endl;
-                    std::cout << "value: " << value << std::endl;
-                    continue;
-                }
-                filename = contentDisposition.substr(
-                    contentDisposition.find("filename=\"") + 10,
+        std::string body = req.readWholeBody();
+        std::cout << "body.size(): " << body.size() << std::endl;
+        std::vector<std::string> fileContent = utils::split(body, {boundary});
+        for (int i = 0; i < fileContent.size() - 1; ++i) {
+            size_t newLine = fileContent[i].find("\r\n");
+            std::string contentDisposition = fileContent[i].substr(0, newLine);
+            if (contentDisposition.find("filename=\"") == std::string::npos) {
+                // This is a variable parsing
+                std::string name = contentDisposition.substr(
+                    contentDisposition.find("name=\"") + 6,
                     contentDisposition.find(
-                        "\"", contentDisposition.find("filename=\"") + 10) -
-                        contentDisposition.find("filename=\"") - 10);
-                std::string contentType(req.readLine());
-                std::string mimetype = contentType.substr(
-                    contentType.find("Content-Type: ") + 14,
-                    contentType.find("\n",
-                                     contentType.find("Content-Type: ") + 14) -
-                        contentType.find("Content-Type: ") - 14);
-                // Make the file in tmp as we don't know if the end user want to
-                // save it
-                req.files[filename] = StreamFile("/tmp/" + filename);
-                req.files[filename].mimetype = mimetype;
-                req.files[filename].name = filename;
-                req.files[filename].size = 0;
-            } else {
-                // Append to file
-                size_t bytes = req.files[filename].write(s);
-                size += bytes;
+                        "\"", contentDisposition.find("name=\"") + 6) -
+                        contentDisposition.find("name=\"") - 6);
+                size_t lineSeparator = fileContent[i].find("\r\n\r\n");
+                std::string value = fileContent[i].substr(lineSeparator + 4);
+                value = value.substr(0, value.size() - 2);
+                req.body[name] = value;
+                continue;
             }
-        } while (true);
+            filename = contentDisposition.substr(
+                contentDisposition.find("filename=\"") + 10,
+                contentDisposition.find(
+                    "\"", contentDisposition.find("filename=\"") + 10) -
+                    contentDisposition.find("filename=\"") - 10);
+            size_t contentTypeStart = fileContent[i].find("Content-Type: ");
+            std::cout << "Content-Type: " << contentTypeStart << std::endl;
+            std::string mimetype = fileContent[i].substr(
+                contentTypeStart + 14,
+                fileContent[i].find("\n", contentTypeStart + 14) -
+                    fileContent[i].find("Content-Type: ") - 14);
+            // // Make the file in tmp as we don't know if the end user want to
+            // // save it
+            std::cout << "File: " << filename << std::endl;
+            std::cout << "Mimetype: " << mimetype << std::endl;
+            req.files[filename] = StreamFile("/tmp/" + filename);
+            req.files[filename].mimetype = mimetype;
+            req.files[filename].name = filename;
+            req.files[filename].size = 0;
+
+            // Write the file
+            req.files[filename].write(
+                fileContent[i].substr(fileContent[i].find("\r\n\r\n") + 4));
+            req.files[filename].resetCursor();
+            req.files[filename].close();
+        }
+
     } catch (const std::exception &e) {
         return res.status(400).json({{"error", e.what()}});
     }
     std::cout << "Files: " << req.files.size() << std::endl;
-    for (auto &file : req.files) {
-        std::cout << "File: " << file.first << std::endl;
-        std::cout << "Size: " << file.second.size << std::endl;
-        std::cout << "Mimetype: " << file.second.mimetype << std::endl;
-    }
     next();
 }

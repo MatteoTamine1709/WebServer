@@ -12,9 +12,10 @@ extern "C" void jsonParserMiddleware(Request &req, Response &res, Next_t next) {
     if (req.header("Content-Type").value_or("").find("application/json") ==
         std::string::npos)
         return next();
-    std::string body = req.readWholeBody();
-    if (body.empty()) return next();
     try {
+        std::string body = req.readWholeBody();
+
+        if (body.empty()) return next();
         req.body = nlohmann::json::parse(body);
     } catch (const std::exception &e) {
         return res.status(400).json({"Error", "Invalid JSON"});
