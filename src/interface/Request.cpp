@@ -5,12 +5,16 @@
 Request::Request(TcpConnection &connection, const TcpServer &server)
     : app(server.getInstance()), connection(connection) {}
 
-bool Request::readHeader() {
-    std::string header = connection.readHeader();
-    if (header.empty()) return false;
+Result<bool, HttpStatus> Request::readHeader() {
+    Result<std::string, HttpStatus> result = connection.readHeader();
+    if (!result.isOk()) return Result<bool, HttpStatus>::err(result.err());
+    std::string header = result.unwrap();
+    if (header.empty()) return Result<bool, HttpStatus>::err(BAD_REQUEST);
+
     std::vector<std::string> lines = utils::split(header, {"\r\n"});
     std::vector<std::string> firstLine = utils::split(lines[0], {" "});
-    if (firstLine.size() != 3) return false;
+    if (firstLine.size() != 3)
+        return Result<bool, HttpStatus>::err(BAD_REQUEST);
     method = utils::toLower(firstLine[0]);
     originalUrl = firstLine[1];
     protocol = firstLine[2];
@@ -51,13 +55,14 @@ bool Request::readHeader() {
         subdomains.push_back(domain);
     xhr = m_headers.find("X-Requested-With") != m_headers.end() &&
           m_headers["X-Requested-With"] == "XMLHttpRequest";
-    return true;
+    return Result<bool, HttpStatus>::ok(true);
 }
 
-std::string Request::readWholeBody() {
-    if (m_headers.find("Content-Length") == m_headers.end()) return "";
+Result<std::string, HttpStatus> Request::readBody() {
+    if (m_headers.find("Content-Length") == m_headers.end())
+        return Result<std::string, HttpStatus>::err(BAD_REQUEST);
     size_t size = std::stoul(m_headers["Content-Length"]);
-    return connection.readWholeBody(size);
+    return connection.readSize(size);
 }
 
 void Request::setParameters() {

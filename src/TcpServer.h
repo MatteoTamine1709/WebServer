@@ -18,6 +18,7 @@
 #include "Middleware.h"
 #include "Request.h"
 #include "Response.h"
+#include "Result.h"
 #include "TcpConnection.h"
 #include "Threadpool.h"
 
@@ -46,7 +47,7 @@ class TcpServer {
     TcpServer();
     void accept();
     // HttpRequestHeader &completeRequest(HttpRequestHeader &requesst);
-    std::optional<Request> readHeader(TcpConnection &connection);
+    Result<Request, HttpStatus> readHeader(TcpConnection &connection);
     Response handleRequest(Request &request);
     std::optional<std::string> getCorrectPath(
         const std::filesystem::path &path);

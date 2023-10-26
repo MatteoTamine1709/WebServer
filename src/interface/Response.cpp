@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "../HttpStatus.h"
 #include "../Request.h"
 #include "../TcpServer.h"
 
@@ -278,8 +279,8 @@ void Response::sendStatus(int statusCode) {
         SPDLOG_ERROR("Headers already sent");
         return;
     }
-    if (m_statusMessages.find(statusCode) != m_statusMessages.end())
-        m_data = m_statusMessages.at(statusCode);
+    if (HTTP_MESSAGES.find(statusCode) != HTTP_MESSAGES.end())
+        m_data = HTTP_MESSAGES.at(statusCode);
     else
         m_data = std::to_string(statusCode);
     status(statusCode).end();
@@ -345,8 +346,8 @@ Response &Response::vary(const std::string &field) {
 
 std::string Response::toString() {
     std::string statusMessage = "";
-    if (m_statusMessages.find(m_statusCode) != m_statusMessages.end())
-        statusMessage = m_statusMessages.at(m_statusCode);
+    if (HTTP_MESSAGES.find(m_statusCode) != HTTP_MESSAGES.end())
+        statusMessage = HTTP_MESSAGES.at(m_statusCode);
     else
         statusMessage = "Unknown";
     std::string str = "HTTP/1.1 " + std::to_string(m_statusCode) + " " +
@@ -371,8 +372,8 @@ std::string Response::toString() {
 
 std::string Response::toReadableString() {
     std::string statusMessage = "";
-    if (m_statusMessages.find(m_statusCode) != m_statusMessages.end())
-        statusMessage = m_statusMessages.at(m_statusCode);
+    if (HTTP_MESSAGES.find(m_statusCode) != HTTP_MESSAGES.end())
+        statusMessage = HTTP_MESSAGES.at(m_statusCode);
     else
         statusMessage = "Unknown";
     std::string str =

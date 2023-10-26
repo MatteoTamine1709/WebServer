@@ -139,9 +139,10 @@ void TcpServer::accept() {
     m_threadpool.addTask([clientSocket, this]() mutable {
         TcpConnection connection(clientSocket);
 
-        auto requestHeaderOpt = this->readHeader(connection);
-        if (!requestHeaderOpt) return;
-        auto& requestHeader = requestHeaderOpt.value();
+        Result<Request, HttpStatus> requestHeaderOpt =
+            this->readHeader(connection);
+        if (!requestHeaderOpt.isOk()) return;
+        Request requestHeader = requestHeaderOpt.unwrap();
         auto start = std::chrono::high_resolution_clock::now();
         spdlog::debug("New task for client {}", clientSocket);
         Response responseHeader = handleRequest(requestHeader);

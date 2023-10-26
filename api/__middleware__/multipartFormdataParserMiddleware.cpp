@@ -29,7 +29,10 @@ extern "C" void multipartFormDataParserMiddleware(Request &req, Response &res,
         // Read whole stream of tmpFile and parse it and store it in
         std::string filename;
         size_t size = 0;
-        std::string body = req.readWholeBody();
+        const auto &result = req.readBody();
+        if (!result.isOk())
+            return res.status(result.err().code).send(result.err().message);
+        const std::string &body = result.unwrap();
         std::cout << "body.size(): " << body.size() << std::endl;
         std::vector<std::string> fileContent = utils::split(body, {boundary});
         for (int i = 0; i < fileContent.size() - 1; ++i) {

@@ -16,9 +16,12 @@
 
 // #include "TcpServer.h"
 // #include "HttpRequestHeader.h"
+#include "HttpStatus.h"
+#include "Result.h"
 #include "StreamFile.h"
 #include "TcpConnection.h"
 #include "utils.h"
+
 class TcpServer;
 class Request {
    private:
@@ -100,8 +103,8 @@ class Request {
 
     std::optional<Range> range(size_t size) const;
 
-    bool readHeader();
-    std::string readWholeBody();
+    Result<bool, HttpStatus> readHeader();
+    Result<std::string, HttpStatus> readBody();
     void setParameters();
 
     // operator []

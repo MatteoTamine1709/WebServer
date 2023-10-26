@@ -14,18 +14,19 @@
 #include "../TcpServer.h"
 #include "../utils.h"
 
-std::optional<Request> TcpServer::readHeader(TcpConnection &connection) {
+Result<Request, HttpStatus> TcpServer::readHeader(TcpConnection &connection) {
     Request request(connection, *this);
-    if (!request.readHeader()) return std::nullopt;
+    const auto &result = request.readHeader();
+    if (!result.isOk()) return Result<Request, HttpStatus>::err(result.err());
     if (request["Content-Length"]) {
         size_t contentLength = std::stoul(request["Content-Length"].value());
-        if (contentLength > 4UL * ONE_GIGABYTE) {
+        if (contentLength > MAX_PAYLOAD_SIZE) {
             SPDLOG_WARN("Content-Length is too large: {}", contentLength);
-            return std::nullopt;
+            return Result<Request, HttpStatus>::err(PAYLOAD_TOO_LARGE);
         }
     }
 
-    return request;
+    return Result<Request, HttpStatus>::ok(request);
 }
 
 std::optional<std::string> TcpServer::getCorrectPath(const fs::path &path) {

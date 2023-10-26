@@ -6,23 +6,25 @@
 #include <string>
 
 #include "Constants.h"
+#include "HttpStatus.h"
+#include "Result.h"
 
 class TcpConnection {
    public:
     TcpConnection(int socket);
     ~TcpConnection();
 
-    std::string read();
-    std::string readHeader();
-    std::string readWholeBody(size_t size);
+    Result<std::string, HttpStatus> read();
+    Result<std::string, HttpStatus> readHeader();
+    Result<std::string, HttpStatus> readSize(size_t size);
     void write(const std::string& message);
 
     bool isOpen() const;
 
    private:
     int m_socket;
-    std::array<char, 16 * ONE_KILOBYTE> m_buffer;
-    size_t m_bodySizeReadWhenReadingHeader = 0;
+    std::array<char, MAX_HEADER_SIZE> m_buffer;
+    size_t m_bufferSize = 0;
 };
 
 #endif

@@ -14,67 +14,52 @@ TcpConnection::TcpConnection(int socket) : m_socket(socket) {
 
 TcpConnection::~TcpConnection() { close(m_socket); }
 
-std::string TcpConnection::read() {
-    if (m_bodySizeReadWhenReadingHeader) {
-        std::string str(m_buffer.data(), m_bodySizeReadWhenReadingHeader);
-        m_bodySizeReadWhenReadingHeader = 0;
-        return str;
-    }
-    int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
-    if (bytes == 0 || bytes == -1) {
-        close(m_socket);
-        spdlog::debug("connection closed {}", m_socket);
-        return "";
-    }
-    return std::string(m_buffer.data(), bytes);
+Result<std::string, HttpStatus> TcpConnection::read() {
+    int bytes = ::read(m_socket, m_buffer.data() + m_bufferSize,
+                       m_buffer.size() - m_bufferSize);
+    if (bytes == 0 || bytes == -1)
+        return Result<std::string, HttpStatus>::err(BAD_REQUEST);
+    return Result<std::string, HttpStatus>::ok(
+        std::string(m_buffer.data(), bytes));
 }
 
-std::string TcpConnection::readHeader() {
-    std::string header;
-    // Read until we find the end of the header (two consecutive CRLF)
-    int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
-    if (bytes == 0 || bytes == -1) {
-        close(m_socket);
-        spdlog::debug("connection closed {}", m_socket);
-        return "";
-    }
-    header += std::string(m_buffer.data(), bytes);
+Result<std::string, HttpStatus> TcpConnection::readHeader() {
+    const auto& result = this->read();
+    if (!result.isOk())
+        return Result<std::string, HttpStatus>::err(result.err().code);
 
+    const std::string& header = result.ok();
     // If there was data read after the header, put it back in the buffer
     size_t end = header.find("\r\n\r\n");
 
     // This would mean that the header is > 16KB
-    if (end == std::string::npos) return "";
+    if (end == std::string::npos)
+        return Result<std::string, HttpStatus>::err(PAYLOAD_TOO_LARGE);
     if (end != header.size() - 4) {
         std::string data = header.substr(end + 4);
-        if (data.size()) m_bodySizeReadWhenReadingHeader = data.size();
-        std::copy(data.begin(), data.end(), m_buffer.begin());
+        if (data.size()) {
+            m_bufferSize = data.size();
+            std::copy(data.begin(), data.end(), m_buffer.begin());
+        }
     }
 
     // Remove the data after the header
-    header = header.substr(0, end);
-
-    return header;
+    return Result<std::string, HttpStatus>::ok(header.substr(0, end));
 }
 
-std::string TcpConnection::readWholeBody(size_t size) {
-    std::string body;
-    if (m_bodySizeReadWhenReadingHeader) {
-        body += std::string(m_buffer.data(), m_bodySizeReadWhenReadingHeader);
-        m_bodySizeReadWhenReadingHeader = 0;
-    }
-    size_t bytes_read = body.size();
+Result<std::string, HttpStatus> TcpConnection::readSize(size_t size) {
+    size_t bytes_read = 0;
+    std::string buffer;
     while (bytes_read < size) {
-        int bytes = ::read(m_socket, m_buffer.data(), m_buffer.size());
-        if (bytes == 0 || bytes == -1) {
-            close(m_socket);
-            spdlog::debug("connection closed {}", m_socket);
-            return "";
-        }
-        body += std::string(m_buffer.data(), bytes);
-        bytes_read += bytes;
+        const auto& result = this->read();
+        if (!result.isOk())
+            return Result<std::string, HttpStatus>::err(result.err().code);
+
+        buffer += result.ok();
+        bytes_read += result.ok().size();
+        m_bufferSize = 0;
     }
-    return body;
+    return Result<std::string, HttpStatus>::ok(buffer);
 }
 
 void TcpConnection::write(const std::string& message) {

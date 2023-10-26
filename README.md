@@ -2,7 +2,7 @@
 
 ## TODOs
 
-- [ ] Postman is not able to send a request to the server, figure out why
+- [x] Postman is not able to send a request to the server, figure out why
 - [ ] This Readme
 - [ ] Indexer of pages
   - [x] Indexer of HTML pages
@@ -38,8 +38,8 @@
   - [ ] Still require tweaking
 - [ ] Keep track of link clicked after a search and show the most clicked link first
 - [x] Stem in the lexer **(I need to think about wstring :thinking:)** ([Stem library](https://github.com/Blake-Madden/OleanderStemmingLibrary))
-  - [ ] Recognize the language of the page and use the correct stemmer
-  - [ ] Recognize the language of the request and use the correct stemmer
+  - [ ] Recognize the language of the page and use the correct stemmer (using [langdetect](https://github.com/scivey/langdetectpp))
+  - [ ] Recognize the language of the request and use the correct stemmer (using [langdetect](https://github.com/scivey/langdetectpp))
 - [ ] Add a way to add a new page to the indexer
 - [x] Consider typo in the query (using Levenshtein distance)
 - [x] Look for BM25 algorithm in the indexer
@@ -52,6 +52,7 @@
   - [ ] If it is a video, convert it to dash
   - [ ] If it is an html page, index it (and allow a depth of download to the user to download linked pages)
 - [ ] When clicking a downloaded file (html) that has links that we didn't download, prompt the user to know if he wants to download the linked pages and index them
+- [ ] Graphic interface (View bandwidth, number of request, cpu usage, ...), (have it customisable ?) (SFML)
 
 ## Stuff I wanna do
 
@@ -87,7 +88,7 @@
   - [x] Express interface
     - [x] Middleware support [Reference](https://nextjs.org/docs/advanced-features/middleware)
     - [x] Res and Req from [req](https://expressjs.com/en/5x/api.html#req) and [res](https://expressjs.com/en/5x/api.html#res) <span style="color:red">(Not everything is implemented yet)</span>.
-  - [ ] A system to communicate with databases / have modules that every endpoint can access
+  - [x] A system to communicate with databases / have modules that every endpoint can access
 
 - Hosting:
 
@@ -137,7 +138,7 @@ As of right now, we are loading the endpoints from compiled shared library in ea
 
 - [x] Also, we would like to handle optional parameters like `/user/[[id]]` or `/user/[[...id]]` (refer to [next.js](https://nextjs.org/docs/routing/dynamic-routes#optional-catch-all-routes) for more info)
 - [x] We would like to add a way to handle redirects
-- [ ] We would like to make the parameters in the route available in the endpoint like
+- [x] We would like to make the parameters in the route available in the endpoint like
 
   - `GET /user/[id]` → `req.params.id`
   - `GET /user/[id]/[name]` → `req.params.id` and `req.params.name`
